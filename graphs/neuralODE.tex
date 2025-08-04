@@ -1,0 +1,45 @@
+
+\begin{tikzpicture}[
+    neuron/.style={circle, draw, minimum size=0.5cm},
+    layer/.style={rectangle, draw, minimum height=3cm, rounded corners, align=center},
+    arrow/.style={-{Stealth[scale=1.2]}, thick},
+    activation/.style={rectangle, draw, minimum height=0.7cm, minimum width=2cm, rounded corners, fill=orange!30},
+    node distance=1.5cm
+    ]
+
+    % Define the layers
+    \node[layer, minimum width=1.2cm] (input) {Input\\Layer\\(2)};
+    \node[layer, minimum width=1.2cm, right=of input] (h1) {Hidden\\Layer 1\\(N//2)};
+    \node[activation, right=0.5cm of h1] (act1) {activation};
+    \node[layer, minimum width=1.2cm, right=0.5cm of act1] (h2) {Hidden\\Layer 2..L-1\\(N)};
+    \node[activation, right=0.5cm of h2] (act2) {activation};
+    \node[layer, minimum width=1.2cm, right=0.5cm of act2] (h3) {Hidden\\Layer L\\(N//2)};
+    \node[activation, right=0.5cm of h3] (act3) {activation};
+
+
+    \node[layer, minimum width=1.2cm, right=1cm of act3] (output) {Output\\Layer\\(1)};
+
+    % Connect the layers
+    \draw[arrow] (input) -- (h1) node[midway, above] {};
+    \draw[arrow] (h1) -- (act1);
+    \draw[arrow] (act1) -- (h2) node[midway, above] {};
+    \draw[arrow] (h2) -- (act2);
+    \draw[arrow] (act2) -- (h3) node[midway, above] {};
+    \draw[arrow] (h3) -- (act3);
+    \draw[arrow] (act3) -- (output) node[midway, above] {};
+
+    % \draw[arrow] (act3) -- (h4) node[midway, above] {};
+    % \draw[arrow] (h4) -- (act4);
+    % \draw[arrow] (act4) -- (h5) node[midway, above] {};
+    % \draw[arrow] (h5) -- (act6) node[midway, above] {};
+
+    % \draw[arrow] (act6) -- (output) node[midway, above] {};
+
+    % Add ODE block annotation
+    \node[draw, dashed, rounded corners, fit={(h1) (h2) (h3)  (act1) (act2) (act3)}, inner sep=0.5cm, label=above:Neural ODE Block] {};
+
+    % Add title
+    % \node[above=0.7cm of input, font=\Large\bfseries, anchor=west] {Neural ODE Network Architecture};
+
+
+\end{tikzpicture}

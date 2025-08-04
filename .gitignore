@@ -1,0 +1,62 @@
+# LaTeX intermediate files
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.bbl
+*.blg
+*.brf
+*.nlo
+*.nls
+*.ilg
+*.ind
+*.idx
+*.glo
+*.gls
+*.ist
+*.acn
+*.acr
+*.alg
+*.glg
+*.glsdefs
+*.xdy
+
+# Build folders (if using latexmk, arara, etc.)
+_build/
+output/
+build/
+latex.out/
+
+# TeXShop or TeXworks specific
+*.pdfsync
+*.synctex
+
+# Overleaf or similar exports
+*.nav
+*.snm
+*.vrb
+
+# Editor/IDE files
+*.bak
+*~
+*.swp
+*.swo
+.vscode/
+*.DS_Store
+Thumbs.db
+
+# Auxiliary biblatex/biber files
+*.bcf
+*.run.xml
+
+# Temporary backup files
+*.tmp
+*.sav
+*.bak
+*.backup
+*.prev
