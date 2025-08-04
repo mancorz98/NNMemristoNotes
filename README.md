@@ -1,5 +1,5 @@
 # [Polska wersja pliku](main.pdf)
-# [Angielska wersja pliku](main_en.pdf)
+# [English file version](main_en.pdf)
 
 
 
