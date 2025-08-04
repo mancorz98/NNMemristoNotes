@@ -9,6 +9,7 @@
 *.fdb_latexmk
 *.synctex.gz
 *.bbl
+*.bbl-SAVE-ERROR
 *.blg
 *.brf
 *.nlo
