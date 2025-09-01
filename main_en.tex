@@ -17,6 +17,8 @@
 \usepackage{tikz}
 \usepackage{pgfplots}
 \usepackage[T1]{fontenc}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 \pgfplotsset{compat=1.18} % Set the compatibility level for pg
 \usetikzlibrary{shapes.geometric, arrows, positioning, fit, backgrounds}
 
@@ -127,7 +129,7 @@ Our objective is to assess whether neural network-based models can accurately re
 
 This study utilizes experimental data obtained from physical Self-Directed Channel (SDC) memristors doped with tungsten. The structure and properties of these devices have been described in detail in the literature, e.g., in~\cite{Garda2024, Campbell2017}.
 
-The measurements were conducted using the setup illustrated in Fig.~\ref{fig:memristor_setup}, which consists of an SDC memristor connected in series with a resistor. The input voltage was generated using an arbitrary waveform generator, and voltage measurements were acquired via a data acquisition (DAQ) system.
+The experimental setup, illustrated in Fig.~\ref{fig:memristor_setup}, consisted of an SDC memristor connected in series with a resistor. The sinusoidal input voltage was supplied by an arbitrary waveform generator, while the voltage signals were measured using a data acquisition (DAQ) system.
 
 Measurements were carried out for various combinations of supply voltage amplitudes and frequencies. Specifically, the amplitude of the applied voltage was varied as $V_s \in \{0.5,\ 1.0,\ 1.5\}~\mathrm{[V]}$, and the frequency was selected from the set $f \in \{1,\ 5,\ 10,\ 20,\ 50,\ 100\}~\mathrm{[Hz]}$.
 
@@ -155,10 +157,10 @@ where $\xw \in \langle 0, 1 \rangle$ denotes the internal state variable, whose 
 
 
 As the resistance of self-directed channel (SDC) memristors varies due to the evolution of $\mathrm{Ag^+}$ ion channels and the dynamic formation of conductive pathways, the device conductance exhibits a continuous transition between distinct resistance states. The memristor conductance can be mathematically described as a weighted combination of the extreme conductance values, governed by the internal state variable.
-The memristor conductance $G_m(x_w)$ is defined as:
+The memristor conductance $G_m(x) = \M(x)^{-1}$ is defined as:
 
 \begin{equation}
-    \G_{m}(\xw) = \frac{\xw}{R_{\rm ON}} + \frac{1 - \xw}{R_{\rm OFF}}
+    \G_{m}(x) = \frac{x}{R_{\rm ON}} + \frac{1 - x}{R_{\rm OFF}}
     \label{eq:conductance}
 \end{equation}
 where $\Ron$ and $\Roff$ correspond to the resistance values in the low-conductance and high-conductance states, respectively.
@@ -171,7 +173,7 @@ The function $f(\xw(t), \ua(t))$ was implemented using an artificial neural netw
 
 where $w_i$ are the weights that determine the strength and importance of each input connection $x_i$, $b$ is the bias term that provides an adjustable threshold for neuron activation, and $\sigma$ is the activation function (e.g., sigmoid, ReLU, or tanh) that introduces non-linearity into the model.
 
-The weights represent the learnable parameters that encode the relationship between inputs and outputs, while biases allow neurons to shift their activation threshold, enabling the network to better fit the training data even when all inputs are zero. During the optimization process, the network parameters (weights and biases) are tuned jointly with the values of $R_{on}$ and $R_{off}$.
+The weights represent the learnable parameters that encode the relationship between inputs and outputs, while biases allow neurons to shift their activation threshold, enabling the network to better fit the training data even when all inputs are zero. During the optimization process, the network parameters (weights and biases) are tuned jointly with the values of $R_{\rm ON}$ and $R_{\rm OFF}$.
 
 The learning process involves iteratively adjusting the network parameters to minimize a loss function that quantifies the difference between predicted and target outputs. This is  achieved through backpropagation algorithm combined with gradient descent optimization, where gradients of the loss function with respect to each parameter are computed and used to update the weights and biases in the direction that reduces the overall error.
 
@@ -188,54 +190,34 @@ The neural network model development and training pipeline was implemented using
 
 % \subsubsection{Differential Equation Integration Framework}
 
-To enable seamless integration of ordinary differential equations (ODEs) within the neural network training paradigm, the specialized \texttt{torchdiffeq} library was employed. This library provides differentiable ODE solvers that facilitate efficient gradient computation with respect to solution trajectories through the adjoint sensitivity method. This approach enables end-to-end training of neural differential equation models by maintaining gradient flow through the numerical integration process, which is essential for learning dynamic systems governed by differential equations.
+To enable seamless integration of ordinary differential equations (ODEs) within the neural network training paradigm, the specialized \texttt{torchdiffeq} library was employed. This library provides differentiable ODE solvers that facilitate efficient gradient computation with respect to solution trajectories through the adjoint sensitivity method, well described in~\cite{Ricky2018}. This approach enables end-to-end training of neural differential equation models by maintaining gradient flow through the numerical integration process, which is essential for learning dynamic systems governed by differential equations.
 
 Specifically, the \texttt{dopri5} (Dormand-Prince 5th order) adaptive Runge-Kutta solver was utilized for its superior balance between computational efficiency and numerical accuracy. This solver employs embedded error estimation for adaptive step-size control, ensuring stable integration of the memristor dynamics while maintaining computational tractability during training.
 
 % \subsubsection{Neural Network Architecture Design}
 
-The neural network architecture is illustrated in Figure~\ref{fig:nn-arch} and incorporates a strategically designed bottleneck configuration with dimensional reduction in the initial and final hidden layers. This architectural choice addresses several critical aspects of neural ODE training and memristor system modeling:
-
+The neural network architecture is illustrated in Figure~\ref{fig:nn-arch} and incorporates a strategically designed bottleneck configuration with dimensional two time reduction in the initial and final hidden layers. This architectural choice addresses several critical aspects of neural ODE training and memristor system modeling, like:
 \begin{itemize}
-    \item \textbf{Parameter Efficiency}: Dimensional reduction significantly decreases the total parameter count, leading to accelerated training convergence and reduced computational overhead while mitigating overfitting risks through implicit regularization.
-
-    \item \textbf{Feature Extraction and Compression}: The bottleneck structure enforces efficient extraction of salient features from high-dimensional input data, promoting the development of compact and meaningful internal representations that enhance model generalization capabilities.
-
-    \item \textbf{Training Stabilization}: Parameter count reduction contributes to more stable optimization dynamics by limiting the search space complexity, resulting in improved convergence reliability and reduced susceptibility to local minima.
-
-    \item \textbf{Representational Regularization}: The bottleneck mechanism introduces an architectural form of regularization that encourages the development of concentrated internal representations, particularly beneficial for capturing the essential dynamics of nonlinear memristive systems while suppressing noise and irrelevant variations.
-
-    \item \textbf{Gradient Flow Optimization}: Dimensional reduction helps mitigate gradient vanishing and explosion problems that commonly arise in deep networks processing long temporal sequences, which is crucial for maintaining stable training when modeling extended memristor switching trajectories.
-
-    \item \textbf{Inductive Bias for Physical Systems}: The bottleneck structure implicitly enforces a low-dimensional manifold assumption consistent with the underlying physics of memristor dynamics, where complex electrical behavior often emerges from a small number of fundamental state variables.
+    \item Dimensional reduction at the start and end of the network significantly decreases the total parameter count,
+    \item  Parameter count reduction contributes to more stable optimization dynamics by limiting the search space complexity
+    \item Dimensional reduction helps mitigate gradient vanishing and explosion problems that commonly arise in deep networks processing long temporal sequences
+    \item  The bottleneck structure implicitly enforces a low-dimensional manifold assumption consistent with the underlying physics of memristor dynamics
 \end{itemize}
-% \subsubsection{Optimization Algorithm Selection}
+
 
 The network weights were optimized using the \texttt{Adam} (Adaptive Moment Estimation) optimizer, which represents one of the most robust and widely adopted optimization algorithms in deep learning applications. Adam combines the advantages of momentum-based methods with adaptive learning rate adjustment, featuring:
-
 \begin{itemize}
-    \item \textbf{Adaptive Learning Rates}: Individual learning rate adaptation for each parameter based on historical gradient statistics, enabling efficient optimization across parameters with varying sensitivities.
-
-    \item \textbf{Momentum Integration}: Incorporation of exponentially decaying averages of past gradients and their squares, providing improved convergence properties compared to traditional stochastic gradient descent (SGD) methods.
-
-    \item \textbf{Sparse Gradient Handling}: Superior performance in scenarios with sparse gradients, which commonly occur in neural ODE training due to the selective activation of network components during different phases of temporal dynamics.
+    \item Efficient handling of sparse gradients
+    \item Fast convergence properties, making it suitable for training deep neural networks with complex architectures and large parameter spaces.
+    \item Minimal hyperparameter tuning requirements
 \end{itemize}
+
 
 % \subsubsection{Learning Rate Scheduling Strategy}
 
 To achieve adaptive learning rate control throughout the training process, the \texttt{ReduceLROnPlateau} scheduling strategy was implemented. This performance-based approach dynamically modulates the learning rate in response to validation metric plateaus, specifically monitoring training loss convergence behavior. The scheduler operates according to the following principles:
 
-\begin{itemize}
-    \item \textbf{Performance Monitoring}: Continuous evaluation of validation performance metrics to detect convergence plateaus or performance stagnation.
-
-    \item \textbf{Adaptive Rate Reduction}: Automatic learning rate reduction when improvement plateaus are detected, enabling fine-tuning of model parameters in regions of local minima.
-
-    \item \textbf{Convergence Enhancement}: Progressive learning rate annealing that facilitates transition from coarse exploration to fine-grained optimization, improving final model accuracy and generalization performance.
-
-    \item \textbf{Training Efficiency}: Automated hyperparameter adjustment that reduces the need for manual intervention while maintaining optimal training dynamics throughout the learning process.
-\end{itemize}
-
-This comprehensive implementation strategy ensures robust and efficient training of neural differential equation models for memristor circuit simulation, combining state-of-the-art deep learning methodologies with specialized techniques for dynamic system modeling.
+This  implementation strategy ensures robust and efficient training of neural differential equation models for memristor circuit simulation, combining state-of-the-art deep learning methodologies with specialized techniques for dynamic system modeling.
 
 
 \begin{figure}[H]
@@ -291,9 +273,10 @@ However, the introduction of additional parameters and nonlinearities makes this
 where $\phi \in [0,1]$ is a parameter representing the fraction of the total current flowing through the memristor relative to the entire current through the device. The parameters $\alpha_f$, $\beta_f$, $\alpha_r$, and $\beta_r$ are positive constants characterizing the forward and reverse current behavior along the Schottky barrier.
 
 
-In the case of the GMMS model, an additional challenge arises due to the Schottky effect, which requires accounting for the nonlinearity of the current-voltage characteristic. When the memristor is connected in series with a resistor, this necessitates the numerical solution of a nonlinear equation of the form:
+In the case of the GMMS model, an additional challenge arises due to the Schottky effect, which introduces nonlinearity into the current–voltage characteristic. When the memristor is connected in series with a resistor, this requires solving a nonlinear equation of the form Eq. \eqref{eq:nonlinear_eq} numerically at each time step. As a result, the system of ordinary differential equations is transformed into a differential-algebraic equation (DAE).
 \begin{equation}
-    v_s(t) = v_r(t) + v_m(t),
+    v_s(t) = v_r(t) + v_m(t)
+    \label{eq:nonlinear_eq}
 \end{equation}
 where $v_s(t)$ denotes the supply voltage, $v_r(t) = R_s i(t)$ is the voltage across the resistor, and $v_m(t)$ is the voltage across the memristor.
 
@@ -332,11 +315,48 @@ Thus, the system requires an additional state variable; however, it is not neces
 The loss function based on the phase portrait is designed to simultaneously account for both the absolute signal magnitudes and its dynamic structure. To this end, it is defined as the sum of four components, each serving a distinct and complementary role in the optimization process. The total loss function is given by:
 
 \begin{equation}
-    \mathcal{L}_{\mathrm{total}} = \mathcal{L}_{\mathrm{base}} + \lambda_1 \cdot \mathcal{L}_{v} + \lambda_2 \cdot \mathcal{L}_{c} + \lambda_{\mathrm{con}} \cdot \mathcal{L}_{\mathrm{con}}(x),
+    \mathcal{L}_{\mathrm{total}} = \lambda_1 \cdot \mathcal{L}_{\mathrm{base}} + \lambda_2 \cdot \mathcal{L}_{v} + \lambda_3 \cdot \mathcal{L}_{c} + \lambda_4\cdot\mathcal{L}_{\mathrm{iv}} +\sum^{N_c}_{i=1} \lambda_{\mathrm{con}_i} \cdot \mathcal{L}_{\mathrm{con}_i}(x),
     \label{eq:loss_function}
 \end{equation}
 
-Here, $\mathcal{L}_{\mathrm{base}}$ denotes the primary error term, typically measuring the difference between predicted and reference values, such as the mean squared error (MSE). The term $\mathcal{L}_{v}$ enforces accurate modeling of the velocity characteristics by considering the derivatives of trajectories in phase space. The component $\mathcal{L}_{c}$ promotes consistency of the trajectories in terms of their curvature, for example by analyzing changes in trajectory direction or curvature. Finally, $\mathcal{L}_{\mathrm{con}}(x)$ introduces additional physical or structural constraints that the model is required to satisfy, including conditions of stability, nonlinearities, or conformity to the underlying physical model. The weighting coefficients $\lambda_1$, $\lambda_2$, and $\lambda_{\mathrm{con}}$ balance the influence of each term within the overall loss function according to the priorities of the modeling task, and each of the values were: $\lambda_1=0.3$, $\lambda_2=0.1$, and $\lambda_{\mathrm{con}}=1$. This combined loss function enables more faithful reproduction of both the quantitative and qualitative aspects of the system dynamics under study.
+Here, $\mathcal{L}_{\mathrm{base}}$ denotes the primary error term,  measuring the difference between predicted and reference values, in that case the mean squared error (MSE). The term $\mathcal{L}_{v}$ enforces accurate modeling of the velocity characteristics by considering the derivatives of trajectories in phase space. The component $\mathcal{L}_{c}$ promotes consistency of the trajectories in terms of their curvature, for example by analyzing changes in trajectory direction or curvature. Finally, $\mathcal{L}_{\mathrm{con}}(x)$ introduces additional physical or structural constraints that the model is required to satisfy, including conditions of stability, nonlinearities, or conformity to the underlying physical model. The weighting coefficients $\lambda_1$, $\lambda_2$, $\lambda_3$, and $\lambda_4$ balance the influence of each term within the overall loss function according to the priorities of the modeling task, and each of the values were calculated during optimization using the Geometric Loss Strategy (GLS) with the following algorithm presented in Algorithm~\ref{alg:adaptive_loss_balancing}.
+
+\begin{algorithm}[H]
+    \caption{Adaptive Loss Balancing with Clamping}
+    \label{alg:adaptive_loss_balancing}
+    \begin{algorithmic}[1]
+        \Require Loss terms $L_{\text{base}}, L_{\text{vel}}, L_{\text{curv}}, L_{\text{iv}}$, small constant $\varepsilon > 0$, clamp bounds $[w_{\min}, w_{\max}]$
+        \Ensure Adaptive weights $w_{\text{base}}, w_{\text{vel}}, w_{\text{curv}}, w_{\text{iv}}$
+        \Statex
+
+        \State Collect losses:
+        \[
+            \mathbf{L} \gets [L_{\text{base}}, L_{\text{vel}}, L_{\text{curv}}, L_{\text{iv}}]
+        \]
+
+        \State Compute geometric mean:
+        \[
+            \overline{L}_{\text{geo}} \gets \exp\!\left(\frac{1}{|\mathbf{L}|} \sum_{i=1}^{|\mathbf{L}|} \ln(L_i + \varepsilon)\right)
+        \]
+
+        \For{each loss $L_i \in \mathbf{L}$}
+        \State Compute raw weight:
+        \[
+            w_i \gets \frac{\overline{L}_{\text{geo}}}{L_i + \varepsilon}
+        \]
+        \State Clamp weight:
+        \[
+            w_i \gets \min\!\big(\max(w_i, \, w_{\min}), \, w_{\max}\big)
+        \]
+        \EndFor
+
+        \State Return weights $(w_{\text{base}}, w_{\text{vel}}, w_{\text{curv}}, w_{\text{iv}})$
+    \end{algorithmic}
+\end{algorithm}
+
+
+
+
 
 
 For circuit trajectory datasets indexed by $k = 1, \ldots, N_{\text{traj}}$, a trajectory-specific standardization procedure is implemented to normalize each electrical variable $z \in \{v, i\}$ (representing voltage and current measurements, respectively). This normalization process utilizes the standard deviation computed independently for each individual trajectory sequence, ensuring statistical consistency within each temporal dataset.
