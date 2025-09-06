@@ -1,0 +1,28 @@
+\begin{tikzpicture}[
+  node distance=2cm,
+  arrow/.style={-{Stealth}, thick,black},
+  box/.style={rectangle, draw=black, thick, minimum width=2cm, minimum height=1.5cm, align=center},
+  curved/.style={rectangle, draw=black, thick, rounded corners=1cm, minimum width=2cm, minimum height=1.5cm, align=center},
+  label/.style={black, font=\large},
+  dashed_arrow/.style={-{Stealth}, thick,black, dashed}
+  ]
+  % Define nodes
+  \node[box, label] (ann) {ANN};
+  \node[box, label, right=of ann] (ode) {ODE\\solver};
+  % Input arrows and labels
+  \draw[arrow] (-3, 0.5) -- (ann.west |- 0, 0.5) node[midway, above, label] {$x(t)$};
+  \draw[arrow] (-3, -0.5) -- (ann.west |- 0, -0.5) node[midway, below, label] {$v(t)$};
+  % Connection between ANN and ODE solver
+  \draw[arrow] (ann.east) -- (ode.west) node[midway, above, label] {${f_x}(x,v)$};
+  % Output arrow
+  \draw[arrow] (ode.east) -- ++(2, 0) node[midway, above, label] (end) {$x(t + \Delta t)$};
+
+  % Dashed feedback line
+  \draw[dashed_arrow] (end) to[out=90, in=90, looseness=0.5] (-3, 0.5);
+  \node[label] at (1.5, 2.2) {$§          x(t + \Delta t)$};
+
+
+
+  % % Dashed boundary
+  % \node[draw=black, dashed, thick, rounded corners=0.5cm, fit=(ann) (ode), inner sep=0.8cm] {};
+\end{tikzpicture}
