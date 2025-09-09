@@ -330,19 +330,19 @@ Thus, the system requires an additional state variable; however, it is not neces
 The loss function based on the phase portrait is designed to simultaneously account for both the absolute signal magnitudes and its dynamic structure. To this end, it is defined as the sum of four components, each serving a distinct and complementary role in the optimization process. The total loss function is given by:
 
 \begin{equation}
-    \mathcal{L}_{\mathrm{total}} = \lambda_1 \cdot \mathcal{L}_{\mathrm{base}} + \lambda_2 \cdot \mathcal{L}_{v} + \lambda_3 \cdot \mathcal{L}_{c} + \lambda_4\cdot\mathcal{L}_{\mathrm{iv}} +\sum^{N_c}_{i=1} \lambda_{\mathrm{con}_i} \cdot \mathcal{L}_{\mathrm{con}_i}(x),
+    \mathcal{L}_{\mathrm{total}} = \lambda_{\mathrm{base}} \cdot \mathcal{L}_{\mathrm{base}} + \lambda_{\mathrm{vel}} \cdot \mathcal{L}_{v} + \lambda_{\mathrm{curv}} \cdot \mathcal{L}_{c} + \lambda_{\mathrm{iv}} \cdot \mathcal{L}_{\mathrm{iv}} +\sum^{N_c}_{i=1} \lambda_{\mathrm{con}_i} \cdot \mathcal{L}_{\mathrm{con}_i}(x),
     \label{eq:loss_function}
 \end{equation}
 
 Here, $\mathcal{L}_{\mathrm{base}}$ denotes the primary error term,  measuring the difference between predicted and reference values, in that case the mean squared error (MSE). The term $\mathcal{L}_{v}$ enforces accurate modeling of the velocity characteristics by considering the derivatives of trajectories in phase space. The component $\mathcal{L}_{c}$ promotes consistency of the trajectories in terms of their curvature, for example by analyzing changes in trajectory direction or curvature.
-Component $\mathcal{L}_{\mathrm{iv}}$ focuses on the $i_m-v_m$ relationship, ensuring that the current-voltage characteristics are accurately captured. Finally, $\mathcal{L}_{\mathrm{con}}(x)$ introduces additional physical or structural constraints that the model is required to satisfy, including conditions of stability, nonlinearities, or conformity to the underlying physical model. The weighting coefficients $\lambda_1$, $\lambda_2$, $\lambda_3$, and $\lambda_4$ balance the influence of each term within the overall loss function according to the priorities of the modeling task, and each of the values were calculated during optimization using the Geometric Loss Strategy (GLS) with the following algorithm presented in Algorithm~\ref{alg:adaptive_loss_balancing}.
+Component $\mathcal{L}_{\mathrm{iv}}$ focuses on the $i_m-v_m$ relationship, ensuring that the current-voltage characteristics are accurately captured. Finally, $\mathcal{L}_{\mathrm{con}}(x)$ introduces additional physical or structural constraints that the model is required to satisfy, including conditions of stability, nonlinearities, or conformity to the underlying physical model. The weighting coefficients $\lambda_{\mathrm{base}}$, $\lambda_{\mathrm{vel}}$, $\lambda_{\mathrm{curv}}$, and $\lambda_{\mathrm{iv}}$ balance the influence of each term within the overall loss function according to the priorities of the modeling task, and each of the values were calculated during optimization using the Geometric Loss Strategy (GLS) with the following algorithm presented in Algorithm~\ref{alg:adaptive_loss_balancing}.
 
 \begin{algorithm}[H]
     \caption{Adaptive Loss Balancing with Clamping}
     \label{alg:adaptive_loss_balancing}
     \begin{algorithmic}[1]
-        \Require Loss terms $L_{\text{base}}, L_{\text{vel}}, L_{\text{curv}}, L_{\text{iv}}$, small constant $\varepsilon > 0$, clamp bounds $[w_{\min}, w_{\max}]$
-        \Ensure Adaptive weights $w_{\text{base}}, w_{\text{vel}}, w_{\text{curv}}, w_{\text{iv}}$
+        \Require Loss terms $L_{\text{base}}, L_{\text{vel}}, L_{\text{curv}}, L_{\text{iv}}$, small constant $\varepsilon > 0$, clamp bounds $[\lambda_{\min}, \lambda_{\max}]$
+        \Ensure Adaptive weights $\lambda_{\text{base}}, \lambda_{\text{vel}}, \lambda_{\text{curv}}, \lambda_{\text{iv}}$
         \Statex
 
         \State Collect losses:
@@ -358,18 +358,17 @@ Component $\mathcal{L}_{\mathrm{iv}}$ focuses on the $i_m-v_m$ relationship, ens
         \For{each loss $L_i \in \mathbf{L}$}
         \State Compute raw weight:
         \[
-            w_i \gets \frac{\overline{L}_{\text{geo}}}{L_i + \varepsilon}
+            \lambda_i \gets \frac{\overline{L}_{\text{geo}}}{L_i + \varepsilon}
         \]
         \State Clamp weight:
         \[
-            w_i \gets \min\!\big(\max(w_i, \, w_{\min}), \, w_{\max}\big)
+            \lambda_i \gets \min\!\big(\max(\lambda_i, \, \lambda_{\min}), \, \lambda_{\max}\big)
         \]
         \EndFor
 
-        \State Return weights $(w_{\text{base}}, w_{\text{vel}}, w_{\text{curv}}, w_{\text{iv}})$
+        \State Return weights $(\lambda_{\text{base}}, \lambda_{\text{vel}}, \lambda_{\text{curv}}, \lambda_{\text{iv}})$
     \end{algorithmic}
 \end{algorithm}
-
 
 
 For circuit trajectory datasets indexed by $k = 1, \ldots, N_{\text{traj}}$, a trajectory-specific standardization procedure is implemented to normalize each electrical variable $z \in \{v, i\}$ (representing voltage and current measurements, respectively). This normalization process utilizes the standard deviation computed independently for each individual trajectory sequence, ensuring statistical consistency within each temporal dataset.
