@@ -232,9 +232,9 @@ The network weights were optimized using the \texttt{Adam} (Adaptive Moment Esti
 
 % \subsubsection{Learning Rate Scheduling Strategy}
 
-To achieve adaptive learning rate control throughout the training process, the \texttt{ReduceLROnPlateau} scheduling strategy was implemented. This performance-based approach dynamically modulates the learning rate in response to validation metric plateaus, specifically monitoring training loss convergence behavior. The scheduler operates according to the following principles:
+To achieve adaptive learning rate control throughout the training process, the \texttt{ReduceLROnPlateau} scheduling strategy was implemented. This performance-based approach dynamically modulates the learning rate in response to validation metric plateaus, specifically monitoring training loss convergence behavior. The scheduler operates according to the following principles: it reduces the learning rate once the monitored loss stagnates, applies a predefined reduction factor, waits for a specified patience interval before adjusting, and enforces lower and upper bounds to prevent unstable updates.
 
-This  implementation strategy ensures robust and efficient training of neural differential equation models for memristor circuit simulation, combining state-of-the-art deep learning methodologies with specialized techniques for dynamic system modeling.
+This implementation strategy ensures robust and efficient training of neural differential equation models for memristor circuit simulation, combining state-of-the-art deep learning methodologies with specialized techniques for dynamic system modeling.
 
 
 \begin{figure}[H]
@@ -263,7 +263,7 @@ where $\beta= \frac{q}{kT}$ is a temperature-related parameter, $\von$ denotes t
 Other conductance functions reported in the literature include, among others:
 \begin{itemize}
     \item $\G_m(x) = \left( x R_{\mathrm{ON}} + (1 - x) R_{\mathrm{OFF}} \right)^{-1}$
-    \item $\G_m(x) = \frac{1}{R_{\mathrm{ON}}} \left( \frac{R_{\mathrm{OFF}}}{R_{\mathrm{ON}}} \right)^{x-1}$
+    \item $\G_m(x) = \frac{R_{OFF}^{x-1}}{R_{ON}^x}$
 \end{itemize}
 
 The influence of these functions on the memristor resistance is illustrated in Fig.~\ref{fig:m-x}.
@@ -327,7 +327,7 @@ Thus, the system requires an additional state variable; however, it is not neces
 
 \subsection{Objective Function}
 
-The loss function based on the phase portrait is designed to simultaneously account for both the absolute signal magnitudes and its dynamic structure. To this end, it is defined as the sum of four components, each serving a distinct and complementary role in the optimization process. The total loss function is given by:
+The loss function based on the phase portrait is designed to simultaneously account for both the  signal values and its dynamic structure. To this end, it is defined as the sum of four components, each serving a distinct and complementary role in the optimization process. The total loss function is given by:
 
 \begin{equation}
     \mathcal{L}_{\mathrm{total}} = \lambda_{\mathrm{base}} \cdot \mathcal{L}_{\mathrm{base}} + \lambda_{\mathrm{vel}} \cdot \mathcal{L}_{v} + \lambda_{\mathrm{curv}} \cdot \mathcal{L}_{c} + \lambda_{\mathrm{iv}} \cdot \mathcal{L}_{\mathrm{iv}} +\sum^{N_c}_{i=1} \lambda_{\mathrm{con}_i} \cdot \mathcal{L}_{\mathrm{con}_i}(x),
@@ -335,7 +335,7 @@ The loss function based on the phase portrait is designed to simultaneously acco
 \end{equation}
 
 Here, $\mathcal{L}_{\mathrm{base}}$ denotes the primary error term,  measuring the difference between predicted and reference values, in that case the mean squared error (MSE). The term $\mathcal{L}_{v}$ enforces accurate modeling of the velocity characteristics by considering the derivatives of trajectories in phase space. The component $\mathcal{L}_{c}$ promotes consistency of the trajectories in terms of their curvature, for example by analyzing changes in trajectory direction or curvature.
-Component $\mathcal{L}_{\mathrm{iv}}$ focuses on the $i_m-v_m$ relationship, ensuring that the current-voltage characteristics are accurately captured. Finally, $\mathcal{L}_{\mathrm{con}}(x)$ introduces additional physical or structural constraints that the model is required to satisfy, including conditions of stability, nonlinearities, or conformity to the underlying physical model. The weighting coefficients $\lambda_{\mathrm{base}}$, $\lambda_{\mathrm{vel}}$, $\lambda_{\mathrm{curv}}$, and $\lambda_{\mathrm{iv}}$ balance the influence of each term within the overall loss function according to the priorities of the modeling task, and each of the values were calculated during optimization using the Geometric Loss Strategy (GLS) with the following algorithm presented in Algorithm~\ref{alg:adaptive_loss_balancing}.
+Component $\mathcal{L}_{\mathrm{iv}}$ focuses on the $i_m-v_m$ relationship, ensuring that the current-voltage characteristics are accurately captured. Finally, $\mathcal{L}_{\mathrm{con}}(x)$ introduces additional physical or structural constraints that the model is required to satisfy, including conditions of stability, nonlinearities, or conformity to the underlying physical model. The weighting coefficients $\lambda_{\mathrm{base}}$, $\lambda_{\mathrm{vel}}$, $\lambda_{\mathrm{curv}}$, and $\lambda_{\mathrm{iv}}$ balance the influence of each term within the overall loss function according to the priorities of the modeling task, and each of the values were calculated during each optimization step using the Geometric Loss Strategy (GLS) with the following algorithm presented in Algorithm~\ref{alg:adaptive_loss_balancing}.
 
 \begin{algorithm}[H]
     \caption{Adaptive Loss Balancing with Clamping}
