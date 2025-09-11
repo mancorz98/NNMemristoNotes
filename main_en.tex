@@ -341,24 +341,24 @@ Component $\mathcal{L}_{\mathrm{iv}}$ focuses on the $i_m-v_m$ relationship, ens
     \caption{Adaptive Loss Balancing with Clamping}
     \label{alg:adaptive_loss_balancing}
     \begin{algorithmic}[1]
-        \Require Loss terms $L_{\text{base}}, L_{\text{vel}}, L_{\text{curv}}, L_{\text{iv}}$, small constant $\varepsilon > 0$, clamp bounds $[\lambda_{\min}, \lambda_{\max}]$
+        \Require Loss terms $\mathcal{L}_{\text{base}}, \mathcal{L}_{\text{vel}}, \mathcal{L}_{\text{curv}}, \mathcal{L}_{\text{iv}}$, small constant $\varepsilon > 0$, clamp bounds $[\lambda_{\min}, \lambda_{\max}]$
         \Ensure Adaptive weights $\lambda_{\text{base}}, \lambda_{\text{vel}}, \lambda_{\text{curv}}, \lambda_{\text{iv}}$
         \Statex
 
         \State Collect losses:
         \[
-            \mathbf{L} \gets [L_{\text{base}}, L_{\text{vel}}, L_{\text{curv}}, L_{\text{iv}}]
+            \mathbf{L} \gets [\mathcal{L}_{\text{base}}, \mathcal{L}_{\text{vel}}, \mathcal{L}_{\text{curv}}, \mathcal{L}_{\text{iv}}]
         \]
 
         \State Compute geometric mean:
         \[
-            \overline{L}_{\text{geo}} \gets \exp\!\left(\frac{1}{|\mathbf{L}|} \sum_{i=1}^{|\mathbf{L}|} \ln(L_i + \varepsilon)\right)
+            \overline{\mathcal{L}}_{\text{geo}} \gets \exp\!\left(\frac{1}{|\mathbf{L}|} \sum_{i=1}^{|\mathbf{L}|} \ln(\mathcal{L}_i + \varepsilon)\right)
         \]
 
-        \For{each loss $L_i \in \mathbf{L}$}
+        \For{each loss $\mathcal{L}_i \in \mathbf{L}$}
         \State Compute raw weight:
         \[
-            \lambda_i \gets \frac{\overline{L}_{\text{geo}}}{L_i + \varepsilon}
+            \lambda_i \gets \frac{\overline{\mathcal{L}}_{\text{geo}}}{\mathcal{L}_i + \varepsilon}
         \]
         \State Clamp weight:
         \[
