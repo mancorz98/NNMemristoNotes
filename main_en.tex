@@ -477,7 +477,7 @@ To enforce parameter bounds within specified intervals, a sophisticated constrai
 \begin{equation}
     \mathcal{L_{\mathrm{con}}}(x) = \mathbb{E}\left[\left(
         \frac{1}{1 + \exp\!\left(\tfrac{x-a}{f}\right)} \cdot (a-x) \;+\;
-        \frac{1}{1 + \exp\!\left(-(x-b)/f\right)} \cdot (x-b)
+        \frac{1}{1 + \exp\!\left(\frac{-(x-b)}{f}\right)} \cdot (x-b)
         \right)^{2}\right]
 \end{equation}
 
@@ -503,8 +503,6 @@ The following constraint intervals were applied to critical memristor model para
 \begin{itemize}
     \item $R_{\mathrm{ON}} \in (0, R_{\mathrm{OFF}})\,\mathrm{k}\Omega$ and $R_{\mathrm{OFF}} \in (R_{\mathrm{ON}}, 200)\,\mathrm{k}\Omega$ – These constraints establish a physically meaningful hierarchy where the ON-state resistance is strictly smaller than the OFF-state resistance ($R_{\mathrm{ON}} < R_{\mathrm{OFF}}$), consistent with typical memristor switching behavior. The lower bound for $R_{\mathrm{ON}}$ prevents zero resistance values that would cause numerical singularities in current calculations, while the upper bound of 200 k$\Omega$ for $R_{\mathrm{OFF}}$ reflects experimentally observed resistance ranges in memristive devices and ensures computational stability during optimization.
 
-
-    \item $x_0 \in (0, 1)$ – This constraint restricts the initial internal state variable to the normalized domain, ensuring that the memristor begins operation within physically admissible boundaries. The open interval prevents boundary singularities that could occur at $x_0 = 0$ or $x_0 = 1$.
 
     \item $x(t) \in (0, 1)$ – This temporal constraint maintains the internal state variable within the normalized domain throughout the entire simulation duration, preserving the physical interpretation of $x(t)$ as a fractional parameter representing the extent of ionic migration or structural modification within the memristive element.
 \end{itemize}
