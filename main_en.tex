@@ -334,20 +334,19 @@ The loss function based on the phase portrait is designed to simultaneously acco
     \label{eq:loss_function}
 \end{equation}
 
-Here, $\mathcal{L}_{\mathrm{base}}$ denotes the primary error term,  measuring the difference between predicted and reference values, in that case the mean squared error (MSE). The term $\mathcal{L}_{v}$ enforces accurate modeling of the velocity characteristics by considering the derivatives of trajectories in phase space. The component $\mathcal{L}_{c}$ promotes consistency of the trajectories in terms of their curvature, for example by analyzing changes in trajectory direction or curvature.
-Component $\mathcal{L}_{\mathrm{iv}}$ focuses on the $i_m-v_m$ relationship, ensuring that the current-voltage characteristics are accurately captured. Finally, $\mathcal{L}_{\mathrm{con}}(x)$ introduces additional physical or structural constraints that the model is required to satisfy, including conditions of stability, nonlinearities, or conformity to the underlying physical model. The weighting coefficients $\lambda_{\mathrm{base}}$, $\lambda_{\mathrm{vel}}$, $\lambda_{\mathrm{curv}}$, and $\lambda_{\mathrm{iv}}$ balance the influence of each term within the overall loss function according to the priorities of the modeling task, and each of the values were calculated during each optimization step using the Geometric Loss Strategy (GLS) with the following algorithm presented in Algorithm~\ref{alg:adaptive_loss_balancing}.
+Here, $\mathcal{L}_{\mathrm{base}}$ denotes the primary error term,  measuring the difference between predicted and reference values, in that case the mean squared error (MSE). The term $\mathcal{L}_{v}$ enforces accurate modeling of the velocity characteristics by considering the derivatives of trajectories in phase space. The component $\mathcal{L}_{c}$ promotes consistency of the trajectories in terms of their curvature, for example by analyzing changes in trajectory direction or curvature. Finally, $\mathcal{L}_{\mathrm{con}}(x)$ introduces additional physical or structural constraints that the model is required to satisfy, including conditions of stability, nonlinearities, or conformity to the underlying physical model. The weighting coefficients $\lambda_{\mathrm{base}}$, $\lambda_{\mathrm{vel}}$,  and $\lambda_{\mathrm{curv}}$ balance the influence of each term within the overall loss function according to the priorities of the modeling task, and each of the values were calculated during each optimization step using the Geometric Loss Strategy (GLS), described in \cite{Cipolla2018, Chen2018}. with the following algorithm presented in Algorithm~\ref{alg:adaptive_loss_balancing}.
 
 \begin{algorithm}[H]
     \caption{Adaptive Loss Balancing with Clamping}
     \label{alg:adaptive_loss_balancing}
     \begin{algorithmic}[1]
-        \Require Loss terms $\mathcal{L}_{\text{base}}, \mathcal{L}_{\text{vel}}, \mathcal{L}_{\text{curv}}, \mathcal{L}_{\text{iv}}$, small constant $\varepsilon > 0$, clamp bounds $[\lambda_{\min}, \lambda_{\max}]$
-        \Ensure Adaptive weights $\lambda_{\text{base}}, \lambda_{\text{vel}}, \lambda_{\text{curv}}, \lambda_{\text{iv}}$
+        \Require Loss terms $\mathcal{L}_{\text{base}}, \mathcal{L}_{\text{vel}}, \mathcal{L}_{\text{curv}}$, small constant $\varepsilon > 0$, clamp bounds $[\lambda_{\min}, \lambda_{\max}]$
+        \Ensure Adaptive weights $\lambda_{\text{base}}, \lambda_{\text{vel}}, \lambda_{\text{curv}}$
         \Statex
 
         \State Collect losses:
         \[
-            \mathbf{L} \gets [\mathcal{L}_{\text{base}}, \mathcal{L}_{\text{vel}}, \mathcal{L}_{\text{curv}}, \mathcal{L}_{\text{iv}}]
+            \mathbf{L} \gets [\mathcal{L}_{\text{base}}, \mathcal{L}_{\text{vel}}, \mathcal{L}_{\text{curv}}]
         \]
 
         \State Compute geometric mean:
@@ -708,8 +707,6 @@ When memristor resistance is governed by neural network $\mathcal{M}(\mathbb{x},
 
 When only the memristor state equation is governed by neural network
 $\dert{x} = f(x,v_m)$ the optimization process focuses on tuning the hyperparameters that directly affect the state dynamics of the memristor. This includes parameters related to the neural network architecture, such as the number of layers, neurons per layer, and activation functions, as well as training parameters like learning rate, batch size, and optimizer choice. The parallel plot diagram with pareto front marked has been show in Figure~\ref{fig:nn_state_hyperparameter_optimization}.
-
-
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{mms_figs/parallel_coordinates_plot_mlpx.pdf}
