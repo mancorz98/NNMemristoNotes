@@ -152,10 +152,10 @@ Measurements were carried out for various combinations of supply voltage amplitu
 \end{figure}
 
 \subsection{Modeling with Neural Networks}
-The analyzed model is based on a general description of a memristive device, formulated using the equations~\eqref{eq:memristor_model1} and~\eqref{eq:memristor_model}.
+The analyzed model is grounded in the general theoretical framework of memristive devices, originally introduced in~\cite{Chua1976}, and is expressed through equations~\eqref{eq:memristor_model1} and~\eqref{eq:memristor_model}.
 
 
-\newcommand{\xvec}{\mathbf{x}}
+\newcommand{\xvec}{\mathbb{x}}
 \begin{align}
     \label{eq:memristor_model1}
     \ua(t)                    & = \M \big(\xvec(t),\ua(t)\big) \, \ia(t), \\
@@ -164,8 +164,9 @@ The analyzed model is based on a general description of a memristive device, for
 \end{align}
 where $\xvec$ denotes the vector of internal state variables, whose temporal evolution is governed by the dynamic function $f$, and $\M$ represents the memristance of the device. A fundamental challenge in memristor modeling lies in accurately identifying the functional forms of $\M(\xvec,\ua)$ and $f(\xvec,\ua)$.
 
-In this study, two modeling approaches are considered.
-The first approach is deterministic - named Det-MemODE. In self-directed channel (SDC) memristors, the resistance evolves due to the migration of $\mathrm{Ag^+}$ ions and the dynamic formation of conductive filaments. As a consequence, the device conductance undergoes a continuous transition between distinct resistance states. This conductance can be expressed as a weighted combination of the extreme resistance values, modulated by the internal state variable. Specifically, the memristor conductance $G_m(x) = \M(x)^{-1}$ is given by:
+In this study, two neural network–based modeling approaches are investigated. The first, denoted as \textbf{Det-MemODE}, employs a deterministic formulation of the memristor conductance. The second, referred to as \textbf{Dual-NN-MemODE}, adopts a data-driven strategy in which the conductance is directly modeled using neural networks. Although both approaches utilize neural networks to approximate the dynamic function $f(\xvec(t), \ua(t))$, they differ fundamentally in the representation of the memristor conductance.
+
+In the first approach (Det-MemODE), the memristor conductance is defined on the basis of the physical mechanisms underlying self-directed channel (SDC) devices. In such memristors, the resistance evolves as a result of $\mathrm{Ag^+}$ ion migration and the dynamic formation of conductive filaments. Consequently, the device conductance exhibits a continuous transition between distinct resistance states. This transition can be described as a weighted combination of the limiting resistance values, modulated by the internal state variable. Formally, the memristor conductance is expressed as $G_m(x) = \M(x)^{-1}$, where $\M(x)$ denotes the state-dependent resistance.
 
 \begin{equation}
     G_{m}(x) = \frac{x}{R_{\rm ON}} + \frac{1 - x}{R_{\rm OFF}},
@@ -173,9 +174,10 @@ The first approach is deterministic - named Det-MemODE. In self-directed channel
 \end{equation}
 where $\Ron$ and $\Roff$ denote the resistances in the low-conductance and high-conductance states, respectively.
 
-The second approach, named Dual-NN-MemODE, employs a data-driven methodology. Here, the memristor conductance is modeled using a neural network, which is trained to capture the nonlinear and complex dependencies between the internal state variables and the applied voltage.
 
-For all of these approaches also the function $f(\xvec(t), \ua(t))$ was implemented using an artificial neural network, whose conceptual architecture is illustrated in Fig.~\ref{fig:nn_structure}. The neural network consists of interconnected nodes (neurons) that process information through weighted connections. Each neuron in the network computes its output according to:
+For all of these approaches also the function $f(\xvec(t), \ua(t))$ was implemented using an artificial neural network, whose conceptual architecture is illustrated in Fig.~\ref{fig:nn_structure} for the Det-MemODE and in Fig.~\ref{fig:nn_structure_dual} for the Dual-NN-MemODE.
+
+The neural network consists of interconnected nodes (neurons) that process information through weighted connections. Each neuron in the network computes its output according to:
 
 \begin{equation}
     y = \sigma\left(\sum_{i=1}^{n} w_i x_i + b\right)
@@ -187,26 +189,29 @@ The weights represent the learnable parameters that encode the relationship betw
 
 The learning process involves iteratively adjusting the network parameters to minimize a loss function that quantifies the difference between predicted and target outputs. This is  achieved through backpropagation algorithm combined with gradient descent optimization, where gradients of the loss function with respect to each parameter are computed and used to update the weights and biases in the direction that reduces the overall error.
 
-\begin{figure}[H]
+\begin{figure}[ht]
     \centering
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{figs/Rysowanie_schematów (1).pdf}
+    \begin{subfigure}[b]{0.8\textwidth}
+        \includegraphics[width=\textwidth]{figs/Rysowanie_schematów (2).pdf}
         \caption{}
-        \label{fig:nn_structure}
+        % \label{fig:nn_structure}
+    \end{subfigure}
 
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \resizebox{\linewidth}{!}{%
-            \input{graphs/neuralODEprocess.tex}
-        }
-        \caption{}
-        \label{fig:nn_process}
-    \end{subfigure}
-    \hfill
-    \caption{(a) Conceptual diagram illustrating the use of a neural network to simulate the dynamics of the memristor. (b) Schematic representation of the Neural ODE framework, where an artificial neural network (ANN) computes the derivative function $f_x(x,v)$, which is then integrated by an ODE solver to predict the state at the next time step $x(t + \Delta t)$. The dashed feedback loop indicates the recurrent nature of the process, where the output state is fed back as input for subsequent predictions.}
+    \caption{ Conceptual diagram illustrating the use of a neural network to simulate the dynamics of the memristor, for the Dual-NN-MemODE, with schematic representation of the Neural ODE framework, where an artificial neural network (ANN) computes the derivative function $f_x(x,v)$, which is then integrated by an ODE solver to predict the state at the next time step $x(t + \Delta t)$. The dashed feedback loop indicates the recurrent nature of the process, where the output state is fed back as input for subsequent predictions.}
+    \label{fig:nn_structure}
 \end{figure}
 
+\begin{figure}[ht!]
+    \centering
+    \begin{subfigure}[b]{0.8\textwidth}
+        \includegraphics[width=\textwidth]{figs/Rysowanie_schematów (3).pdf}
+        \caption{}
+        % \label{fig:nn_structure}
+    \end{subfigure}
 
+    \caption{ Conceptual diagram illustrating the use of a neural network to simulate the dynamics of the memristor, for the Dual-NN-MemODE, with schematic representation of the Neural ODE framework, where an artificial neural network (ANN) computes the derivative function $f_x(x,v)$, which is then integrated by an ODE solver to predict the state at the next time step $x(t + \Delta t)$. The dashed feedback loop indicates the recurrent nature of the process, where the output state is fed back as input for subsequent predictions.}
+    \label{fig:nn_structure_dual}
+\end{figure}
 
 The neural network model development and training pipeline was implemented using the \texttt{PyTorch} deep learning framework within the \texttt{Python} programming environment, leveraging its automatic differentiation capabilities and GPU acceleration for efficient computational processing.
 
