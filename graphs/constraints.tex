@@ -7,7 +7,7 @@
     grid=major,
     grid style={dashed,gray!70},
     legend style={at={(0.98,0.98)},anchor=north east},
-    domain=-0.5:1.5,
+    domain=-1.5:2.5,
     samples=500,
     thick,
     % Automatic spacing like matplotlib margins
@@ -30,10 +30,10 @@
     \addplot[dashed, gray, forget plot] coordinates {(1,0) (1,0.5)};
     \addlegendentry{$b = 1$}
 
-    \addplot[dotted, blue, forget plot] coordinates {(0.01,0) (0.01,0.5)};
-    \addlegendentry{$a + \delta$}
+    % \addplot[dotted, blue, forget plot] coordinates {(0.01,0) (0.01,0.5)};
+    % \addlegendentry{$a + \delta$}
 
-    \addplot[dotted, blue, forget plot] coordinates {(0.99,0) (0.99,0.5)};
-    \addlegendentry{$b - \delta$}
+    % \addplot[dotted, blue, forget plot] coordinates {(0.99,0) (0.99,0.5)};
+    % \addlegendentry{$b - \delta$}
   \end{axis}
 \end{tikzpicture}
