@@ -79,7 +79,7 @@
 
 
 \usepackage[style=numeric, 
-            backend=biber,
+            backend=bibtex,
            ]{biblatex}
            
 \addbibresource{bibliography.bib} % Replace with your .bib file name
@@ -234,7 +234,7 @@ The network weights were optimized using several optimization techniques, includ
     \resizebox{\linewidth}{!}{%
         \input{graphs/neuralODE.tex}
     }
-    \caption{Architecture of the feedforward neural network used within the Neural ODE framework for memristor dynamics modeling. The network consists of an input layer receiving two inputs, multiple hidden layers with decreasing-increasing-decreasing neuron counts (N//2, N, N//2), activation functions between layers, and a single output. The Neural ODE block encompasses the core computational layers that approximate the derivative function $f(\xw(t), \ua(t))$ in the differential equation system.}
+    \caption{Architecture of the feedforward neural network used within the Neural ODE framework for memristor dynamics modeling. The network consists of an input layer receiving two inputs, multiple hidden layers with decreasing-increasing-decreasing neuron counts ($\lfloor N/2 \rfloor, N, \lfloor N/2 \rfloor$), activation functions between layers, and a single output. The Neural ODE block encompasses the core computational layers that approximate the derivative function $f(\xw(t), \ua(t))$ in the differential equation system.}
 
     \label{fig:nn-arch}
 \end{figure}
@@ -668,49 +668,59 @@ Representative loss function comparisons between the neural network and MMS mode
 
 \subsection{Hyperparameter Sensitivity Analysis}
 
-The process of hyperparameter optimization consisted in systematically exploring the space of possible parameter configurations in order to identify those that maximize the predictive performance of the neural network. To this end, the Tree-structured Parzen Estimator (TPE) algorithm was employed, which relies on a probabilistic modeling of the objective function to efficiently balance exploration and exploitation during the search, implemented in the \verb|Optuna| framework~\cite{akiba2019optuna}. The TPE algorithm constructs two separate density models: one for hyperparameter configurations that yield better-than-average performance and another for those that perform worse. By sampling from these models, the algorithm can focus on promising regions of the hyperparameter space while still maintaining diversity in the search process.
+Hyperparameter optimization was conducted to systematically explore the parameter space and identify configurations that maximize the predictive performance of the neural network. The optimization employed the Tree-structured Parzen Estimator (TPE) algorithm, implemented in the \verb|Optuna| framework~\cite{akiba2019optuna}. The TPE algorithm models the objective function probabilistically by constructing two separate density estimators: one for configurations associated with above-average performance and another for those yielding below-average results. By sampling preferentially from the former, while still maintaining diversity through exploration of the latter, the algorithm achieves an efficient balance between exploitation of promising regions and exploration of the broader search space.
 
-Given the sensitivity of neural network performance to hyperparameter selection, a comprehensive hyperparameter optimization procedure was implemented. The search space was designed to cover both architectural and optimization aspects of the model.
+The search space encompassed both architectural and training-related hyperparameters. On the architectural side, the number of hidden layers was varied between one and five, with layer widths ranging from 16 to 512 neurons in increments of 16. Candidate activation functions included widely used nonlinearities such as ReLU, GELU, SiLU, $\tanh$, ELU, leaky ReLU, and sigmoid, as well as identity and sine functions. For the output layer, the choice was restricted to ${\text{linear}, \tanh, \text{sigmoid}, \text{ReLU}}$. The training-related search space included the learning rate, sampled on a logarithmic scale between $10^{-4}$ and $10^{-1}$, batch size ranging from 1 to 18, optimizer type (Adam, SGD, AdamW, Nadam, AdaBelief), and additional parameters related to regularization and scheduling, including patience, cooldown, reduction factor, tolerance, and weight decay.
 
-Architectural hyperparameters included the number of hidden layers (ranging from $1$ to $5$), layer width ($16$--$512$ neurons, with step size $16$), and activation functions, with candidate functions drawn from common nonlinearities such as ReLU, GELU, SiLU, $\tanh$, ELU, leaky ReLU, sigmoid, as well as identity (linear) and sine functions. The final activation function was restricted to the set $\{\text{linear}, \tanh, \text{sigmoid}, \text{ReLU}\}$.
+To quantify the relative influence of individual hyperparameters on model performance, a surrogate-based importance analysis was performed. An XGBoost gradient boosting model~\cite{Chen2016} was trained on the explored configurations to predict validation loss. The surrogate achieved an $\mathrm{R}^2$ value of 0.99, indicating high fidelity in capturing the dependence of model performance on hyperparameter selection. Importance was first estimated using the \emph{gain} metric, which reflects the cumulative improvement in predictive accuracy attributable to each hyperparameter across the ensemble. Normalization ensured that scores summed to unity, allowing for direct interpretation as relative contributions to performance variability.
 
-On the training side, the space included the learning rate for different components (ranging from $10^{-4}$ to $10^{-1}$ on a logarithmic scale), batch size ($1$--$18$), choice of optimizer (Adam, SGD, AdamW, Nadam, AdaBelief), and additional parameters governing regularization and learning rate scheduling (e.g., patience, cooldown, reduction factor, tolerance, and weight decay).
+As a complementary approach, permutation importance~\cite{Altmann2010} was applied to the surrogate model. In this procedure, the values of each hyperparameter were permuted at random, and the resulting degradation in predictive accuracy was recorded. Repeated ten times for each feature, the mean error increase provided an alternative measure of importance, which, unlike gain-based metrics, also accounts for nonlinear dependencies and interactions among hyperparameters.
 
-\subsection{MMS Model}
-
-In the MMS model, the optimization were conducted to different set of weights $\lambda_1$, $\lambda_2$, $\lambda_3$, and $\lambda_4$ from ranges $[0, 1]$, $[0, 1]$, $[0, 1]$, and $[0, 1]$, respectively. The parallel plot diagram with pareto front marked has been show in Figure~\ref{fig:mms_hyperparameter_optimization}.
-
+Both approaches consistently identified the learning rate and gradient clipping value as the dominant hyperparameters. According to the gain-based measure, their contributions were 0.10 and 0.74, respectively, while the permutation-based analysis yielded corresponding values of 0.44 and 0.30. Together, these two parameters explained approximately 63\% of the observed variance in performance. By contrast, the activation function exhibited only marginal influence (importance score of 0.04), indicating that the Neural ODE architecture is relatively robust to this choice within the tested range.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{mms_figs/parallel_coordinates_plot.pdf}
-    \caption{Parallel plot diagram with Pareto front for MMS model hyperparameter optimization.}
-    \label{fig:mms_hyperparameter_optimization}
+    \includegraphics[width=0.8\textwidth]{mms_figs/xgboost_permutation_importance.pdf}
+    \caption{Hyperparameter importance for the Dual-NN-MemODE optimization task. Scores were computed using permutation importance applied to an XGBoost surrogate model trained on 200 hyperparameter configurations. Larger values indicate greater relative influence of the corresponding hyperparameter on model performance.}
+    \label{fig:hyperparameter_importance}
 \end{figure}
 
 
-\subsection{Case when memristor resistance is governed by neural network}
+% \subsection{MMS Model}
 
-When memristor resistance is governed by neural network $\mathcal{M}(\mathbb{x}, v)$, the optimization process must account for the additional complexity introduced by the neural network's architecture and training dynamics. This involves not only tuning the hyperparameters of the neural network itself but also understanding how these parameters influence the memristor's behavior in the context of the overall system. The parallel plot diagram with pareto front marked has been show in Figure~\ref{fig:nn_hyperparameter_optimization}.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{mms_figs/parallel_coordinates_plot_full.pdf}
-    \caption{Parallel plot diagram with Pareto front for neural network model hyperparameter optimization.}
-    \label{fig:nn_hyperparameter_optimization}
-\end{figure}
+% In the MMS model, the optimization were conducted to different set of weights $\lambda_1$, $\lambda_2$, $\lambda_3$, and $\lambda_4$ from ranges $[0, 1]$, $[0, 1]$, $[0, 1]$, and $[0, 1]$, respectively. The parallel plot diagram with pareto front marked has been show in Figure~\ref{fig:mms_hyperparameter_optimization}.
 
 
-\subsection{Case when only memristor state equation is governed by neural network}
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.8\textwidth]{mms_figs/parallel_coordinates_plot.pdf}
+%     \caption{Parallel plot diagram with Pareto front for MMS model hyperparameter optimization.}
+%     \label{fig:mms_hyperparameter_optimization}
+% \end{figure}
 
-When only the memristor state equation is governed by neural network
-$\dert{x} = f(x,v_m)$ the optimization process focuses on tuning the hyperparameters that directly affect the state dynamics of the memristor. This includes parameters related to the neural network architecture, such as the number of layers, neurons per layer, and activation functions, as well as training parameters like learning rate, batch size, and optimizer choice. The parallel plot diagram with pareto front marked has been show in Figure~\ref{fig:nn_state_hyperparameter_optimization}.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{mms_figs/parallel_coordinates_plot_mlpx.pdf}
-    \caption{Hyperparameter optimization parallel plot diagram with Pareto front marked for neural network modeling only dynamic of the internal state variable.}
-    \label{fig:nn_state_hyperparameter_optimization}
-\end{figure}
+
+% \subsection{Case when memristor resistance is governed by neural network}
+
+% When memristor resistance is governed by neural network $\mathcal{M}(\mathbb{x}, v)$, the optimization process must account for the additional complexity introduced by the neural network's architecture and training dynamics. This involves not only tuning the hyperparameters of the neural network itself but also understanding how these parameters influence the memristor's behavior in the context of the overall system. The parallel plot diagram with pareto front marked has been show in Figure~\ref{fig:nn_hyperparameter_optimization}.
+
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=\textwidth]{mms_figs/parallel_coordinates_plot_full.pdf}
+%     \caption{Parallel plot diagram with Pareto front for neural network model hyperparameter optimization.}
+%     \label{fig:nn_hyperparameter_optimization}
+% \end{figure}
+
+
+% \subsection{Case when only memristor state equation is governed by neural network}
+
+% When only the memristor state equation is governed by neural network
+% $\dert{x} = f(x,v_m)$ the optimization process focuses on tuning the hyperparameters that directly affect the state dynamics of the memristor. This includes parameters related to the neural network architecture, such as the number of layers, neurons per layer, and activation functions, as well as training parameters like learning rate, batch size, and optimizer choice. The parallel plot diagram with pareto front marked has been show in Figure~\ref{fig:nn_state_hyperparameter_optimization}.
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=\textwidth]{mms_figs/parallel_coordinates_plot_mlpx.pdf}
+%     \caption{Hyperparameter optimization parallel plot diagram with Pareto front marked for neural network modeling only dynamic of the internal state variable.}
+%     \label{fig:nn_state_hyperparameter_optimization}
+% \end{figure}
 
 
 
