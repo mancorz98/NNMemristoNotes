@@ -12,4 +12,4 @@
 ### 2025-10-03 Meeting notes: 
   - Rewrite to the IEEE format, 
   - Use test loss instead of full loss, 
-
+  - Add information about specific Neural Architecture structure,
