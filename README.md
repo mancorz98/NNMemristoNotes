@@ -1,5 +1,6 @@
 # [Polska wersja pliku](main.pdf)
 # [English file version](main_en.pdf)
+# [IEEE format file version](main_ieee.pdf)
 
 
 ### 2025-09-10 Meeting notes:
