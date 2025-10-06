@@ -7,7 +7,43 @@
 \usepackage{stfloats}
 \usepackage{url}
 \usepackage{verbatim}
+\usepackage[extract=python]{memoize}
+
 \usepackage{graphicx}
+\usepackage{circuitikz}
+\usepackage{tikz}
+\usepackage{algorithm}
+% \usepackage{algpseudocode}
+
+
+% \pgfplotsset{compat=1.18} % Set the compatibility level for pg
+\usetikzlibrary{shapes.geometric, arrows, positioning, fit, backgrounds}
+
+
+
+\definecolor{ieeeblue}{RGB}{0,118,186}      % IEEE Blue
+\definecolor{ieeered}{RGB}{214,39,40}       % IEEE Red  
+\definecolor{ieeegreen}{RGB}{23,156,82}     % IEEE Green
+
+
+
+\newcommand{\der}{{\rm d}}
+\newcommand{\R}{\mathcal{R}}
+\newcommand{\C}{\mathcal{C}}
+\newcommand{\M}{\mathcal{M}}
+\newcommand{\G}{\mathcal{G}}
+\newcommand{\Ron}{R_{\rm ON}}
+\newcommand{\Roff}{R_{\rm OFF}}
+\newcommand{\von}{V_{\rm ON}}
+\newcommand{\voff}{V_{\rm OFF}}
+\newcommand{\q}{q}
+\newcommand{\ua}{v}
+\newcommand{\ia}{i}
+\newcommand{\phia}{\varphi}
+\newcommand{\xw}{x}
+\newcommand{\dert}[1]{\frac{{\rm d} {#1}}{{\rm d} t} }
+\newcommand{\inv}[1]{\frac{1}{#1} }
+\newcommand{\equal}{=}
 
 
 
@@ -19,6 +55,7 @@
 ]{biblatex}
 
 \addbibresource{bibliography.bib}
+
 
 
 
@@ -50,6 +87,258 @@
 
 
 In~\cite{Ricky2018}, the authors introduce the concept of deep neural models in which the dynamics of the hidden state are governed by an \textit{ordinary differential equation} (ODE). The training process is performed in an end-to-end manner, meaning that all parameters are optimized simultaneously within a single training routine. A key innovation of the proposed approach is a novel backpropagation technique, which relies on solving the corresponding adjoint ODE backward in time using \textit{adjoint sensitivity methods}. This formulation enables efficient gradient computation and facilitates the application of neural ODEs in various architectures, including continuous-depth residual networks and generative flow-based models.
+
+
+In~\cite{Ricky2021}, the authors extend the classical Neural ODE framework to enable the modeling of discontinuous events in continuous time—without requiring prior knowledge of the number or timing of such events. The proposed differentiable event functions allow for efficient simulation of hybrid systems, such as systems with collisions, state-switching mechanisms, or point processes. This development opens up new possibilities for modeling and training systems with discrete control inputs and non-smooth dynamics.
+
+
+The present study aims to investigate the feasibility of modeling Self-Directed Channel (SDC) memristors using artificial neural networks, and to compare the effectiveness of this approach with that of existing theoretical models. Specifically, we focus on the application of Neural Ordinary Differential Equation (Neural ODE) models to simulate the behavior of SDC memristors, utilizing experimental data obtained from real physical systems.
+
+Our objective is to assess whether neural network-based models can accurately reproduce the dynamic characteristics of SDC memristors, and to determine whether they offer any advantages over traditional theoretical approaches—particularly in terms of modeling flexibility, accuracy, and applicability to real-world, measurement-driven scenarios.
+
+
+\section{Materials and Methods}
+\noindent This study utilizes experimental data obtained from physical Self-Directed Channel (SDC) memristors doped with tungsten. The structure and properties of these devices have been described in detail in the literature, e.g., in~\cite{Garda2024, Campbell2017}.
+
+The experimental setup, illustrated in Fig.~\ref{fig:memristor_setup}, consisted of an SDC memristor connected in series with a resistor. The sinusoidal input voltage was supplied by an arbitrary waveform generator, while the voltage signals were measured using a data acquisition (DAQ) system.
+
+Measurements were carried out for various combinations of supply voltage amplitudes and frequencies. Specifically, the amplitude of the applied voltage was varied as \(V_s \in \{0.5,\ 1.0,\ 1.5\}~\mathrm{[V]}\), and the frequency was selected from the set \(f \in \{1,\ 5,\ 10,\ 20,\ 50,\ 100\}~\mathrm{[Hz]}\).
+
+\begin{figure}[!t]
+  \centering
+  \resizebox{2.5in}{!}{\input{graphs/schematic.tex}}
+  \vspace{-0.5in}
+  \caption{Schematic diagram of the measurement setup used for the SDC memristor. The device is connected in series with a resistor, and the input voltage is applied via an arbitrary waveform generator. Voltage measurements are acquired using a data acquisition (DAQ) system.}
+  \label{fig:memristor_setup}
+\end{figure}
+
+\subsection{Modeling with Neural Networks}
+\noindent The analyzed model is grounded in the general theoretical framework of memristive devices, originally introduced in~\cite{Chua1976}, and is expressed through equations~\eqref{eq:memristor_model1}.
+\newcommand{\xvec}{\mathbf{x}}
+\begin{align}
+  \begin{split}
+    \label{eq:memristor_model1}
+    \ua(t)                    & = \M \big(\xvec(t),\ua(t)\big) \, \ia(t), \\
+    \frac{\der \xvec}{\der t} & = f\big(\xvec(t),\ua(t)\big)
+  \end{split}
+\end{align}
+where \(\xvec\) denotes the vector of internal state variables, whose temporal evolution is governed by the dynamic function \(f\), and \(\M\) represents the memristance of the device. A fundamental challenge in memristor modeling lies in accurately identifying the functional forms of \(\M(\xvec,\ua)\) and \(f(\xvec,\ua)\).
+
+In this study, two neural network–based modeling approaches are investigated. The first, denoted as \textbf{Det-MemODE}, employs a deterministic formulation of the memristor conductance. The second, referred to as \textbf{Dual-NN-MemODE}, adopts a data-driven strategy in which the conductance is directly modeled using neural networks. Although both approaches utilize neural networks to approximate the dynamic function \(f(\xvec(t), \ua(t))\), they differ fundamentally in the representation of the memristor conductance.
+
+In the first approach (Det-MemODE), the memristor conductance is defined on the basis of the physical mechanisms underlying self-directed channel (SDC) devices. In such memristors, the resistance evolves as a result of \(\mathrm{Ag^+}\) ion migration and the dynamic formation of conductive filaments. Consequently, the device conductance exhibits a continuous transition between distinct resistance states. This transition can be described as a weighted combination of the limiting resistance values, modulated by the internal state variable. Formally, the memristor conductance is expressed as \(G_m(x) = \M(x)^{-1}\), where \(\M(x)\) denotes the state-dependent resistance.
+\begin{equation}
+  G_{m}(x) = \frac{x}{R_{\rm ON}} + \frac{1 - x}{R_{\rm OFF}},
+  \label{eq:conductance}
+\end{equation}
+where \(\Ron\) and \(\Roff\) denote the resistances in the low-conductance and high-conductance states, respectively. For all of these approaches also the function \(f(\xvec(t), \ua(t))\) was implemented using an artificial neural network, whose conceptual architecture is illustrated in Fig.~\ref{fig:nn_structure} for the Det-MemODE and in Fig.~\ref{fig:nn_structure_dual} for the Dual-NN-MemODE.
+
+\begin{figure}[t!]
+  \centering
+  \includegraphics[width=\columnwidth]{figs/Rysowanie_schematów (2).pdf}
+  \caption{ Conceptual diagram illustrating the use of a neural network to simulate the dynamics of the memristor, for the Det-MemODE, with schematic representation of the Neural ODE framework, where an artificial neural network (ANN) computes the derivative function \(f_x(x,v)\), which is then integrated by an ODE solver to predict the state at the next time step \(x(t + \Delta t)\). The dashed feedback loop indicates the recurrent nature of the process, where the output state is fed back as input for subsequent predictions.}
+  \label{fig:nn_structure}
+\end{figure}
+
+\begin{figure}[t!]
+  \centering
+  \includegraphics[width=\columnwidth]{figs/Rysowanie_schematów (3).pdf}
+  \caption{ Conceptual diagram illustrating the use of a neural network to simulate the dynamics of the memristor, for the Dual-NN-MemODE, with schematic representation of the Neural ODE framework, where an artificial neural network (ANN) computes the derivative function \(f_x(x,v)\), which is then integrated by an ODE solver to predict the state at the next time step \(x(t + \Delta t)\). The dashed feedback loop indicates the recurrent nature of the process, where the output state is fed back as input for subsequent predictions.}
+  \label{fig:nn_structure_dual}
+\end{figure}
+
+The neural network consists of interconnected nodes (neurons) that process information through weighted connections. Each neuron in the network computes its output according to:
+
+\begin{equation}
+  y = \sigma\left(\sum_{i=1}^{n} w_i x_i + b\right)
+\end{equation}
+
+where \(w_i\) are the weights that determine the strength and importance of each input connection \(x_i\), \(b\) is the bias term that provides an adjustable threshold for neuron activation, and \(\sigma\) is the activation function (e.g., sigmoid, ReLU, or tanh) that introduces non-linearity into the model.
+
+The weights represent the learnable parameters that encode the relationship between inputs and outputs, while biases allow neurons to shift their activation threshold, enabling the network to better fit the training data even when all inputs are zero. During the optimization process, the network parameters (weights and biases) are tuned jointly with the values of \(R_{\rm ON}\) and \(R_{\rm OFF}\).
+
+The learning process involves iteratively adjusting the network parameters to minimize a loss function that quantifies the difference between predicted and target outputs. This is  achieved through backpropagation algorithm combined with gradient descent optimization, where gradients of the loss function with respect to each parameter are computed and used to update the weights and biases in the direction that reduces the overall error.
+
+\subsection{Neural Network Architecture Design}
+
+\noindent The neural network model development and training pipeline was implemented using the \texttt{PyTorch} deep learning framework, described in~\cite{paszke2019pytorchimperativestylehighperformance}, within the \texttt{Python} programming environment, leveraging its automatic differentiation capabilities. To enable seamless integration of ordinary differential equations (ODEs) within the neural network training paradigm, the specialized \texttt{torchdiffeq} library was employed. This library provides differentiable ODE solvers that facilitate efficient gradient computation with respect to solution trajectories through the adjoint sensitivity method, well described in~\cite{Ricky2018, Ricky2021, torchdiffeq}. This approach enables end-to-end training of neural differential equation models by maintaining gradient flow through the numerical integration process, which is essential for learning dynamic systems governed by differential equations.
+
+Specifically, the \texttt{dopri5} (Dormand-Prince 5th order) adaptive Runge-Kutta solver was utilized for its superior balance between computational efficiency and numerical accuracy. This solver employs embedded error estimation for adaptive step-size control, ensuring stable integration of the memristor dynamics while maintaining computational tractability during training.
+
+The neural network architecture is illustrated in Figure~\ref{fig:nn-arch} and incorporates a strategically designed bottleneck configuration with dimensional two time reduction in the initial and final hidden layers. This architectural choice addresses several critical aspects of neural ODE training and memristor system modeling, like:
+\begin{itemize}
+  \item Dimensional reduction at the start and end of the network significantly decreases the total parameter count,
+  \item  Parameter count reduction contributes to more stable optimization dynamics by limiting the search space complexity
+  \item Dimensional reduction helps mitigate gradient vanishing and explosion problems that commonly arise in deep networks processing long temporal sequences
+  \item  The bottleneck structure implicitly enforces a low-dimensional manifold assumption consistent with the underlying physics of memristor dynamics
+\end{itemize}
+
+
+\begin{figure}[ht!]
+  \centering
+  \resizebox{2in}{!}{%
+    \input{graphs/neuralODE_ver.tex}
+  }
+  \caption{Architecture of the feedforward neural network used within the Neural ODE framework for memristor dynamics modeling. The network consists of an input layer receiving two inputs, multiple hidden layers with decreasing-increasing-decreasing neuron counts (\(\lfloor N/2 \rfloor, N, \lfloor N/2 \rfloor\)), activation functions between layers, and a single output. The Neural ODE block encompasses the core computational layers that approximate the derivative function \(f(\xw(t), \ua(t))\) in the differential equation system.}
+
+  \label{fig:nn-arch}
+\end{figure}
+
+
+The network weights were optimized using several optimization techniques, including the \texttt{Adam} (Adaptive Moment Estimation) optimizer. The choice of optimizer and its parameters was guided by hyperparameter tuning conducted with the \texttt{Optuna} framework, as described in~\cite{Akiba2019}. The hyperparameter search space comprised the learning rate, weight decay, and batch size, while the optimal configuration was selected based on validation loss minimization. To enable adaptive control of the learning rate throughout training, the \texttt{ReduceLROnPlateau} scheduling strategy was employed. This performance-based scheduler dynamically adjusts the learning rate in response to plateaus in the monitored validation loss, thereby improving convergence stability. Specifically, the scheduler reduces the learning rate once the monitored loss stagnates, applies a predefined reduction factor, incorporates a patience interval before making adjustments, and enforces lower and upper bounds to prevent instability. This implementation strategy ensures robust and efficient training of neural differential equation models for memristor circuit simulation, integrating state-of-the-art deep learning practices with domain-specific techniques for dynamic system modeling.
+
+\subsection{Deterministic Memristor Model for Comparison}
+\noindent To evaluate the effectiveness of the proposed model, it was compared with the two deterministic models: the Mean Metastable Switch (MMS) model introduced in~\cite{Minati2020} and the  Generalized Mean Metastable Switch Memristor (GMMS) model described in~\cite{Molter2016, Ostrovskii2021}.
+
+\subsubsection{Mean Metastable Switch (MMS) Model}
+The Mean Metastable Switch (MMS) model is a simplified representation of memristor behavior, focusing on the average switching characteristics rather than the detailed dynamics. It captures the essential features of memristive switching by modeling the device as a two-state system, where the resistance can switch between a high-resistance state (HRS) and a low-resistance state (LRS) based on the applied voltage. This model describes the memristor dynamics using Eq.~\eqref{eq:mms}.
+
+\begin{align}
+  \label{eq:mms}
+  \dert{x} & = \frac{1}{\tau} \big[ f_{\rm on}(t) (1-x) - f_{\rm off}(t) x \big]
+\end{align}
+where
+\begin{align}
+  f_{\rm on}(t)  & = \frac{1}{1+e^{-\beta (\ua(t)-\von)}} \label{eq:mms5b}      \\
+  f_{\rm off}(t) & = 1 - \frac{1}{1+e^{-\beta (\ua(t)-\voff)}} \label{eq:mms5c}
+\end{align}
+
+where \(\beta= \frac{q}{kT}\) is a temperature-related parameter, \(\von\) denotes the switching voltage to the low-resistance state (LRS), \(\voff\) denotes the switching voltage to the high-resistance state (HRS), \(k\) is the Boltzmann constant, \(T\) is the absolute temperature, and \(q\) represents the elementary charge. The instantaneous conductance of the memristor is defined as in Eq.~\eqref{eq:conductance}.
+
+\subsubsection{Generalized Mean Metastable Switch (GMMS) Model}
+In~\cite{Molter2016}, the authors introduced the Generalized Mean Metastable Switch (GMMS) model, in which the memristor is represented as a parallel connection of two memristors and a Schottky diode. This formulation extends the original metastable switch concept by incorporating nonlinear current--voltage characteristics, thereby enabling a more accurate representation of memristor behavior across a wide range of operating conditions.
+
+Nevertheless, the inclusion of additional parameters and nonlinearities increases the model's complexity and poses challenges for parameter optimization. In this framework, the evolution of the state variable is governed by Eq.~\eqref{eq:mms}, while the current--voltage relationship is described by the following set of equations:
+\begin{align}
+  \begin{split}
+    i(t)      & = \phi i_m(v, t) + (1-\phi) i_d(v)                 \\
+    i_d(v)    & = \alpha_f e^{\beta_f v} - \alpha_r e^{-\beta_r v} \\
+    i_m(v, t) & = \G_m(x) v
+  \end{split}
+  \label{eq:gmms}
+\end{align}
+where \(\phi \in [0,1]\) is a parameter representing the fraction of the total current flowing through the memristor relative to the entire current through the device. The parameters \(\alpha_f\), \(\beta_f\), \(\alpha_r\), and \(\beta_r\) are positive constants characterizing the forward and reverse current behavior along the Schottky barrier.
+
+In the case of the GMMS model, an additional challenge arises due to the Schottky effect, which introduces nonlinearity into the current–voltage characteristic. When the memristor is connected in series with a resistor, this requires solving a nonlinear equation of the form Eq. \eqref{eq:nonlinear_eq}. As a result, the system of ordinary differential equations is transformed into a differential-algebraic equation (DAE).
+\begin{equation}
+  \left\{
+  \begin{aligned}
+     & v_s(t)    = v_r(t) + v_m(t)                                                   \\
+     & \dert{x}  = \frac{1}{\tau} \big[ f_{\rm on}(t) (1-x) - f_{\rm off}(t) x \big]
+  \end{aligned}
+  \right.
+  \label{eq:nonlinear_eq}
+\end{equation}
+where \(v_s(t)\) denotes the supply voltage, \(v_r(t) = R_s i(t)\) is the voltage across the resistor, and \(v_m(t)\) is the voltage across the memristor.
+
+\subsection{Objective Function}
+\noindent The loss function based on the phase portrait is designed to simultaneously account for both the  signal values and its dynamic structure. To this end, it is defined as the sum of four components, each serving a distinct and complementary role in the optimization process. The total loss function is given by:
+
+\begin{align}
+  \begin{split}
+    \mathcal{L}_{\mathrm{total}} & = \lambda_{\mathrm{base}} \cdot \mathcal{L}_{\mathrm{base}} + \lambda_{\mathrm{vel}} \cdot \mathcal{L}_{v} \\ &+ \lambda_{\mathrm{curv}} \cdot \mathcal{L}_{c} + \sum^{N_c}_{i=1} \lambda_{\mathrm{con}_i} \cdot \mathcal{L}_{\mathrm{con}_i}(x)
+    \label{eq:loss_function}
+  \end{split}
+\end{align}
+Here, \(\mathcal{L}_{\mathrm{base}}\) denotes the primary error term,  measuring the difference between predicted and reference values, in that case the mean squared error (MSE). The term \(\mathcal{L}_{v}\) enforces accurate modeling of the velocity characteristics by considering the derivatives of trajectories in phase space. The component \(\mathcal{L}_{c}\) promotes consistency of the trajectories in terms of their curvature, for example by analyzing changes in trajectory direction or curvature. Finally, \(\mathcal{L}_{\mathrm{con}}(x)\) introduces additional physical or structural constraints that the model is required to satisfy, including conditions of stability, nonlinearities, or conformity to the underlying physical model. The weighting coefficients \(\lambda_{\mathrm{base}}\), \(\lambda_{\mathrm{vel}}\),  and \(\lambda_{\mathrm{curv}}\) balance the influence of each term within the overall loss function according to the priorities of the modeling task, and each of the values were calculated during each optimization step using the Geometric Loss Strategy (GLS), described in \cite{Cipolla2018, Chen2018}. with the following algorithm presented in Algorithm~\ref{alg:adaptive_loss_balancing}.
+
+\begin{algorithm}[!t]
+  \caption{Adaptive Loss Balancing with Clamping (Compact)}
+  \label{alg:adaptive_loss_balancing}
+  \begin{algorithmic}[1]
+    \REQUIRE Loss terms \(\mathcal{L}_{\text{base}}, \mathcal{L}_{\text{vel}}, \mathcal{L}_{\text{curv}}\), constant \(\varepsilon > 0\), bounds \([\lambda_{\min}, \lambda_{\max}]\)
+    \ENSURE Adaptive weights \(\lambda_{\text{base}}, \lambda_{\text{vel}}, \lambda_{\text{curv}}\)
+    \STATE Collect losses: \(\mathbf{L} \gets [\mathcal{L}_{\text{base}}, \mathcal{L}_{\text{vel}}, \mathcal{L}_{\text{curv}}]\)
+    \STATE Compute geometric mean: \\ \(\overline{\mathcal{L}}_{\text{geo}} \gets \exp\left(\frac{1}{|\mathbf{L}|} \sum_{i=1}^{|\mathbf{L}|} \ln(\mathcal{L}_i + \varepsilon)\right)\)
+    \FOR{each loss \(\mathcal{L}_i \in \mathbf{L}\)}
+    \STATE \(\lambda_i \gets \frac{\overline{\mathcal{L}}_{\text{geo}}}{\mathcal{L}_i + \varepsilon}\)
+    \STATE \(\lambda_i \gets \text{clamp}(\lambda_i, \lambda_{\min}, \lambda_{\max})\)
+    \ENDFOR
+    \STATE \textbf{return} \((\lambda_{\text{base}}, \lambda_{\text{vel}}, \lambda_{\text{curv}})\)
+  \end{algorithmic}
+\end{algorithm}
+
+For circuit trajectory datasets indexed by \(k = 1, \ldots, N_{\text{traj}}\), a trajectory-specific standardization procedure is implemented to normalize each electrical variable \(z \in \{v, i\}\) (representing voltage and current measurements, respectively). This normalization process utilizes the standard deviation computed independently for each individual trajectory sequence, ensuring statistical consistency within each temporal dataset.
+The trajectory-specific standard deviation is calculated using the unbiased sample estimator:
+\begin{equation}
+  \sigma_{z,k} = \sqrt{\frac{1}{T-1} \sum_{t=1}^{T} \left(z_{k,t}^{\mathrm{true}} - \bar{z}_k^{\mathrm{true}}\right)^2}
+\end{equation}
+where the trajectory-specific temporal mean is defined as:
+\begin{equation}
+  \bar{z}_k^{\mathrm{true}} = \frac{1}{T} \sum_{t=1}^{T} z_{k,t}^{\mathrm{true}}
+\end{equation}
+The parameter \(T\) represents the temporal resolution of the trajectory, corresponding to the total number of discrete time-series sampling points within each measurement sequence.
+
+This trajectory-wise normalization methodology serves several critical analytical objectives in circuit analysis and machine learning applications. Primarily, it establishes scale invariance across electrical signals exhibiting disparate amplitude characteristics, thereby facilitating quantitative comparison of dynamic waveform morphologies independent of absolute magnitude variations. Furthermore, this standardization approach enhances the numerical stability and convergence properties of optimization algorithms employed in neural network training procedures.
+
+
+By implementing trajectory-specific normalization rather than global standardization, the methodology preserves the inherent temporal dynamics and statistical properties unique to each circuit configuration while simultaneously ensuring that amplitude disparities do not introduce systematic bias during pattern recognition, feature extraction, or predictive modeling procedures. This approach is particularly advantageous in scenarios involving heterogeneous circuit topologies or varying operational conditions, where maintaining the relative temporal structure of electrical phenomena is paramount for accurate system identification and dynamic analysis.
+The neural network loss function comprises several specialized components designed to optimize memristor circuit modeling performance across multiple dynamical characteristics. Each component addresses specific aspects of the temporal and nonlinear behavior exhibited by memristive systems.
+
+The fundamental component of the loss function is responsible for model fitting to experimental voltage-current data, incorporating trajectory-specific normalization procedures. This component minimizes the mean squared error (MSE) between predicted and ground-truth voltage and current waveforms, normalized by the standard deviation of each individual trajectory. This normalization ensures scale invariance across datasets with varying amplitude characteristics.The mean squared error for a sequence of \(n\) data points is defined in Eq~\eqref{eq:mse}:
+
+\begin{equation}
+  \mathrm{MSE}(\hat{y}, y) = \frac{1}{n} \sum_{i=1}^{n} (\hat{y}_i - y_i)^2
+  \label{eq:mse}
+\end{equation}
+
+The base loss is formally expressed as it shown in Eq.~\eqref{eq:base_loss}:
+\begin{equation}
+  \begin{split}
+    \mathcal{L}_{\mathrm{base}} = \frac{1}{N_{\text{traj}}} \sum_{k=1}^{N_{\text{traj}}} \Bigg[ & \mathrm{MSE}\left(\frac{v_{\mathrm{pred},k}}{\sigma_{v,k}}, \frac{v_{\mathrm{true},k}}{\sigma_{v,k}}\right)          \\
+                                                                                                & + \mathrm{MSE}\left(\frac{i_{\mathrm{pred},k}}{\sigma_{i,k}}, \frac{i_{\mathrm{true},k}}{\sigma_{i,k}}\right) \Bigg]
+  \end{split}
+  \label{eq:base_loss}
+\end{equation}
+
+where \(v_{\mathrm{pred},k}\) and \(i_{\mathrm{pred},k}\) represent the predicted voltage and current for trajectory \(k\), while \(v_{\mathrm{true},k}\) and \(i_{\mathrm{true},k}\) denote the corresponding experimental measurements.
+
+
+The first-order dynamics comparison enables evaluation of temporal derivative agreement between model predictions and experimental data, particularly critical for capturing rapid memristor state transitions. This component ensures that the neural network learns not only absolute signal values but also their instantaneous rates of change, which is fundamental for accurate modeling of dynamic systems exhibiting switching phenomena. The first-order loss component is defined as:
+\begin{equation}
+  \begin{split}
+    \mathcal{L}_{v} = \frac{1}{N_{\text{traj}}} \sum_{k=1}^{N_{\text{traj}}} \Bigg[ & \mathrm{MSE}\left(\frac{\tfrac{\mathrm{d}v}{\mathrm{d}t}_{\mathrm{pred},k}}{\sigma_{\dot{v},k}}, \frac{\tfrac{\mathrm{d}v}{\mathrm{d}t}_{\mathrm{true},k}}{\sigma_{\dot{v},k}}\right)          \\
+                                                                                    & + \mathrm{MSE}\left(\frac{\tfrac{\mathrm{d}i}{\mathrm{d}t}_{\mathrm{pred},k}}{\sigma_{\dot{i},k}}, \frac{\tfrac{\mathrm{d}i}{\mathrm{d}t}_{\mathrm{true},k}}{\sigma_{\dot{i},k}}\right) \Bigg]
+  \end{split}
+  \label{eq:loss_v}
+\end{equation}
+
+
+This formulation captures the velocity characteristics of electrical variables, ensuring that transient behaviors and switching dynamics are accurately reproduced by the model.
+
+The second-order comparison term addresses trajectory curvature characteristics, which are essential for capturing subtle variations in system dynamics that manifest as nonlinear memristor behaviors. This component facilitates superior representation of curvature properties within the phase-space trajectory, particularly important for modeling systems exhibiting complex nonlinear and highly dynamic responses. The curvature loss is formulated as:
+\begin{equation}
+  \begin{split}
+    \mathcal{L}_{c} = \frac{1}{N_{\text{traj}}} \sum_{k=1}^{N_{\text{traj}}} \Bigg[ & \mathrm{MSE}\left(\frac{\tfrac{\mathrm{d}^2 v}{\mathrm{d}t^2}_{\mathrm{pred},k}}{\sigma_{\ddot{v},k}}, \frac{\tfrac{\mathrm{d}^2 v}{\mathrm{d}t^2}_{\mathrm{true},k}}{\sigma_{\ddot{v},k}}\right)          \\
+                                                                                    & + \mathrm{MSE}\left(\frac{\tfrac{\mathrm{d}^2 i}{\mathrm{d}t^2}_{\mathrm{pred},k}}{\sigma_{\ddot{i},k}}, \frac{\tfrac{\mathrm{d}^2 i}{\mathrm{d}t^2}_{\mathrm{true},k}}{\sigma_{\ddot{i},k}}\right) \Bigg]
+  \end{split}
+  \label{eq:loss_c}
+\end{equation}
+
+By incorporating second-order temporal derivatives, this component ensures that acceleration characteristics and higher-order dynamical features are preserved during the learning process.
+
+To enforce parameter bounds within specified intervals, a sophisticated constraint loss function utilizing smooth sigmoid transitions is implemented. This component prevents parameter drift beyond physically meaningful ranges while maintaining differentiability for gradient-based optimization algorithms. The constraint loss is mathematically expressed as:
+
+\begin{equation}
+  \begin{split}
+    \mathcal{L}_{\mathrm{con}}(x) = \mathbb{E}\Bigg[ & \Bigg(
+    \frac{1}{1 + \exp\!\left(\tfrac{x-a}{f}\right)} \cdot (a-x)                                                         \\
+                                                     & + \frac{1}{1 + \exp\!\left(\tfrac{-(x-b)}{f}\right)} \cdot (x-b)
+      \Bigg)^{2}\Bigg]
+  \end{split}
+  \label{eq:loss_con}
+\end{equation}
+
+where the constituent parameters are defined as follows,
+% \begin{itemize}
+\(\sigma(z) = \tfrac{1}{1+e^{-z}}\) represents the sigmoid activation function (implicitly used),
+\(a\) and \(b\) denote the lower and upper bounds of the admissible parameter range, respectively,
+\(f\) is a smoothing (scaling) factor controlling the steepness of the transition near the bounds,
+the term \(\tfrac{1}{1+\exp((x-a)/f)}(a-x)\) penalizes values of \(x\) below the lower bound \(a\),
+the term \(\tfrac{1}{1+\exp(-(x-b)/f)}(x-b)\) penalizes values of \(x\) above the upper bound \(b\),
+squaring ensures the penalty is non-negative and grows quadratically with the violation magnitude,
+\(\mathbb{E}[\cdot]\) denotes the expectation operator (ensemble average over samples or trajectories).
+% \end{itemize}
 
 This document applies to version 1.8b of IEEEtran.
 
@@ -86,17 +375,17 @@ It is assumed that the reader has a basic working knowledge of \LaTeX. Those who
 
 \begin{list}{}{}
   \item{Regular Journal Article}
-  \item{{\tt{$\backslash$documentclass[journal]{IEEEtran}}}}\\
+  \item{{\tt{\(\backslash\)documentclass[journal]{IEEEtran}}}}\\
   \item{{Conference Paper}}
-  \item{{\tt{$\backslash$documentclass[conference]{IEEEtran}}}}\\
+  \item{{\tt{\(\backslash\)documentclass[conference]{IEEEtran}}}}\\
   \item{Computer Society Journal Article}
-  \item{{\tt{$\backslash$documentclass[10pt,journal,compsoc]{IEEEtran}}}}\\
+  \item{{\tt{\(\backslash\)documentclass[10pt,journal,compsoc]{IEEEtran}}}}\\
   \item{Computer Society Conference Paper}
-  \item{{\tt{$\backslash$documentclass[conference,compsoc]{IEEEtran}}}}\\
+  \item{{\tt{\(\backslash\)documentclass[conference,compsoc]{IEEEtran}}}}\\
   \item{{Communications Society Journal Article}}
-  \item{{\tt{$\backslash$documentclass[journal,comsoc]{IEEEtran}}}}\\
+  \item{{\tt{\(\backslash\)documentclass[journal,comsoc]{IEEEtran}}}}\\
   \item{{Brief, Correspondence or Technote}}
-  \item{{\tt{$\backslash$documentclass[9pt,technote]{IEEEtran}}}}
+  \item{{\tt{\(\backslash\)documentclass[9pt,technote]{IEEEtran}}}}
 \end{list}
 
 There are other options available for each of these when submitting for peer review or other special requirements. IEEE recommends to compose your article in the base 2-column format to make sure all your equations, tables and graphics will fit the final 2-column format. Please refer to the document ``IEEEtran\_HOWTO.pdf'' for more information on settings for peer review submission if required by your EIC.
@@ -125,11 +414,11 @@ Informatics, Shizuoka University,
 Hamamatsu, Shizuoka, Japan.}
 }
 \end{verbatim}
-Be sure to use the $\backslash$IEEEmembership command to identify IEEE membership status.
+Be sure to use the \(\backslash\)IEEEmembership command to identify IEEE membership status.
 Please see the ``IEEEtran\_HOWTO.pdf'' for specific information on coding authors for Conferences and Computer Society publications. Note that the closing curly brace for the author group comes at the end of the thanks group. This will prevent you from creating a blank first page.
 
 \subsection{Running Heads}
-\noindent The running heads are declared by using the $\backslash${\tt{markboth}} command. There are two arguments to this command: the first contains the journal name information and the second contains the author names and paper title.
+\noindent The running heads are declared by using the \(\backslash\){\tt{markboth}} command. There are two arguments to this command: the first contains the journal name information and the second contains the author names and paper title.
 \begin{verbatim}
 \markboth{Journal of Quantum Electronics, 
 Vol. 1, No. 1, January 2021}
@@ -142,7 +431,7 @@ Paper Title}
 \noindent For Transactions and Journals papers, this is not necessary to use at the submission stage of your paper. The IEEE production process will add the appropriate copyright line. If you are writing a conference paper, please see the ``IEEEtran\_HOWTO.pdf'' for specific information on how to code "Publication ID Marks".
 
 \subsection{Abstracts}
-\noindent The abstract is the first element of a paper after the $\backslash${\tt{maketitle}} macro is invoked.  The coding is simply:
+\noindent The abstract is the first element of a paper after the \(\backslash\){\tt{maketitle}} macro is invoked.  The coding is simply:
 \begin{verbatim}
 \begin{abstract}
 Text of your abstract.
@@ -161,21 +450,21 @@ Broad band networks, quality of service
 \noindent The following sections describe common body text elements and how to code them.
 
 \subsection{Initial Drop Cap Letter}
-\noindent The first text paragraph uses a ``drop cap'' followed by the first word in ALL CAPS. This is accomplished by using the $\backslash${\tt{IEEEPARstart}} command as follows:
+\noindent The first text paragraph uses a ``drop cap'' followed by the first word in ALL CAPS. This is accomplished by using the \(\backslash\){\tt{IEEEPARstart}} command as follows:
 \begin{verbatim}
 \IEEEPARstart{T}{his} is the first paragraph 
 of your paper. . .
 \end{verbatim}
 
 \subsection{Sections and Subsections}
-\noindent Section headings use standard \LaTeX\ commands: $\backslash${\tt{section}}, $\backslash${\tt{subsection}} and $\backslash${\tt{subsubsection}}. Numbering is handled automatically for you and varies according to type of publication. It is common to not indent the first paragraph following a section head by using $\backslash${\tt{noindent}} as follows:
+\noindent Section headings use standard \LaTeX\ commands: \(\backslash\){\tt{section}}, \(\backslash\){\tt{subsection}} and \(\backslash\){\tt{subsubsection}}. Numbering is handled automatically for you and varies according to type of publication. It is common to not indent the first paragraph following a section head by using \(\backslash\){\tt{noindent}} as follows:
 \begin{verbatim}
 \section{Section Head}
 \noindent The text of your paragraph . . .
 \end{verbatim}
 
 \subsection{Citations to the Bibliography}
-\noindent The coding for the citations are made with the \LaTeX\ $\backslash${\tt{cite}} command. This will produce individual bracketed reference numbers in the IEEE style. At the top of your \LaTeX\ file you should include:
+\noindent The coding for the citations are made with the \LaTeX\ \(\backslash\){\tt{cite}} command. This will produce individual bracketed reference numbers in the IEEE style. At the top of your \LaTeX\ file you should include:
 \begin{verbatim}
 \usepackage{cite}
 \end{verbatim}
@@ -236,15 +525,15 @@ See figure \ref{fig1} . . .
 \hline
 Order & Arbitrary coefficients & 
 coefficients\\
-of filter & $e_m$ &   $b_{ij}$ \\
+of filter & \(e_m\) &   \(b_{ij}\) \\
 \hline
-1& $b_{ij}=\hat{e}.\hat{\beta_{ij}}$, 
-& $b_{00}=0$\\
+1& \(b_{ij}=\hat{e}.\hat{\beta_{ij}}\), 
+& \(b_{00}=0\)\\
 \hline
-2&$\beta_{22}=(~1,-1,-1,~~1,~~1,~~1)$ &\\ 
+2&\(\beta_{22}=(~1,-1,-1,~~1,~~1,~~1)\) &\\ 
 \hline
-3& $b_{ij}=\hat{e}.\hat{\beta_{ij}}$, 
-& $b_{00}=0$,\\
+3& \(b_{ij}=\hat{e}.\hat{\beta_{ij}}\), 
+& \(b_{00}=0\),\\
 \hline 
 \end{tabular}
 \end{center}
@@ -264,14 +553,14 @@ Table~\ref{tab1} lists the closed-form . . .
     \label{tab1}
     \begin{tabular}{| c | c | c |}
       \hline
-      Order     & Arbitrary coefficients              & coefficients \\
-      of filter & $e_m$                               & $b_{ij}$     \\
+      Order     & Arbitrary coefficients                & coefficients  \\
+      of filter & \(e_m\)                               & \(b_{ij}\)    \\
       \hline
-      1         & $b_{ij}=\hat{e}.\hat{\beta_{ij}}$,  & $b_{00}=0$   \\
+      1         & \(b_{ij}=\hat{e}.\hat{\beta_{ij}}\),  & \(b_{00}=0\)  \\
       \hline
-      2         & $\beta_{22}=(~1,-1,-1,~~1,~~1,~~1)$ &              \\
+      2         & \(\beta_{22}=(~1,-1,-1,~~1,~~1,~~1)\) &               \\
       \hline
-      3         & $b_{ij}=\hat{e}.\hat{\beta_{ij}}$,  & $b_{00}=0$,  \\
+      3         & \(b_{ij}=\hat{e}.\hat{\beta_{ij}}\),  & \(b_{00}=0\), \\
       \hline
     \end{tabular}
   \end{center}
@@ -361,7 +650,7 @@ supported your paper.
 \end{verbatim}
 
 \subsection{Bibliographies}
-\noindent {\bf{References Simplified:}} A simple way of composing references is to use the $\backslash${\tt{bibitem}} macro to define the beginning of a reference as in the following examples:\\
+\noindent {\bf{References Simplified:}} A simple way of composing references is to use the \(\backslash\){\tt{bibitem}} macro to define the beginning of a reference as in the following examples:\\
 
 
 \noindent [6] H. Sira-Ramirez. ``On the sliding mode control of nonlinear systems,'' \textit{Systems \& Control Letters}, vol. 19, pp. 303--312, 1992.
@@ -467,7 +756,7 @@ As such, IEEE has assembled a set of examples of good and bad mathematical types
 Further examples can be seen at \url{http://journals.ieeeauthorcenter.ieee.org/wp-content/uploads/sites/7/IEEE-Math-Typesetting-Guide.pdf}
 
 \subsection{Display Equations}
-\noindent A simple display equation example shown below uses the ``equation'' environment. To number the equations, use the $\backslash${\tt{label}} macro to create an identifier for the equation. LaTeX will automatically number the equation for you.
+\noindent A simple display equation example shown below uses the ``equation'' environment. To number the equations, use the \(\backslash\){\tt{label}} macro to create an identifier for the equation. LaTeX will automatically number the equation for you.
 \begin{equation}
   \label{deqn_ex1}
   x = \sum_{i=0}^{n} 2{i} Q.
@@ -481,7 +770,7 @@ x = \sum_{i=0}^{n} 2{i} Q.
 \end{equation}
 \end{verbatim}
 
-To reference this equation in the text use the $\backslash${\tt{ref}} macro.
+To reference this equation in the text use the \(\backslash\){\tt{ref}} macro.
 Please see (\ref{deqn_ex1})\\
 \noindent is coded as follows:
 \begin{verbatim}
@@ -705,11 +994,11 @@ a+b & u+v & z & 134
 \end{array} \right)
 \end{equation}
 \end{verbatim}
-Note the argument now has the pipe "$\vert$" included to indicate the placement of the vertical rules.
+Note the argument now has the pipe "\(\vert\)" included to indicate the placement of the vertical rules.
 
 
 \subsection{Cases Structures}
-\noindent Many times we find cases coded using the wrong environment, i.e., {\tt{array}}. Using the {\tt{cases}} environment will save keystrokes (from not having to type the $\backslash${\tt{left}}$\backslash${\tt{lbrace}}) and automatically provide the correct column alignment.
+\noindent Many times we find cases coded using the wrong environment, i.e., {\tt{array}}. Using the {\tt{cases}} environment will save keystrokes (from not having to type the \(\backslash\){\tt{left}}\(\backslash\){\tt{lbrace}}) and automatically provide the correct column alignment.
 \begin{equation*}
   {z_m(t)} = \begin{cases}
     1,   & {\text{if}}\ {\beta }_m(t) \\
@@ -726,10 +1015,10 @@ Note the argument now has the pipe "$\vert$" included to indicate the placement 
 \end{cases}
 \end{equation*}
 \end{verbatim}
-\noindent Note that the ``\&'' is used to mark the tabular alignment. This is important to get  proper column alignment. Do not use $\backslash${\tt{quad}} or other fixed spaces to try and align the columns. Also, note the use of the $\backslash${\tt{text}} macro for text elements such as ``if'' and ``otherwise''.
+\noindent Note that the ``\&'' is used to mark the tabular alignment. This is important to get  proper column alignment. Do not use \(\backslash\){\tt{quad}} or other fixed spaces to try and align the columns. Also, note the use of the \(\backslash\){\tt{text}} macro for text elements such as ``if'' and ``otherwise''.
 
 \subsection{Function Formatting in Equations}
-In many cases there is an easy way to properly format most common functions. Use of the $\backslash$ in front of the function name will in most cases, provide the correct formatting. When this does not work, the following example provides a solution using the $\backslash${\tt{text}} macro.
+In many cases there is an easy way to properly format most common functions. Use of the \(\backslash\) in front of the function name will in most cases, provide the correct formatting. When this does not work, the following example provides a solution using the \(\backslash\){\tt{text}} macro.
 
 \begin{equation*}
   d_{R}^{KM} = \underset {d_{l}^{KM}} {\text{arg min}} \{ d_{1}^{KM},\ldots,d_{6}^{KM}\}.
@@ -745,7 +1034,7 @@ In many cases there is an easy way to properly format most common functions. Use
 \end{verbatim}
 
 \subsection{ Text Acronyms inside equations}
-\noindent This example shows where the acronym ``MSE" is coded using $\backslash${\tt{text\{\}}} to match how it appears in the text.
+\noindent This example shows where the acronym ``MSE" is coded using \(\backslash\){\tt{text\{\}}} to match how it appears in the text.
 
 \begin{equation*}
   \text{MSE} = \frac {1}{n}\sum _{i=1}^{n}(Y_{i} - \hat {Y_{i}})^{2}
@@ -759,7 +1048,7 @@ In many cases there is an easy way to properly format most common functions. Use
 \end{verbatim}
 
 \subsection{Obsolete Coding}
-\noindent Avoid the use of outdated environments, such as {\tt{eqnarray}} and \$\$ math delimiters, for display equations. The \$\$ display math delimiters are left over from PlainTeX and should not be used in \LaTeX, ever. Poor vertical spacing will result.
+\noindent Avoid the use of outdated environments, such as {\tt{eqnarray}} and \\(\\) math delimiters, for display equations. The \\(\\) display math delimiters are left over from PlainTeX and should not be used in \LaTeX, ever. Poor vertical spacing will result.
 \subsection{Use Appropriate Delimiters for Display Equations}
 \noindent Some improper mathematical coding advice has been given in various YouTube\textsuperscript{TM} videos on how to write scholarly articles, so please follow these good examples:\\
 
