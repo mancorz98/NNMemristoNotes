@@ -173,12 +173,12 @@ The learning process involves iteratively adjusting the network parameters to mi
 
 Specifically, the \texttt{dopri5} (Dormand-Prince 5th order) adaptive Runge-Kutta solver was utilized for its superior balance between computational efficiency and numerical accuracy. This solver employs embedded error estimation for adaptive step-size control, ensuring stable integration of the memristor dynamics while maintaining computational tractability during training.
 
-The neural network architecture is illustrated in Figure~\ref{fig:nn-arch} and incorporates a strategically designed bottleneck configuration with dimensional two time reduction in the initial and final hidden layers. This architectural choice addresses several critical aspects of neural ODE training and memristor system modeling, like:
+The neural network architecture, illustrated in Figure~\ref{fig:nn-arch}, employs an expansion–compression (diamond-shaped) topology that incorporates a twofold reduction in dimensionality in both the initial and final hidden layers. This architectural configuration effectively addresses several challenges associated with neural ODE training and the modeling of memristive systems, namely:
 \begin{itemize}
-  \item Dimensional reduction at the start and end of the network significantly decreases the total parameter count,
-  \item  Parameter count reduction contributes to more stable optimization dynamics by limiting the search space complexity
-  \item Dimensional reduction helps mitigate gradient vanishing and explosion problems that commonly arise in deep networks processing long temporal sequences
-  \item  The bottleneck structure implicitly enforces a low-dimensional manifold assumption consistent with the underlying physics of memristor dynamics
+  \item Dimensionality reduction at the network’s input and output stages substantially decreases the overall number of trainable parameters,
+  \item The reduced parameterization facilitates more stable optimization dynamics by limiting the complexity of the parameter search space,
+  \item The controlled dimensional transitions help mitigate vanishing and exploding gradient issues commonly encountered in deep architectures processing extended temporal sequences,
+  \item The compression phase at the output acts as an implicit regularizer, constraining the learned representations to a compact, low-dimensional subspace consistent with the underlying physical behavior of memristor dynamics.
 \end{itemize}
 
 
@@ -405,21 +405,21 @@ The analysis encompasses three critical dynamic characteristics that collectivel
 
 The hysteresis loops are particularly diagnostic of memristor performance, as their shape, area, and switching thresholds directly reflect the underlying ionic transport mechanisms and structural modifications responsible for resistive switching. The pinched hysteresis characteristic observed at the origin serves as a definitive signature of memristive behavior, while the loop area quantifies the energy dissipation associated with switching events. These features enable comprehensive validation of the neural network model's ability to capture both the static and dynamic aspects of memristor operation.
 
-\newcommand{\subwidth}{0.48\linewidth}
+\newcommand{\subwidth}{0.49\linewidth}
 \begin{figure}[!t]
   \centering
   \subfloat[\label{1a}]{%
-    \includegraphics[width=\subwidth]{sample_results/v_m.png}%
+    \includegraphics[width=\subwidth]{sample_results/sol_plots_amp_1.5_freq_100.0_fig_0.pdf}%
   }
   % \hfill
   \subfloat[\label{1b}]{%
-    \includegraphics[width=\subwidth]{sample_results/i_m.png}%
+    \includegraphics[width=\subwidth]{sample_results/sol_plots_amp_1.5_freq_100.0_fig_1.pdf}%
   }
   \\
   \subfloat[\label{1c}]{%
-    \includegraphics[width=\subwidth]{sample_results/hysteresis.png}%
+    \includegraphics[width=\subwidth]{sample_results/sol_plots_amp_1.5_freq_100.0_fig_2.pdf}%
   }
-  \caption{Representative simulation results for tungsten-doped memristor dynamics under sinusoidal voltage excitation (amplitude: 1V, frequency: 1Hz). (a) Applied voltage waveform demonstrating the sinusoidal input stimulus, (b) Predicted memristor current response showing nonlinear temporal evolution and switching characteristics, (c) Voltage-current hysteresis loop (\(v_m - i_m\)) illustrating the characteristic pinched behavior and memory properties fundamental to memristive operation. The neural network model successfully captures the essential features of memristor dynamics including switching thresholds, nonlinear conductance modulation, and hysteretic memory effects. \TODO{Graphs will be replaced}}
+  \caption{Representative simulation results for tungsten-doped memristor dynamics under sinusoidal voltage excitation (amplitude: 1.5V, frequency: 100Hz). (a) Applied voltage waveform demonstrating the sinusoidal input stimulus, (b) Predicted memristor current response showing nonlinear temporal evolution and switching characteristics, (c) Voltage-current hysteresis loop (\(v_{\mathrm{m}} - i_{\mathrm{m}}\)) illustrating the characteristic pinched behavior and memory properties fundamental to memristive operation. The neural network model successfully captures the essential features of memristor dynamics including switching thresholds, nonlinear conductance modulation, and hysteretic memory effects.}
   \label{fig:sample-results}
 \end{figure}
 
