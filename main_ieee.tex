@@ -126,11 +126,11 @@ Measurements were carried out for various combinations of supply voltage amplitu
 \begin{align}
   \begin{split}
     \label{eq:memristor_model1}
-    \ua(t)                    & = \M \big(\xvec(t),\ua(t)\big) \, \ia(t), \\
+    \ia(t)                    & = \G \big(\xvec(t),\ua(t)\big) \, \ua(t), \\
     \frac{\der \xvec}{\der t} & = f\big(\xvec(t),\ua(t)\big)
   \end{split}
 \end{align}
-where \(\xvec\) denotes the vector of internal state variables, whose temporal evolution is governed by the dynamic function \(f\), and \(\M\) represents the memristance of the device. A fundamental challenge in memristor modeling lies in accurately identifying the functional forms of \(\M(\xvec,\ua)\) and \(f(\xvec,\ua)\).
+where \(\xvec\) denotes the vector of internal state variables, whose temporal evolution is governed by the dynamic function \(f\), and \(\G\) represents the memductance of the device. A fundamental challenge in memristor modeling lies in accurately identifying the functional forms of \(\G(\xvec,\ua)\) and \(f(\xvec,\ua)\).
 
 In this study, two neural network–based modeling approaches are investigated. The first, denoted as \textbf{Det-MemODE}, employs a deterministic formulation of the memristor conductance. The second, referred to as \textbf{Dual-NN-MemODE}, adopts a data-driven strategy in which the conductance is directly modeled using neural networks. Although both approaches utilize neural networks to approximate the dynamic function \(f(\xvec(t), \ua(t))\), they differ fundamentally in the representation of the memristor conductance.
 
@@ -429,14 +429,20 @@ The hysteresis loops are particularly diagnostic of memristor performance, as th
 \noindent
 To establish the performance advantages of the neural differential equation approach, a comprehensive comparative analysis was conducted between the developed neural network model and the established deterministics model especially conducted for the SDC memristor modelling task: Mean Metastable Switch (MMS) with the Eq. \eqref{eq:mms} and Generalized Mean Metastable Switch (GMMS) model with the Eq. \eqref{eq:gmms}.
 
-This comparison is particularly significant as the MMS model has been extensively validated against experimental data and serves as a benchmark for memristor circuit simulation in the scientific literature. The comparative evaluation encompasses temporal voltage and current evolution, hysteretic characteristics, and quantitative loss function metrics to provide comprehensive assessment of modeling fidelity across multiple performance dimensions.
+This comparison is particularly significant as the MMS and GMMS models have been extensively validated against experimental data and serve as a benchmark for memristor circuit simulation in the scientific literature \autocite{Bednarz2024, Ostrovskii2021}. The comparative evaluation encompasses temporal voltage and current evolution, hysteretic characteristics, and quantitative loss function metrics to provide comprehensive assessment of modeling fidelity across multiple performance dimensions.
 
-Quantitative analysis reveals substantial performance improvements achieved by the neural network approach. The average loss function value for the Det-MemODE neural network model was \(0.015223\), and \(0.002226\) for the Dual-NN-MemODE model, representing a significant improvement compared to the MMS model's average loss of \(0.072356\), and GMMS model \(0.035835\). This near two times reduction in loss indicates markedly superior agreement between neural network predictions and experimental data, demonstrating the enhanced modeling capability achieved through the neural differential equation framework.
+Quantitative analysis reveals substantial performance improvements achieved by the neural network approach. The average test loss function $\mathcal{L}_{\mathrm{base}}$ value for the Det-MemODE neural network model was \(2.16 \times 10^{-2}\), and \(7.08 \times 10^{-3}\) for the Dual-NN-MemODE model, representing a significant improvement compared to the MMS model's average loss of \(5.30 \times 10^{-2}\), and GMMS model \(4.19 \times 10^{-2}\). This near two times reduction in loss indicates markedly superior agreement between neural network predictions and experimental data, demonstrating the enhanced modeling capability achieved through the neural differential equation framework.
 
 
 The superior performance of the neural network model can be attributed to its capacity for learning complex nonlinear mappings directly from experimental data, whereas the MMS model relies on predetermined phenomenological relationships that may not fully capture the device-specific dynamics and material-dependent switching characteristics inherent in experimental memristor devices.
 \newcommand{\redbar}{\protect\tikz[baseline=-0.1ex]\fill[ieeered] (0,0) rectangle (0.8em,1.2ex);}\newcommand{\bluebar}{\protect\tikz[baseline=-0.1ex]\fill[ieeeblue] (0,0) rectangle (0.8em,1.2ex);}
 \newcommand{\greenbar}{\protect\tikz[baseline=-0.1ex]\fill[ieeegreen] (0,0) rectangle (0.8em,1.2ex);}
+
+
+
+Table~\ref{tab:mms_comp} presents a comparative analysis of the representative loss functions $\mathcal{L}_{\mathrm{base}}$ obtained for the neural network and deterministic models, offering a quantitative assessment of their performance across key electrical characteristics. The results highlight the neural network’s enhanced capability to reproduce complex and subtle aspects of memristor dynamics that are insufficiently captured by the phenomenological MMS/GMMS framework. For clarity, the highest loss value in each row is marked in red, whereas the lowest is marked in green. Overall, the neural network model consistently achieves substantially lower loss values, demonstrating superior accuracy and fidelity in representing the device behavior.
+
+Table~\ref{tab:mms_comp_test} depicted the loss function values $\mathcal{L}_{\mathrm{base}}$ calculated on the test dataset for the neural network and deterministic models, providing a quantitative evaluation of their generalization performance across unseen memristor dynamics. The results underscore the neural network's superior ability to accurately predict complex device behavior beyond the training data, as evidenced by consistently lower loss values compared to the MMS/GMMS models. This indicates that the neural differential equation framework not only captures intricate nonlinear relationships during training but also effectively generalizes to novel scenarios, highlighting its robustness and adaptability in modeling memristive systems.
 
 \begin{figure*}[!t]
   \centering
@@ -457,7 +463,8 @@ The superior performance of the neural network model can be attributed to its ca
   \label{fig:comparison_mms}
 \end{figure*}
 
-Table~\ref{tab:mms_comp} presents a comparative analysis of the representative loss functions obtained for the neural network and MMS models, offering a quantitative assessment of their performance across key electrical characteristics. The results highlight the neural network’s enhanced capability to reproduce complex and subtle aspects of memristor dynamics that are insufficiently captured by the phenomenological MMS/GMMS framework. For clarity, the highest loss value in each row is marked in red, whereas the lowest is marked in green. Overall, the neural network model consistently achieves substantially lower loss values, demonstrating superior accuracy and fidelity in representing the device behavior.
+
+
 
 \begin{table}
   \caption{Comparative \(\mathcal{L}_{\mathrm{base}}\) loss function analysis.}
@@ -465,9 +472,9 @@ Table~\ref{tab:mms_comp} presents a comparative analysis of the representative l
   \centering
   \begin{tabular}{c|cccc}
     \toprule
-    \multicolumn{5}{c}{\textbf{Loss function comparison for \(V_s = 0.5 \rm \ V\)}}                                                                                        \\
+    \multicolumn{5}{c}{\textbf{Loss function comparison for \(V_s = 0.5 \rm \ V\)}}                                                                                            \\
     \midrule
-    \(f_s\) [Hz] & \makecell{Det-                                                                                                                                          \\MemODE}             & \makecell{Dual-NN-                                                                                                             \\ MemODE}                 & \makecell{GMMS\\Model}             & \makecell{MMS\\Model}                                        \\
+    \(f_s\) [Hz] & \makecell{Det-                                                                                                                                              \\MemODE}             & \makecell{Dual-NN-                                                                                                             \\ MemODE}                 & \makecell{GMMS\\Model}             & \makecell{MMS\\Model}                                        \\
     \midrule
     \textbf{1}   & \(1.92 \times 10^{-3}\) & \color{ieeegreen} \bfseries \(2.07 \times 10^{-4}\) & \(5.21 \times 10^{-2}\) & \color{ieeered} \bfseries \(7.86 \times 10^{-2}\) \\
     \textbf{5}   & \(1.60 \times 10^{-3}\) & \color{ieeegreen} \bfseries \(2.85 \times 10^{-4}\) & \(3.70 \times 10^{-2}\) & \color{ieeered} \bfseries \(5.59 \times 10^{-2}\) \\
@@ -479,9 +486,9 @@ Table~\ref{tab:mms_comp} presents a comparative analysis of the representative l
   \end{tabular}
   \begin{tabular}{c|cccc}
     \toprule
-    \multicolumn{5}{c}{\textbf{Loss function comparison for \(V_s = 1 \rm \ V\)}}                                                                                          \\
+    \multicolumn{5}{c}{\textbf{Loss function comparison for \(V_s = 1 \rm \ V\)}}                                                                                              \\
     \midrule
-    \(f_s\) [Hz] & \makecell{Det-                                                                                                                                          \\MemODE}             & \makecell{Dual-NN-                                                                                                             \\ MemODE}                 & \makecell{GMMS\\Model}             & \makecell{MMS\\Model}                                        \\
+    \(f_s\) [Hz] & \makecell{Det-                                                                                                                                              \\MemODE}             & \makecell{Dual-NN-                                                                                                             \\ MemODE}                 & \makecell{GMMS\\Model}             & \makecell{MMS\\Model}                                        \\
     \midrule
     \textbf{1}   & \(6.40 \times 10^{-3}\) & \color{ieeegreen} \bfseries \(4.69 \times 10^{-4}\) & \(1.20 \times 10^{-2}\) & \color{ieeered} \bfseries \(3.08 \times 10^{-2}\) \\
     \textbf{5}   & \(4.58 \times 10^{-3}\) & \color{ieeegreen} \bfseries \(2.11 \times 10^{-3}\) & \(1.19 \times 10^{-2}\) & \color{ieeered} \bfseries \(3.37 \times 10^{-2}\) \\
@@ -493,9 +500,9 @@ Table~\ref{tab:mms_comp} presents a comparative analysis of the representative l
   \end{tabular}
   \begin{tabular}{c|cccc}
     \toprule
-    \multicolumn{5}{c}{\textbf{Loss function comparison for \(V_s = 1.5 \rm \ V\)}}                                                                                                                  \\
+    \multicolumn{5}{c}{\textbf{Loss function comparison for \(V_s = 1.5 \rm \ V\)}}                                                                                                                      \\
     \midrule
-    \(f_s\) [Hz] & \makecell{Det-                                                                                                                                                                    \\MemODE}             & \makecell{Dual-NN-                                                                                                             \\ MemODE}                 & \makecell{GMMS\\Model}             & \makecell{MMS\\Model}                                        \\
+    \(f_s\) [Hz] & \makecell{Det-                                                                                                                                                                        \\MemODE}             & \makecell{Dual-NN-                                                                                                             \\ MemODE}                 & \makecell{GMMS\\Model}             & \makecell{MMS\\Model}                                        \\
     \midrule
     \textbf{1}   & \(1.99 \times 10^{-2}\) & \color{ieeegreen} \bfseries \(2.95 \times 10^{-3}\) & \(1.77 \times 10^{-2}\)                           & \color{ieeered} \bfseries \(9.95 \times 10^{-2}\) \\
     \textbf{5}   & \(1.17 \times 10^{-2}\) & \color{ieeegreen} \bfseries \(1.26 \times 10^{-3}\) & \(1.73 \times 10^{-2}\)                           & \color{ieeered} \bfseries \(7.88 \times 10^{-2}\) \\
@@ -516,11 +523,11 @@ Table~\ref{tab:mms_comp} presents a comparative analysis of the representative l
   \begin{tabular}{c|cccc}
     \toprule
 
-                                  & \makecell{Det-                                                                                                                                                                          \\MemODE}             & \makecell{Dual-NN-                                                                                                             \\ MemODE}                 & \makecell{GMMS\\Model}             & \makecell{MMS\\Model}                                        \\
+                                  & \makecell{Det-                                                                                                                                                                             \\MemODE}             & \makecell{Dual-NN-                                                                                                             \\ MemODE}                 & \makecell{GMMS\\Model}             & \makecell{MMS\\Model}                                        \\
     \midrule
-    $\mathcal{L}_{\mathrm{base}}$ & $2.16 \times 10^{-2}$                          & \color{ieeegreen} \bfseries $7.08 \times 10^{-3}$ & $4.19 \times 10^{-2}$                & \color{ieeered} \bfseries $5.30 \times 10^{-2}$ \\
+    $\mathcal{L}_{\mathrm{base}}$ & $2.16 \times 10^{-2}$                          & \color{ieeegreen} \bfseries $7.08 \times 10^{-3}$ & $4.19 \times 10^{-2}$               & \color{ieeered} \bfseries $5.30 \times 10^{-2}$ \\
     $\mathcal{L}_{\mathrm{v}}$    & $2.96 \times 10^{-1}$                          & \color{ieeegreen} \bfseries $2.22 \times 10^{-1}$ & \color{ieeered} \bfseries $1.36 $   & $7.28 \times 10^{-1}$                           \\
-    $\mathcal{L}_{\mathrm{c}}$    & \color{ieeered} \bfseries $3.67 \times 10^{2}$ & $2.39 \times 10^{2}$                              & \color{ieeegreen} \bfseries $2.10 $ & $5.02 $                                        \\
+    $\mathcal{L}_{\mathrm{c}}$    & \color{ieeered} \bfseries $3.67 \times 10^{2}$ & $2.39 \times 10^{2}$                              & \color{ieeegreen} \bfseries $2.10 $ & $5.02 $                                         \\
     \bottomrule
   \end{tabular}
 \end{table}
