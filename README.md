@@ -14,3 +14,10 @@
   - [x] Rewrite to the IEEE format, 
   - [x] Use test loss instead of full loss, 
   - [ ] Add information about specific Neural Architecture structure,
+
+
+### 2025-10-22 Meeting notes: 
+  - [ ] Controversial validation metrics
+
+
+
