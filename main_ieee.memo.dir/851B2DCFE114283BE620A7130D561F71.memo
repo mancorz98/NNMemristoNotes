@@ -1,5 +1,0 @@
-\mmzMemo 
-\global \mmzContextExtra {}%
-%
-\mmzSource 
-\tikz [baseline=-0.1ex]\fill [ieeered] (0,0) rectangle (0.8em,1.2ex);
