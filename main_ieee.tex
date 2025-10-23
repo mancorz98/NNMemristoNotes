@@ -431,7 +431,7 @@ To establish the performance advantages of the neural differential equation appr
 
 This comparison is particularly significant as the MMS and GMMS models have been extensively validated against experimental data and serve as a benchmark for memristor circuit simulation in the scientific literature \autocite{Bednarz2024, Ostrovskii2021}. The comparative evaluation encompasses temporal voltage and current evolution, hysteretic characteristics, and quantitative loss function metrics to provide comprehensive assessment of modeling fidelity across multiple performance dimensions.
 
-Quantitative analysis reveals substantial performance improvements achieved by the neural network approach. The average test loss function $\mathcal{L}_{\mathrm{base}}$ value for the Det-MemODE neural network model was \(2.16 \times 10^{-2}\), and \(7.08 \times 10^{-3}\) for the Dual-NN-MemODE model, representing a significant improvement compared to the MMS model's average loss of \(5.30 \times 10^{-2}\), and GMMS model \(4.19 \times 10^{-2}\). This near two times reduction in loss indicates markedly superior agreement between neural network predictions and experimental data, demonstrating the enhanced modeling capability achieved through the neural differential equation framework.
+Quantitative analysis reveals substantial performance improvements achieved by the neural network approach. The average test loss function $\mathcal{L}_{\mathrm{base}}$ value for the Det-MemODE neural network model was \(1.82 \times 10^{-2}\), and \(8.82 \times 10^{-3}\) for the Dual-NN-MemODE model, representing a significant improvement compared to the MMS model's average loss of \(5.30 \times 10^{-2}\), and GMMS model \(4.19 \times 10^{-2}\). This near two times reduction in loss indicates markedly superior agreement between neural network predictions and experimental data, demonstrating the enhanced modeling capability achieved through the neural differential equation framework.
 
 
 The superior performance of the neural network model can be attributed to its capacity for learning complex nonlinear mappings directly from experimental data, whereas the MMS model relies on predetermined phenomenological relationships that may not fully capture the device-specific dynamics and material-dependent switching characteristics inherent in experimental memristor devices.
@@ -523,11 +523,11 @@ Table~\ref{tab:mms_comp_test} depicted the loss function values $\mathcal{L}_{\m
   \begin{tabular}{c|cccc}
     \toprule
 
-                                  & \makecell{Det-                                                                                                                                                                             \\MemODE}             & \makecell{Dual-NN-                                                                                                             \\ MemODE}                 & \makecell{GMMS\\Model}             & \makecell{MMS\\Model}                                        \\
+                                  & \makecell{Det-                                                                                                                                  \\MemODE}             & \makecell{Dual-NN-                                                                                                             \\ MemODE}                 & \makecell{GMMS\\Model}             & \makecell{MMS\\Model}                                        \\
     \midrule
-    $\mathcal{L}_{\mathrm{base}}$ & $2.16 \times 10^{-2}$                          & \color{ieeegreen} \bfseries $7.08 \times 10^{-3}$ & $4.19 \times 10^{-2}$               & \color{ieeered} \bfseries $5.30 \times 10^{-2}$ \\
-    $\mathcal{L}_{\mathrm{v}}$    & $2.96 \times 10^{-1}$                          & \color{ieeegreen} \bfseries $2.22 \times 10^{-1}$ & \color{ieeered} \bfseries $1.36 $   & $7.28 \times 10^{-1}$                           \\
-    $\mathcal{L}_{\mathrm{c}}$    & \color{ieeered} \bfseries $3.67 \times 10^{2}$ & $2.39 \times 10^{2}$                              & \color{ieeegreen} \bfseries $2.10 $ & $5.02 $                                         \\
+    $\mathcal{L}_{\mathrm{base}}$ & $1.82 \cdot 10^{-2}$ & \color{ieeegreen} \bfseries $8.28 \cdot 10^{-3}$ & $4.19 \cdot 10^{-2}$ & \color{ieeered} \bfseries $5.30 \cdot 10^{-2}$ \\
+    % $\mathcal{L}_{\mathrm{v}}$    & $2.96 \times 10^{-1}$                          & \color{ieeegreen} \bfseries $2.22 \times 10^{-1}$ & \color{ieeered} \bfseries $1.36 $   & $7.28 \times 10^{-1}$                          \\
+    % $\mathcal{L}_{\mathrm{c}}$    & \color{ieeered} \bfseries $3.67 \times 10^{2}$ & $2.39 \times 10^{2}$                              & \color{ieeegreen} \bfseries $2.10 $ & $5.02 $                                        \\
     \bottomrule
   \end{tabular}
 \end{table}
