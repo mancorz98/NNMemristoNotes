@@ -4,7 +4,7 @@
 
 
 # WARNING: 
-IEEE version of file for compilation use memoize package to cache tikz picture temporary file, to not compiling tikz pictures for every compilation. For this project `Python` version is involved. 
+IEEE version of file, For compilation is using memoize package to cache tikz picture temporary file, to not compiling tikz pictures for every compilation. For this project `Python` version is involved. 
 Instalation: http://polish-mirror.evolution-host.com/ctan/macros/generic/memoize/doc/memoize-doc.pdf
 
 ### 2025-09-10 Meeting notes:
