@@ -3,6 +3,9 @@
 # [IEEE format file version](main_ieee.pdf)
 
 
+# WARNING: 
+IEEE version of file for compilation use memoize package to cache tikz picture temporary file, to not 
+
 ### 2025-09-10 Meeting notes:
   - [x] controversial constraints function 
   - [x] problem with the notation for Algorithm 1
