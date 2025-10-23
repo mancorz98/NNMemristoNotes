@@ -246,7 +246,7 @@ Since the deterministic models involve multiple parameters, a hybrid optimizatio
 
 
 \subsection{Objective Function}
-\noindent The loss function through optimization based on the phase portrait is designed to simultaneously account for both the  signal values and its dynamic structure. To this end, it is defined as the sum of four components, each serving a distinct and complementary role in the optimization process. The total loss function is given by:
+\noindent The loss function for optimization is based on the phase portrait is designed to simultaneously account for both the  signal values and its dynamic structure. To this end, it is defined as the sum of four components, each serving a distinct and complementary role in the optimization process. The total loss function is given by:
 
 \begin{align}
   \begin{split}
@@ -254,7 +254,7 @@ Since the deterministic models involve multiple parameters, a hybrid optimizatio
     \label{eq:loss_function}
   \end{split}
 \end{align}
-Here, \(\mathcal{L}_{\mathrm{base}}\) denotes the primary error term,  measuring the difference between predicted and reference values, in that case the mean squared error (MSE). The term \(\mathcal{L}_{v}\) enforces accurate modeling of the velocity characteristics by considering the derivatives of trajectories in phase space. The component \(\mathcal{L}_{c}\) promotes consistency of the trajectories in terms of their curvature, for example by analyzing changes in trajectory direction or curvature. Finally, \(\mathcal{L}_{\mathrm{con}}(x)\) introduces additional physical or structural constraints that the model is required to satisfy, including conditions of stability, nonlinearities, or conformity to the underlying physical model. The weighting coefficients \(\lambda_{\mathrm{base}}\), \(\lambda_{\mathrm{vel}}\),  and \(\lambda_{\mathrm{curv}}\) balance the influence of each term within the overall loss function according to the priorities of the modeling task, and each of the values were calculated during each optimization step using the Geometric Loss Strategy (GLS), described in \cite{Cipolla2018, Chen2018}. with the following algorithm presented in Algorithm~\ref{alg:adaptive_loss_balancing}.
+Here, \(\mathcal{L}_{\mathrm{base}}\) denotes the primary error term and validation metric,  measuring the difference between predicted and reference values, in that case the mean squared error (MSE). The term \(\mathcal{L}_{v}\) enforces accurate modeling of the velocity characteristics by considering the derivatives of trajectories in phase space. The component \(\mathcal{L}_{c}\) promotes consistency of the trajectories in terms of their curvature, for example by analyzing changes in trajectory direction or curvature. Finally, \(\mathcal{L}_{\mathrm{con}}(x)\) introduces additional physical or structural constraints that the model is required to satisfy, including conditions of stability, nonlinearities, or conformity to the underlying physical model. The weighting coefficients \(\lambda_{\mathrm{base}}\), \(\lambda_{\mathrm{vel}}\),  and \(\lambda_{\mathrm{curv}}\) balance the influence of each term within the overall loss function according to the priorities of the modeling task, and each of the values were calculated during each optimization step using the Geometric Loss Strategy (GLS), described in \cite{Cipolla2018, Chen2018}. with the following algorithm presented in Algorithm~\ref{alg:adaptive_loss_balancing}.
 
 \begin{algorithm}[!t]
   \caption{Adaptive Loss Balancing with Clamping (Compact)}
