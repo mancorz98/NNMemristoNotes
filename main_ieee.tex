@@ -1,4 +1,8 @@
 \documentclass[a4,journal]{IEEEtran} % zmiana lettersize na a4 %ZG
+% ensure proper font encoding and provide Times-compatible fonts (fixes TU/ptm/b/n undefined)
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+
 \usepackage{amsmath,amsfonts}
 \usepackage{algorithmic}
 \usepackage{array}
@@ -11,6 +15,8 @@
 \usepackage{stfloats}
 \usepackage{url}
 \usepackage{verbatim}
+\usepackage{balance}
+
 \usepackage[extract=python]{memoize} %ZG
 % -- ADDED PACKAGES  after memoize --
 \usepackage{graphicx}
@@ -20,6 +26,10 @@
 \usepackage{pgfplots}
 \usepackage{booktabs}
 \usepackage{makecell}
+
+% optional packages - NOTES
+\usepackage{ifthen}
+
 
 % \usepackage{algpseudocode}
 
@@ -36,8 +46,37 @@
 \definecolor{blue}{RGB}{0,0,255}            % Blue
 \definecolor{darkgreen}{RGB}{0,180,0}  % Dark Green
 
-\newcommand{\TODO}[1]{{\color{red}{#1}}}
-\newcommand\changed[1]{{\color{blue}#1}}
+
+\newcounter{todocounter}
+
+\makeatletter
+\newcommand{\listoftodos}{\section*{List of TODOs}\@starttoc{tod}}
+\newcommand{\l@todo}[2]{#1 \dotfill #2\par}
+\makeatother
+
+% \newcommand{\TODO}[2][]{%
+%   \stepcounter{todocounter}%
+%   {\color{red}#2}%
+%   \ifx\relax#1\relax
+%     \addcontentsline{tod}{todo}{\protect\numberline{\thetodocounter}#2}%
+%   \else
+%     {\color{orange}\,[#1]}%
+%     \addcontentsline{tod}{todo}{\protect\numberline{\thetodocounter}#2 -- \textit{#1}}%
+%   \fi
+% }
+
+
+
+\newcommand{\TODO}[2][]{%
+  {\color{red}#2}%
+  \ifthenelse{\equal{#1}{}}{}{%
+    {\color{cyan} -- #1}%
+  }%
+}
+
+\newcommand\changed[2][pending]{%
+  \ifthenelse{\equal{#1}{approved}}{#2}{{\color{blue}#2}}%
+}
 
 
 \newcommand{\der}{{\rm d}}
@@ -84,7 +123,6 @@
 
 \hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
 
-\usepackage{balance}
 
 \begin{document}
 \title{Neural ODE based modeling of memristive circuits}
@@ -106,7 +144,7 @@
   Memristor modeling, artificial neural network, neural ODE. %ZG
 \end{IEEEkeywords}
 
-
+% \listoftodos %KB
 \section{Introduction}
 \IEEEPARstart{N}{umerous} memristor models have been proposed in the scientific literature following the discovery of memristive behavior at the nanoscale. The original model, introduced in~\cite{Strukov2008}, conceptualizes the memristor as a series connection of two variable resistances corresponding to the conductive and insulating regions of the thin film. To more accurately model Self-Directed Channel (SDC) memristors, M.~Nugent and T.~Molter proposed the generalized \textit{Mean Metastable Switch} (MMS) model, which is a semi-empirical formulation. In this approach, the time derivative of the internal state variable is defined as a function of both the transition probabilities between metastable states and the current value of the state variable~\cite{Molter2016}. In~\cite{Lee2024}, the authors attempted to model memristive behavior using the \textit{Physics-Informed Neural Networks} (PINNs) framework. Although the reported results indicate the potential of this method, the study is not grounded in experimental measurements of physical memristor devices. Instead, the analysis is limited to comparisons with the outcomes of existing simulation models. Moreover, the training data employed during the neural network learning process were generated based on previously developed theoretical models, thereby limiting the ability to assess the method's accuracy in the context of real-world physical systems.
 
@@ -122,14 +160,14 @@ The present study aims to investigate the feasibility of modeling Self-Directed 
 Our objective is to assess whether neural network-based models can accurately reproduce the dynamic characteristics of SDC memristors, and to determine whether they offer any advantages over traditional theoretical approaches—particularly in terms of modeling flexibility, accuracy, and applicability to real-world, measurement-driven scenarios.
 
 
-\section{\changed{Modeling Memristors using Neural Networks}}
+\section{\changed[approved]{Modeling Memristors using Neural Networks}}
 
 %ZG removed "physical"
-\noindent This study utilizes experimental data obtained \changed{from Self-Directed Channel} (SDC) memristors doped with tungsten. The structure and properties of these devices have been described in detail in the literature, e.g., in~\cite{Garda2024, Campbell2017}.
+\noindent This study utilizes experimental data obtained \changed[approved]{from Self-Directed Channel} (SDC) memristors doped with tungsten. The structure and properties of these devices have been described in detail in the literature, e.g., in~\cite{Garda2024, Campbell2017}.
 
-The experimental setup, illustrated in Fig.~\ref{fig:memristor_setup}, \changed{consists} of an SDC memristor connected in series with a resistor. The sinusoidal input voltage \changed{is} supplied by an arbitrary waveform generator, while the voltage signals \changed{are} measured using a data acquisition (DAQ) system.
+The experimental setup, illustrated in Fig.~\ref{fig:memristor_setup}, \changed[approved]{consists} of an SDC memristor connected in series with a resistor. The sinusoidal input voltage \changed[approved]{is} supplied by an arbitrary waveform generator, while the voltage signals \changed[approved]{are} measured using a data acquisition (DAQ) system.
 
-Measurements \changed{are} carried out for various combinations of supply voltage amplitudes and frequencies. Specifically, the amplitude of the applied voltage was varied as $\Vs  \in \{0.5,\ 1.0,\ 1.5\}~\mathrm{[V]}$, and the frequency was selected from the set \(f \in \{1,\ 5,\ 10,\ 20,\ 50,\ 100\}~\mathrm{[Hz]}\).
+Measurements \changed[approved]{are} carried out for various combinations of supply voltage amplitudes and frequencies. Specifically, the amplitude of the applied voltage was varied as $\Vs  \in \{0.5,\ 1.0,\ 1.5\}~\mathrm{[V]}$, and the frequency was selected from the set \(f \in \{1,\ 5,\ 10,\ 20,\ 50,\ 100\}~\mathrm{[Hz]}\).
 
 \begin{figure}[!t]
   \centering
@@ -139,45 +177,45 @@ Measurements \changed{are} carried out for various combinations of supply voltag
   \label{fig:memristor_setup}
 \end{figure}
 
-\noindent The analyzed model \changed{of a memristor follows} the general theoretical framework of memristive devices originally introduced in~\cite{Chua1976}, and is expressed \changed{as}
+\noindent The analyzed model \changed[approved]{of a memristor follows} the general theoretical framework of memristive devices originally introduced in~\cite{Chua1976}, and is expressed \changed[approved]{as}
 \newcommand{\xvec}{\mathbf{x}}
 \begin{subequations}
   \label{eq:memristor_model}
 \begin{align}
-  %  \begin{split}
+  %  \begin{split{
     \ia(t)                    & = \G \left(\xvec(t),\ua(t)\right) \ua(t), \label{eq:memristor_model1}\\
     \frac{\der \xvec}{\der t} & = f\left(\xvec(t),\ua(t)\right), \label{eq:memristor_model2}
 %  \end{subequation}
 %  \end{split}
 \end{align}
 \end{subequations}
-where \(\xvec\) denotes the vector of internal state variables, whose temporal evolution is governed by the \changed{function} \(f\), and \(\G\) represents the memductance of the device. \changed{The} fundamental challenge in memristor modeling lies in accurately identifying the functional forms of \(\G(\xvec,\ua)\) and \(f(\xvec,\ua)\).
+where \(\xvec\) denotes the vector of internal state variables, whose temporal evolution is governed by the \changed[approved]{function} \(f\), and \(\G\) represents the memductance of the device. \changed[approved]{The} fundamental challenge in memristor modeling lies in accurately identifying the functional forms of \(\G(\xvec,\ua)\) and \(f(\xvec,\ua)\).
 
-\subsection{\changed{Neural ODE based Memristor Modeling}}
+\subsection{\changed[approved]{Neural ODE based Memristor Modeling}}
 
-\TODO{I suggest to change the acronym for the first method to ``SingleNN-MemODE''. What is your opinion?}
+\TODO[I was wondering Det - for deterministic equation, however this might be misleading]{I suggest to change the acronym for the first method to ``SingleNN-MemODE''. What is your opinion?}
 
-\noindent In this study, two neural network-based modeling approaches are \changed{proposed}. The first \changed{one}, denoted as \textbf{Det-MemODE}, employs a deterministic formulation of the memristor conductance \changed{$\G$, while the function $f$ defining the dynamics of internal variables is modeled using a neural network. In} the second \changed{one}, referred to as \textbf{Dual-NN-MemODE}, \changed{both \changed{$\G$ and $f$ are modeled} using neural networks}.
+\noindent In this study, two neural network-based modeling approaches are \changed[approved]{proposed}. The first \changed[approved]{one}, denoted as \textbf{Det-MemODE}, employs a deterministic formulation of the memristor conductance \changed[approved]{$\G$, while the function $f$ defining the dynamics of internal variables is modeled using a neural network. In} the second \changed[approved]{one}, referred to as \textbf{Dual-NN-MemODE}, both \changed[approved]{$\G$ and $f$ are modeled} using neural networks. 
 
 
 %ZG next line removed to save space
 %Although both approaches utilize neural networks to approximate the \changed{function} \(f(\xvec(t), \ua(t))\), they differ fundamentally in the representation of the memristor conductance.
-\changed{For the Det-MemODE approach, the function $f$ is implemented using an artificial neural network with a single output. For the Dual-NN-MemODE approach the number of outputs which is equal to the number of internal variables may be larger than 1. For both cases, the} neural network consists of interconnected nodes (neurons) that process information through weighted connections. Each neuron in the network computes its output according to:
+\changed[approved]{For the Det-MemODE approach, the function $f$ is implemented using an artificial neural network with a single output. For the Dual-NN-MemODE approach the number of outputs which is equal to the number of internal variables may be larger than 1. For both cases, the} neural network consists of interconnected nodes (neurons) that process information through weighted connections. Each neuron in the network computes its output according to:
 \begin{equation}
   y = \sigma\left(\sum_{i=1}^{n} w_i x_i + b\right), %ZG comma added 
 \end{equation}
 %ZG removed empty line,
 %ZG removed "and importance" 
-where \(w_i\) are the weights that determine the \changed{strength of} each input connection \(x_i\), \(b\) is the bias term that provides an adjustable threshold for neuron activation, and \(\sigma\) is the activation function (e.g., sigmoid, ReLU, or tanh) that introduces non-linearity into the model.
+where \(w_i\) are the weights that determine the \changed[approved]{strength of} each input connection \(x_i\), \(b\) is the bias term that provides an adjustable threshold for neuron activation, and \(\sigma\) is the activation function (e.g., sigmoid, ReLU, or tanh) that introduces non-linearity into the model.
 During the optimization process, the network parameters (weights \(w_i\) and biases \(b\)) are tuned jointly with the values of \(R_{\rm ON}\) and \(R_{\rm OFF}\).
 %ZG shortened
 %The weights represent the learnable parameters that encode the relationship between inputs and outputs, while biases allow neurons to shift their activation threshold, enabling the network to better fit the training data even when all inputs are zero. During the optimization process, the network parameters (weights and biases) are tuned jointly with the values of \(R_{\rm ON}\) and \(R_{\rm OFF}\).
 
-The learning process involves iteratively adjusting the network parameters to minimize \changed{the} loss function that quantifies the difference between predicted and target outputs. This is  achieved through backpropagation algorithm combined with gradient descent optimization, where gradients of the loss function with respect to each parameter are computed and used to update the weights and biases in the direction that reduces the overall error.
+The learning process involves iteratively adjusting the network parameters to minimize \changed[approved]{the} loss function that quantifies the difference between predicted and target outputs. This is  achieved through backpropagation algorithm combined with gradient descent optimization, where gradients of the loss function with respect to each parameter are computed and used to update the weights and biases in the direction that reduces the overall error.
 
-In the first approach (Det-MemODE), the memristor conductance is defined on the basis of the physical mechanisms underlying self-directed channel (SDC) devices. In such memristors, the resistance evolves as a result of \(\mathrm{Ag^+}\) ion migration and the dynamic formation of conductive filaments. Consequently, the device conductance exhibits a continuous transition between distinct resistance states. This transition can be described as a weighted combination of the limiting resistance values, modulated by the \changed{internal variable}. % ZG: removed "state"
-\changed{The relation between the internal variable and the memristor conductance has the form}
-\TODO{Removed definition of $M(x)$, is it needed?}
+In the first approach (Det-MemODE), the memristor conductance is defined on the basis of the physical mechanisms underlying self-directed channel (SDC) devices. In such memristors, the resistance evolves as a result of \(\mathrm{Ag^+}\) ion migration and the dynamic formation of conductive filaments. Consequently, the device conductance exhibits a continuous transition between distinct resistance states. This transition can be described as a weighted combination of the limiting resistance values, modulated by the \changed[approved]{internal variable}. % ZG: removed "state"
+\changed[approved]{The relation between the internal variable and the memristor conductance has the form}
+\TODO[I think it is not needed.]{Removed definition of $M(x)$, is it needed?}
 %Formally, memristor conductance is expressed as \(G_m(x) = \M(x)^{-1}\), where \(\M(x)\) denotes the state-dependent resistance.
 \begin{equation}
   G_{m}(x) = \frac{x}{R_{\rm ON}} + \frac{1 - x}{R_{\rm OFF}},
@@ -185,15 +223,15 @@ In the first approach (Det-MemODE), the memristor conductance is defined on the 
 \end{equation}
 where \(\Ron\) and \(\Roff\) denote the resistances in the low-conductance and high-conductance states, respectively.
 
-\changed{In the second approach (Dual-NN-MemODE), the memristor conductance is modeled using the second neural network.} \TODO{More description needed.}
+\changed[approved]{In the second approach (Dual-NN-MemODE), the memristor conductance is modeled using the second neural network.} \TODO{More description needed.}
 
-\changed{C}onceptual architecture\changed{s} \changed{are} illustrated in Fig.~\ref{fig:nn_structure} for the Det-MemODE and in Fig.~\ref{fig:nn_structure_dual} for the Dual-NN-MemODE.
+Conceptual architectures are illustrated in Fig.~\ref{fig:nn_structure} for the Det-MemODE and in Fig.~\ref{fig:nn_structure_dual} for the Dual-NN-MemODE.
 
 \begin{figure}[t!]
   \centering
   \includegraphics[width=\columnwidth]{figs/Rysowanie_schematów (2).pdf}
   %ZG replaced "computes the derivative function \(f_x(x,v)\)" by "evaluates the function \(f(x,v)\)" (subscript x removed)
-  \caption{ Conceptual diagram illustrating the use of a neural network to simulate the dynamics of the memristor, for the Det-MemODE, with schematic representation of the Neural ODE framework, where \changed{the} artificial neural network (ANN) evaluates \changed{the function \(f(x,v)\)}, which is then integrated by \changed{the} ODE solver to predict the state at the next time step \(x(t + \Delta t)\). The dashed feedback loop indicates the recurrent nature of the process, where the output state is fed back as input for subsequent predictions.\TODO{Replace $f_x$ by $f$ in the figure.}}
+  \caption{ Conceptual diagram illustrating the use of a neural network to simulate the dynamics of the memristor, for the Det-MemODE, with schematic representation of the Neural ODE framework, where \changed[approved]{the} artificial neural network (ANN) evaluates \changed[approved]{the function \(f(x,v)\)}, which is then integrated by \changed[approved]{the} ODE solver to predict the state at the next time step \(x(t + \Delta t)\). The dashed feedback loop indicates the recurrent nature of the process, where the output state is fed back as input for subsequent predictions. \TODO{Replace $f_x$ by $f$ in the figure.}}
   \label{fig:nn_structure}
 \end{figure}
 
@@ -201,7 +239,7 @@ where \(\Ron\) and \(\Roff\) denote the resistances in the low-conductance and h
   \centering
   \includegraphics[width=\columnwidth]{figs/Rysowanie_schematów (3).pdf}
   %ZG replaced "computes the derivative function \(f_x(x,v)\)" by "evaluates the function \(f(x,v)\)" (subscript x removed)
-  \caption{ Conceptual diagram illustrating the use of a neural network to simulate the dynamics of the memristor, for the Dual-NN-MemODE, with schematic representation of the Neural ODE framework, where \changed{the} artificial neural network (ANN) evaluates \changed{the function \(f(x,v)\)}, which is then integrated by \changed{the} ODE solver to predict the state at the next time step \(x(t + \Delta t)\).
+  \caption{ Conceptual diagram illustrating the use of a neural network to simulate the dynamics of the memristor, for the Dual-NN-MemODE, with schematic representation of the Neural ODE framework, where \changed[approved]{the} artificial neural network (ANN) evaluates \changed[approved]{the function \(f(x,v)\)}, which is then integrated by \changed[approved]{the} ODE solver to predict the state at the next time step \(x(t + \Delta t)\).
     %ZG commented the next line
     %The dashed feedback loop indicates the recurrent nature of the process, where the output state is fed back as input for subsequent predictions.
     \TODO{Replace $f_x$ by $f$ in the figure.}
@@ -218,13 +256,13 @@ where \(\Ron\) and \(\Roff\) denote the resistances in the low-conductance and h
 %ZG replaced "leveraging" by "utilizing"
 %ZG removed ", well described in"
 %ZG replaced "learning dynamic systems governed by differential equations" by "learning dynamics of systems governed by ODEs"
-\noindent The neural network \changed{training is} implemented using the \texttt{PyTorch} deep learning framework~\cite{paszke2019pytorchimperativestylehighperformance}, within the \texttt{Python} programming environment, \changed{utilizing} its automatic differentiation capabilities. To enable seamless integration of ordinary differential equations (ODEs) within the neural network training paradigm, the specialized \texttt{torchdiffeq} library \changed{is} employed. This library provides differentiable ODE solvers that facilitate efficient gradient computation with respect to solution trajectories through the adjoint sensitivity method~\cite{Ricky2018, Ricky2021, torchdiffeq}. This approach enables end-to-end training of neural differential equation models by maintaining gradient flow through the numerical integration process, which is essential for learning \changed{dynamics of systems governed by ODEs}.
+\noindent The neural network \changed[approved]{training is} implemented using the \texttt{PyTorch} deep learning framework~\cite{paszke2019pytorchimperativestylehighperformance}, within the \texttt{Python} programming environment, \changed[approved]{utilizing} its automatic differentiation capabilities. To enable seamless integration of ordinary differential equations (ODEs) within the neural network training paradigm, the specialized \texttt{torchdiffeq} library is employed. This library provides differentiable ODE solvers that facilitate efficient gradient computation with respect to solution trajectories through the adjoint sensitivity method~\cite{Ricky2018, Ricky2021, torchdiffeq}. This approach enables end-to-end training of neural differential equation models by maintaining gradient flow through the numerical integration process, which is essential for learning \changed[approved]{dynamics of systems governed by ODEs}.
 
 %ZG replaced "embedded error estimation" by "error estimation"
-Specifically, the \texttt{dopri5} (Dormand-Prince 5th order) adaptive Runge-Kutta solver \changed{is} utilized for its superior balance between computational efficiency and numerical accuracy. This solver \changed{employs error estimation} for adaptive step-size control, ensuring stable integration of the memristor dynamics while maintaining computational tractability during training.
+Specifically, the \texttt{dopri5} (Dormand-Prince 5th order) adaptive Runge-Kutta solver is utilized for its superior balance between computational efficiency and numerical accuracy. This solver \changed[approved]{employs error estimation} for adaptive step-size control, ensuring stable integration of the memristor dynamics while maintaining computational tractability during training.
 
-The neural network architecture, illustrated in Figure~\ref{fig:nn-arch}, employs an expansion–compression (diamond-shaped) topology that incorporates a \changed{double} reduction in dimensionality in both the initial and final hidden layers.
-\changed{This architectural configuration substantially decreases the overall number of trainable parameters and helps to mitigate vanishing and exploding gradient issues commonly encountered in deep architectures processing temporal sequences.}
+The neural network architecture, illustrated in Figure~\ref{fig:nn-arch}, employs an expansion–compression (diamond-shaped) topology that incorporates a double reduction in dimensionality in both the initial and final hidden layers.
+\changed[approved]{This architectural configuration substantially decreases the overall number of trainable parameters and helps to mitigate vanishing and exploding gradient issues commonly encountered in deep architectures processing temporal sequences.}
 %ZG the list below was replaced by a short description above
 %This architectural configuration effectively addresses several challenges associated with neural ODE training and the modeling of memristive systems: 
 %\begin{itemize}
@@ -233,6 +271,7 @@ The neural network architecture, illustrated in Figure~\ref{fig:nn-arch}, employ
 %  \item the controlled dimensional transitions help mitigate vanishing and exploding gradient issues commonly encountered in deep architectures processing extended temporal sequences,
 %  \item the compression phase at the output acts as an implicit regularizer, constraining the learned representations to a compact, low-dimensional subspace consistent with the underlying physical behavior of memristor dynamics.
 %\end{itemize}
+%KB: I think the list is not needed, the description above is enough.
 
 \begin{figure}[ht!]
   \centering
@@ -241,22 +280,22 @@ The neural network architecture, illustrated in Figure~\ref{fig:nn-arch}, employ
   }
   %ZG replaced (\(\lfloor N/2 \rfloor, N, \lfloor N/2 \rfloor\)) $\(\left(\lfloor N/2 \rfloor, N, \lfloor N/2 \rfloor\right)\)$ by
   %ZG removed "derivative", replaced "in the differential equation system" by "of the ODE system". 
-  \caption{Architecture of the feedforward neural network used within the Neural ODE framework for memristor dynamics modeling. The network consists of an input layer receiving two inputs, multiple hidden layers with decreasing-increasing-decreasing neuron counts \changed{$\left(\lfloor N/2 \rfloor, N,\ldots,N, \lfloor N/2 \rfloor\right)$}, activation functions between layers, and a single output. The Neural ODE block encompasses the core computational layers that approximate the function \(f(\xw(t), \ua(t))\) \changed{of the ODE system}.}
+  \caption{Architecture of the feedforward neural network used within the Neural ODE framework for memristor dynamics modeling. The network consists of an input layer receiving two inputs, multiple hidden layers with decreasing-increasing-decreasing neuron counts \changed[approved]{$\left(\lfloor N/2 \rfloor, N,\ldots,N, \lfloor N/2 \rfloor\right)$}, activation functions between layers, and a single output. The Neural ODE block encompasses the core computational layers that approximate the function \(f(\xw(t), \ua(t))\) \changed[approved]{of the ODE system}.}
 
   \label{fig:nn-arch}
 \end{figure}
 
 %ZG replaced "The network weights were optimized using several optimization techniques, including the \texttt{Adam} (Adaptive Moment Estimation) optimizer." by "Several techniques were tested for the optimization of network weights and the \texttt{Adam} (Adaptive Moment Estimation) optimizer was selected due to its superior performance."
-\changed{Several techniques are tested for the optimization of network weights and the \texttt{Adam} (Adaptive Moment Estimation) optimizer is selected due to its superior performance.}
+\changed[approved]{Several techniques are tested for the optimization of network weights and the \texttt{Adam} (Adaptive Moment Estimation) optimizer is selected due to its superior performance.}
 %ZG removed ", as described in"
-The choice of \changed{an} optimizer and its parameters \changed{is} guided by hyperparameter tuning conducted with the \texttt{Optuna} framework~\cite{Akiba2019}. The hyperparameter search space \changed{comprises} the learning rate, weight decay, and \changed{the} batch size, or architecture parameters like \changed{the} width or \changed{the} depth of \changed{the} neural network.
+The choice of an optimizer and its parameters is guided by hyperparameter tuning conducted with the \texttt{Optuna} framework~\cite{Akiba2019}. The hyperparameter search space comprises the learning rate, weight decay, and the batch size, or architecture parameters like the width or the depth of the neural network.
 %removed ", while"
 The optimal configuration was selected based on validation loss minimization. \TODO{What is ``validation loss minimization''?}
 
 % To enable adaptive control of the learning rate throughout training, the \texttt{ReduceLROnPlateau} scheduling strategy was employed. This performance-based scheduler dynamically adjusts the learning rate in response to plateaus in the monitored validation loss, thereby improving convergence stability. Specifically, the scheduler reduces the learning rate once the monitored loss stagnates, applies a predefined reduction factor, incorporates a patience interval before making adjustments, and enforces lower and upper bounds to prevent instability. This implementation strategy ensures robust and efficient training of neural differential equation models for memristor circuit simulation, integrating state-of-the-art deep learning practices with domain-specific techniques for dynamic system modeling.
 
 \subsection{Objective Function}
-\noindent The \changed{objective function $\mathcal{L}$ to be minimized in the optimization process} is based on \changed{trajectories generated by the dynamical system. It} is designed to simultaneously account for both the signal values and its dynamic structure. To this end, it is defined as the sum of four components, each serving a distinct and complementary role in the optimization process
+\noindent The \changed[approved]{objective function $\mathcal{L}$ to be minimized in the optimization process} is based on \changed[approved]{trajectories generated by the dynamical system. It} is designed to simultaneously account for both the signal values and its dynamic structure. To this end, it is defined as the sum of four components, each serving a distinct and complementary role in the optimization process
 %ZG removed the next line
 %. The total loss function is given by:
 %ZG replaced "\mathcal{L}_{\mathrm{total}}" by "\mathcal{L}", removed "\cdot", merged two lines into one line
@@ -268,13 +307,13 @@ The optimal configuration was selected based on validation loss minimization. \T
 %    \label{eq:loss_function}
 %  \end{split}
 \end{align}
-\changed{The first term \(\mathcal{L}_{\mathrm{base}}\) denotes the primary error computed as} the mean squared error (MSE) \changed{between} predicted and reference values. \(\mathcal{L}_{v}\) enforces accurate modeling of \changed{derivatives of state variables}, \(\mathcal{L}_{c}\) promotes consistency of the trajectories in terms of their curvature by \changed{computing MSE of second derivatives}, and \(\mathcal{L}_{\mathrm{con}}(x)\) \changed{enforces fulfillment of} physical or structural constraints that the model is required to satisfy, including
+\changed[approved]{The first term \(\mathcal{L}_{\mathrm{base}}\) denotes the primary error computed as} the mean squared error (MSE) between predicted and reference values. \(\mathcal{L}_{v}\) enforces accurate modeling of \changed[approved]{derivatives of state variables}, \(\mathcal{L}_{c}\) promotes consistency of the trajectories in terms of their curvature by \changed[approved]{computing MSE of second derivatives}, and \(\mathcal{L}_{\mathrm{con}}(x)\) \changed[approved]{enforces fulfillment of} physical or structural constraints that the model is required to satisfy, including
 %removed "conditions of stability, nonlinearities, or"
 conformity to the underlying physical model.
 %ZG removed "within the overall loss function"
 The weighting coefficients \(\lambda_{\mathrm{base}}\), \(\lambda_{\mathrm{vel}}\), and \(\lambda_{\mathrm{curv}}\) balance the influence of each term according to the priorities of the modeling task.
 %, and each of the values were calculated during each optimization step using the Geometric Loss Strategy (GLS), described in \cite{Cipolla2018, Chen2018}. with the following algorithm presented in Algorithm~\ref{alg:adaptive_loss_balancing}.
-\changed{Their} values \changed{are} calculated during each optimization step using the Geometric Loss Strategy \changed{(GLS)~\cite{Cipolla2018, Chen2018}} \changed{using} the \changed{Algorithm~\ref{alg:adaptive_loss_balancing}}.
+Their values are calculated during each optimization step using the Geometric Loss Strategy \changed[approved]{(GLS)~\cite{Cipolla2018, Chen2018}} using the \changed[approved]{Algorithm~\ref{alg:adaptive_loss_balancing}}.
 
 \begin{algorithm}[!t]
   \caption{Adaptive Loss Balancing with Clamping (Compact)}
@@ -292,13 +331,13 @@ The weighting coefficients \(\lambda_{\mathrm{base}}\), \(\lambda_{\mathrm{vel}}
   \end{algorithmic}
 \end{algorithm}
 %ZG removed "datasets", removed 'trajectory-specific"
-\changed{Let us consider the sequence $(z_{k,t})_{t=1}^T$, where $z \in \{v,i,\dot{v},\dot{i},\ddot{v},\ddot{i}\}$ is a selected variable (voltage or current) or its derivative, $T$ is total number of samples and $k = 1,2,\ldots, N_{\text{traj}}$ is the sequence index.}
+\changed[approved]{Let us consider the sequence $(z_{k,t})_{t=1}^T$, where $z \in \{v,i,\dot{v},\dot{i},\ddot{v},\ddot{i}\}$ is a selected variable (voltage or current) or its derivative, $T$ is total number of samples and $k = 1,2,\ldots, N_{\text{traj}}$ is the sequence index.}
 %For circuit trajectory datasets indexed by \(k = 1, \ldots, N_{\text{traj}}\), a trajectory-specific standardization procedure is implemented to normalize each electrical variable \(z \in \{v, i\}\) (representing voltage and current measurements, respectively). This normalization process utilizes the standard deviation computed independently for each individual trajectory sequence, ensuring statistical consistency within each temporal dataset.
 %The trajectory-specific standard deviation is calculated using the unbiased sample estimator:
 %The parameter \(T\) represents the temporal resolution of the trajectory, corresponding to the total number of discrete time-series sampling points within each measurement sequence.
 % unbiased sample estimator:
-\changed{The sequence is normalized utilizing the standard deviation to ensure statistical consistency within each dataset}.
-The trajectory-specific standard deviation is calculated using the \changed{unbiased estimator}
+\changed[approved]{The sequence is normalized utilizing the standard deviation to ensure statistical consistency within each dataset}.
+The trajectory-specific standard deviation is calculated using the \changed[approved]{unbiased estimator}
 \begin{equation}
   \sigma_{z,k} = \sqrt{\frac{1}{T-1} \sum_{t=1}^{T} \left(z_{k,t}^{\mathrm{true}} - \bar{z}_k^{\mathrm{true}}\right)^2},
 \end{equation}
@@ -310,11 +349,11 @@ where the trajectory temporal mean is defined as $\bar{z}_k^{\mathrm{true}} = \f
 %
 %ZG removed obvious statements to reduce manuscript length
 %This trajectory-wise normalization methodology serves several critical analytical objectives in circuit analysis and machine learning applications. Primarily, it establishes scale invariance across electrical signals exhibiting disparate amplitude characteristics, thereby facilitating quantitative comparison of dynamic waveform morphologies independent of absolute magnitude variations. Furthermore,
-\changed{This} standardization approach enhances the numerical stability and convergence properties of optimization algorithms employed in neural network training procedures.
+This standardization approach enhances the numerical stability and convergence properties of optimization algorithms employed in neural network training procedures.
 
-By implementing trajectory-specific normalization rather than global standardization, the methodology preserves the inherent temporal dynamics and statistical properties unique to each circuit configuration while simultaneously ensuring that amplitude disparities do not introduce systematic bias \changed{during predictive modeling procedures}. 
+By implementing trajectory-specific normalization rather than global standardization, the methodology preserves the inherent temporal dynamics and statistical properties unique to each circuit configuration while simultaneously ensuring that amplitude disparities do not introduce systematic bias \changed[approved]{during predictive modeling procedures}. 
 %during pattern recognition, feature extraction, or predictive modeling procedures.
-This approach is particularly advantageous in scenarios involving heterogeneous circuit topologies or varying operational conditions, where maintaining the relative temporal \changed{structure is} paramount for accurate system identification and dynamic analysis.
+This approach is particularly advantageous in scenarios involving heterogeneous circuit topologies or varying operational conditions, where maintaining the relative temporal structure is paramount for accurate system identification and dynamic analysis.
 %structure of electrical phenomena is
 %ZG removed to reduce length
 %The neural network loss function comprises several specialized components designed to optimize memristor circuit modeling performance across multiple dynamical characteristics. Each component addresses specific aspects of the temporal and nonlinear behavior exhibited by memristive systems.
@@ -337,7 +376,7 @@ The primary component of the loss function is responsible for model fitting to e
 %ZG removed blank line
 where \(v_{\mathrm{pred},k}\) and \(i_{\mathrm{pred},k}\) represent the predicted voltage and current for trajectory \(k\), while \(v_{\mathrm{true},k}\) and \(i_{\mathrm{true},k}\) denote the corresponding experimental measurements.
 % moved from displayed equation to text
-The mean squared error \changed{between two sequences $(\hat{y}_i)_{i=1}^n$ and $(y_i)_{i=1}^n$} of $n$ data points is defined as
+The mean squared error \changed[approved]{between two sequences $(\hat{y}_i)_{i=1}^n$ and $(y_i)_{i=1}^n$} of $n$ data points is defined as
 $\mathrm{MSE}(\hat{y}, y) = \frac{1}{n} \sum_{i=1}^{n} (\hat{y}_i - y_i)^2$. 
 %The mean squared error for a sequence of \(n\) data points is defined as in Eq~\eqref{eq:mse}:
 %\begin{equation}
@@ -346,7 +385,7 @@ $\mathrm{MSE}(\hat{y}, y) = \frac{1}{n} \sum_{i=1}^{n} (\hat{y}_i - y_i)^2$.
 %\end{equation}
 
 
-The first-order dynamics comparison \changed{$\mathcal{L}_{v}$} enables evaluation of temporal derivative agreement between model predictions and experimental data, particularly critical for capturing rapid memristor state transitions
+The first-order dynamics comparison \changed[approved]{$\mathcal{L}_{v}$} enables evaluation of temporal derivative agreement between model predictions and experimental data, particularly critical for capturing rapid memristor state transitions
 %ZG removed next line to reduce length
 %This component ensures that the neural network learns not only absolute signal values but also their instantaneous rates of change, which is fundamental for accurate modeling of dynamic systems exhibiting switching phenomena. The first-order loss component is defined as:
 \begin{equation}
@@ -378,7 +417,7 @@ To enforce parameter bounds within specified intervals, a sophisticated constrai
 \begin{equation}
   \begin{split}
     \mathcal{L}_{\mathrm{con}}(x) = \mathbb{E}\left[ \left(
-    \changed{\sigma\left(-\tfrac{x-a}{f}\right)}(a-x)+\changed{\sigma\left(\tfrac{x-b}{f}\right)}(x-b)
+    {\sigma\left(-\tfrac{x-a}{f}\right)}(a-x)+{\sigma\left(\tfrac{x-b}{f}\right)}(x-b)
       \right)^{2}\right],%ZG added comma, \bigg replaced by \left or \right
   \end{split}
   \label{eq:loss_con}
@@ -387,22 +426,22 @@ To enforce parameter bounds within specified intervals, a sophisticated constrai
 %ZG removed next line
 %where the constituent parameters are defined as follows,
 % \begin{itemize}
-\changed{where $\sigma(z) = (1+e^{-z})^{-1}$ is} the sigmoid activation function,
+\changed[approved]{where $\sigma(z) = (1+e^{-z})^{-1}$ is} the sigmoid activation function,
 %ZG removed next line
 %(implicitly used),
 \(a\) and \(b\) denote the lower and upper bounds of the admissible parameter range, respectively,
-\(f\) is a \changed{scaling} factor controlling the steepness of the transition near the bounds, and
-\(\mathbb{E}[\cdot]\) denotes the \changed{expected value} (ensemble average over samples or trajectories).
-\changed{The} term \changed{$\sigma(-(x-a)/f)(a-x)$} penalizes values of \(x\) below the lower bound \(a\),
-\changed{while} the term \changed{$\sigma((x-b)/f)(x-b)$} penalizes values of \(x\) above the upper bound \(b\). 
-\changed{Squaring} ensures \changed{that} the penalty is non-negative and grows  with the violation magnitude.
+\(f\) is a \changed[approved]{scaling} factor controlling the steepness of the transition near the bounds, and
+\(\mathbb{E}[\cdot]\) denotes the \changed[approved]{expected value} (ensemble average over samples or trajectories).
+The term \changed[approved]{$\sigma(-(x-a)/f)(a-x)$} penalizes values of \(x\) below the lower bound \(a\),
+while the term \changed[approved]{$\sigma((x-b)/f)(x-b)$} penalizes values of \(x\) above the upper bound \(b\).
+Squaring ensures that the penalty is non-negative and grows  with the violation magnitude.
 
-The operational characteristics of the constraint function \(\mathcal{L}_{\mathrm{con}}(\changed{x})\) \changed{is} illustrated in Figure~\ref{fig:constrains} for the parameter configuration: \(a=0\), \(b=1\), $\changed{f=0.0025}$ \TODO{(verify $f$)} over the domain \(\changed{x} \in (-0.5, 1.5)\).
+The operational characteristics of the constraint function \(\mathcal{L}_{\mathrm{con}}(x)\) \changed[approved]{are} illustrated in Figure~\ref{fig:constrains} for the parameter configuration: \(a=0\), \(b=1\), $\changed[approved]{f=0.0025}$ \TODO{(verify $f$)} over the domain \(x \in (-0.5, 1.5)\).
 %ZG next line removed to save space
 %This visualization demonstrates the smooth sigmoid-based transition behavior that provides continuous penalty gradients while maintaining differentiability across the parameter space. The constraint function architecture ensures that parameters within the admissible range \((0,1)\).
 %ZG moved from the figure caption
 %ZG removed "feasible"
-The function \changed{$\mathcal{L}_{\mathrm{con}}(x)$} exhibits minimal penalty in the region \(x\in(0,1)\) and progressively increasing penalties as the \changed{parameter $x$ exceeds} the boundary limits. 
+The function \changed[approved]{$\mathcal{L}_{\mathrm{con}}(x)$} exhibits minimal penalty in the region \(x\in(0,1)\) and progressively increasing penalties as the \changed[approved]{parameter $x$ exceeds} the boundary limits.
 
 \begin{figure}[!t]
   \centering
@@ -410,7 +449,7 @@ The function \changed{$\mathcal{L}_{\mathrm{con}}(x)$} exhibits minimal penalty 
     \input{graphs/constraints.tex}
   }
   %ZG modified caption
-  \caption{\changed{The} constraint function \(\mathcal{L}_{\mathrm{con}}(\changed{x})\) for \changed{$a=0$, $b=1$, $f=0.0025$}.}
+  \caption{The constraint function \(\mathcal{L}_{\mathrm{con}}(x)\) for \changed[approved]{$a=0$, $b=1$, $f=0.0025$}.}
   \label{fig:constrains}
 \end{figure}
 
@@ -419,7 +458,7 @@ The function \changed{$\mathcal{L}_{\mathrm{con}}(x)$} exhibits minimal penalty 
 %During neural network training, specific interval constraints were implemented to ensure physically meaningful and numerically stable parameter values that align with experimental memristor characteristics and theoretical boundaries. These constraints prevent parameter drift into unphysical regimes while maintaining the differentiability required for gradient-based optimization algorithms.
 
 %ZG removed "critical"
-The following constraint intervals \changed{are} applied to
+The following constraint intervals are applied to
 %critical
 memristor model parameters for the Det-MemODE and Dual-NN-MemODE approaches:
 %ZG removed long descriptions to save space, a shorter description is added below the list
@@ -433,56 +472,56 @@ memristor model parameters for the Det-MemODE and Dual-NN-MemODE approaches:
   %– This constraint limits the conductance parameter to a realistic range based on empirical measurements of memristor devices, preventing unphysically high conductance values that could lead to numerical instability or divergence during training, and ensuring passive device nature.
 \end{itemize}
 \TODO{What is $x(t)$ for the Dual-NN-MemODE?}\\
-\changed{The upper bound for the OFF-state resistance~$R_{\mathrm{OFF}}$ and bounds for the conductance parameter~$G$ are based on empirical measurements.
+\changed[approved]{The upper bound for the OFF-state resistance~$R_{\mathrm{OFF}}$ and bounds for the conductance parameter~$G$ are based on empirical measurements.
   Remaining constraints are consequences of physically meaningful values of parameters and variables.}\\
 \TODO{Is the objective function common for all models? If so, perhaps section ``C. Objective Function'' could be placed before section ``A. Neural ODE based Memristor Modeling''. }
 
 %ZG next paragraph removed to save space
 %These constraints are particularly crucial for memristor modeling because they preserve the fundamental physical relationships governing resistive switching phenomena while preventing the emergence of artifacts that could arise from parameter values outside the feasible operating regime.
 
-\subsection{\changed{Existing} Memristor \changed{Models} for Comparison}
+\subsection{Existing Memristor Models for Comparison}
 
-%ZG removed "introduced in", removed " described in" 
-\noindent To evaluate the effectiveness of the proposed \changed{models}, \changed{their performance is} compared with the \changed{performance} of two \changed{existing memristor} models: the Mean Metastable Switch (MMS) model~\cite{Minati2020} and the  Generalized Mean Metastable Switch Memristor (GMMS) model~\cite{Molter2016, Ostrovskii2021}.
+%ZG removed "introduced in", removed " described in"
+\noindent To evaluate the effectiveness of the proposed models, their performance is compared with the performance of two existing memristor models: the Mean Metastable Switch (MMS) model~\cite{Minati2020} and the  Generalized Mean Metastable Switch Memristor (GMMS) model~\cite{Molter2016, Ostrovskii2021}.
 
 %\subsubsection{Mean Metastable Switch (MMS) Model}
 
-\changed{The MMS model} is a simplified representation of \changed{memristor's} behavior, focusing on the average switching characteristics rather than the detailed dynamics. It captures \changed{essential features} by modeling the device as a two-state system, where the resistance can switch between a high-resistance state (HRS) and a low-resistance state (LRS) based on the applied voltage. This model describes the memristor dynamics \changed{as}
+\changed[approved]{The MMS model} is a simplified representation of memristor's behavior, focusing on the average switching characteristics rather than the detailed dynamics. It captures essential features by modeling the device as a two-state system, where the resistance can switch between a high-resistance state (HRS) and a low-resistance state (LRS) based on the applied voltage. This model describes the memristor dynamics as
 %ZG replaced "on" by "ON" and "off by ""OFF
 %ZG merged three equations into one align environment
 \begin{align}
   \label{eq:mms}
-  \dert{x} & = \frac{1}{\tau} \left( f_{\changed{\rm ON}}(t) (1-x) - f_{\changed{\rm OFF}}(t) x \right), \\%ZG added comma, replaced "\big[" by "\left(" and "\big]" by $\right)$
+  \dert{x} & = \frac{1}{\tau} \left( f_{\rm ON}(t) (1-x) - f_{\rm OFF}(t) x \right), \\%ZG added comma, replaced "\big[" by "\left(" and "\big]" by $\right)$
 %\end{align}
 %where
 %\begin{align}
-  f_{\rm ON}(t)  & = \changed{\sigma\left(-\beta (\ua(t)-\von)\right)} \label{eq:mms5b}, \\%ZG added comma, replaced "\frac{1}{1+e^{-\beta (\ua(t)-\von)}}" by \sigma(-\beta (\ua(t)-\von))
-  f_{\rm OFF}(t) & = 1 - \changed{\sigma\left(\beta (\ua(t)-\voff)\right)}  \label{eq:mms5c}, %ZG added comma, replaced "\frac{1}{1+e^{-\beta (\ua(t)-\voff)}}" by 
+  f_{\rm ON}(t)  & = \changed[approved]{\sigma\left(-\beta (\ua(t)-\von)\right)} \label{eq:mms5b}, \\%ZG added comma, replaced "\frac{1}{1+e^{-\beta (\ua(t)-\von)}}" by \sigma(-\beta (\ua(t)-\von))
+  f_{\rm OFF}(t) & = 1 - \changed[approved]{\sigma\left(\beta (\ua(t)-\voff)\right)}  \label{eq:mms5c}, %ZG added comma, replaced "\frac{1}{1+e^{-\beta (\ua(t)-\voff)}}" by
 \end{align}
 %ZG removed empty line
 %ZG replaced "\(\von\) denotes the switching voltage to the low-resistance state (LRS), \(\voff\) denotes the switching voltage to the high-resistance state (HRS)" by "$\von$ and $\voff$ denote the switching voltages to the low-resistance state (LRS) and the high-resistance state (HRS)
 %replaced "as in Eq.~\eqref{eq:conductance}" by "in~\eqref{eq:conductance}"
-where \changed{$\sigma(z) = (1+e^{-z})^{-1}$,} \(\beta= \frac{q}{kT}\), \(k\) is the Boltzmann constant, \(T\) is the absolute temperature, \(q\) represents the elementary charge, \changed{while $\von$ and $\voff$ denote the switching voltages to LRS and HRS states, respectively}. The instantaneous conductance of the memristor is defined \changed{in~\eqref{eq:conductance}}.
+where \changed[approved]{$\sigma(z) = (1+e^{-z})^{-1}$,} \(\beta= \frac{q}{kT}\), \(k\) is the Boltzmann constant, \(T\) is the absolute temperature, \(q\) represents the elementary charge, \changed[approved]{while $\von$ and $\voff$ denote the switching voltages to LRS and HRS states, respectively}. The instantaneous conductance of the memristor is defined \changed[approved]{in~\eqref{eq:conductance}}.
 
 %\subsubsection{Generalized Mean Metastable Switch (GMMS) Model}
 %ZG replaced "In~\autocite{Molter2016, Ostrovskii2021}" by "\cite{Molter2016, Ostrovskii2021}"
 %ZG removed "the authors introduced the Generalized Mean Metastable Switch (GMMS) model, in which the memristor is represented as a parallel connection of two memristors and a Schottky diode"
-\changed{In the GMMS model the memristor is represented as a parallel connection of \changed{memory-dependent element} and a Schottky diode~\cite{Molter2016, Ostrovskii2021}}. This formulation extends the original metastable switch concept by incorporating nonlinear current--voltage characteristics, enabling a more accurate representation of \changed{memristor's} behavior across a wide range of operating conditions.
-\changed{The} evolution of the state variable is governed \changed{by~\eqref{eq:mms}}, while the current--voltage relationship is
+\changed[approved]{In the GMMS model the memristor is represented as a parallel connection of \changed[approved]{memory-dependent element} and a Schottky diode~\cite{Molter2016, Ostrovskii2021}}. This formulation extends the original metastable switch concept by incorporating nonlinear current--voltage characteristics, enabling a more accurate representation of memristor's behavior across a wide range of operating conditions.
+The evolution of the state variable is governed by~\eqref{eq:mms}, while the current--voltage relationship is
 \begin{align}
   \begin{split}
-    \im(t)      & = \phi \imd(v, \changed{x}) + (1-\phi) i_d(v), \\ %ZG added comma
+    \im(t)      & = \phi \imd(v, x) + (1-\phi) i_d(v), \\ %ZG added comma
     i_d(v)    & = \alpha_f e^{\beta_f v} - \alpha_r e^{-\beta_r v}, \\ %ZG added comma
-    \imd(v, \changed{x}) & = \G_m(x) v,                           %ZG added comma
+    \imd(v, x) & = \G_m(x) v,                           %ZG added comma
   \end{split}
   \label{eq:gmms}
 \end{align}
 %ZG replaced "current through the device" by "current of the device"
-where \(\phi \in [0,1]\) is a parameter representing the \changed{ratio of the memory dependent current $\imd$ and total current $\im$ flowing through the device}. The parameters \(\alpha_f\), \(\beta_f\), \(\alpha_r\), and \(\beta_r\) are positive constants characterizing the forward and reverse current behavior along the Schottky barrier.
+where \(\phi \in [0,1]\) is a parameter representing the \changed[approved]{ratio of the memory dependent current $\imd$ and total current $\im$ flowing through the device}. The parameters \(\alpha_f\), \(\beta_f\), \(\alpha_r\), and \(\beta_r\) are positive constants characterizing the forward and reverse current behavior along the Schottky barrier.
 \TODO{Change of notations. $\imd$ - memory dependent current, previously $\im$, $\im$ - the total current, previously $i$. Please confirm whether this is ok.}
 
 %ZG removed Eq.~\eqref{eq:nonlinear_eq}
-\changed{The} inclusion of additional parameters and nonlinearities \changed{in the GMMS model} increases model's complexity and poses challenges for parameter optimization. \changed{An} additional challenge arises due to the Schottky effect, which introduces nonlinearity into the current–voltage characteristic. When the memristor is connected in series with a resistor, this requires solving \changed{a set of differential-algebraic equations (DAEs)} of the form 
+The inclusion of additional parameters and nonlinearities \changed[approved]{in the GMMS model} increases model's complexity and poses challenges for parameter optimization.An additional challenge arises due to the Schottky effect, which introduces nonlinearity into the current–voltage characteristic. When the memristor is connected in series with a resistor, this requires solving \changed[approved]{a set of differential-algebraic equations (DAEs)} of the form 
 \begin{equation}
   \left\{
   \begin{aligned}
@@ -497,10 +536,10 @@ where \(\vs(t)\) denotes the supply voltage, \(\vr(t) = \Rs i(t)\) is the voltag
 %\subsubsection{Parameter Optimization}
 %ZG removed "determinitic, removed "as" in "as implemented"
 
-Since the \changed{existing} models \changed{considered} involve multiple parameters, a hybrid optimization framework \changed{is} implemented to \changed{find} the parameter set that minimizes the discrepancy between model predictions and experimental data.
+Since the existing models considered involve multiple parameters, a hybrid optimization framework is implemented to find the parameter set that minimizes the discrepancy between model predictions and experimental data.
 %ZG removed next sentence
 %In comparison to neural network--based models, the number of parameters to be optimized is significantly smaller, which facilitates the calibration process.
-The \changed{optimization process} consists of two stages, combining global exploration with local refinement. In the first stage, a global optimization algorithm \changed{is} employed to systematically explore the parameter space and identify promising regions. Specifically, the Adaptive Differential Evolution with radius-limited sampling algorithm, available in the \verb|BlackBoxOptim| package\changed{~\cite{BlackBoxOptim}} for the \texttt{Julia} programming language, was utilized to efficiently search for candidate solutions. In the second stage, local refinement was performed using the L-BFGS-B algorithm~\cite{Zhu1997}, as implemented in the \texttt{Optim.jl} library. This hybrid optimization strategy effectively balances exploration and exploitation, thereby enhancing convergence towards the optimal parameter set while mitigating the risk of premature stagnation in suboptimal regions of the parameter space.
+The optimization process consists of two stages, combining global exploration with local refinement. In the first stage, a global optimization algorithm is employed to systematically explore the parameter space and identify promising regions. Specifically, the Adaptive Differential Evolution with radius-limited sampling algorithm, available in the \verb|BlackBoxOptim| package~\cite{BlackBoxOptim} for the \texttt{Julia} programming language, was utilized to efficiently search for candidate solutions. In the second stage, local refinement was performed using the L-BFGS-B algorithm~\cite{Zhu1997}, as implemented in the \texttt{Optim.jl} library. This hybrid optimization strategy effectively balances exploration and exploitation, thereby enhancing convergence towards the optimal parameter set while mitigating the risk of premature stagnation in suboptimal regions of the parameter space.
 
 \section{Results}
 \noindent During the preliminary experiments, a range of neural network architectures was systematically evaluated in order to identify the most suitable configuration for modeling memristor dynamics. The evaluation considered different numbers of hidden layers, neurons per layer, and optimization settings, with the aim of achieving a balance between model accuracy, generalization capability, and computational efficiency.
@@ -508,9 +547,9 @@ The \changed{optimization process} consists of two stages, combining global expl
 \TODO{The notions of the batch size and learning rates should be explained.}\\
 \TODO{Sizes of training and validation datasets should be given.}\\
 A representative learning curve corresponding to the Det-MemODE architecture, consisting of two hidden layers with 128 neurons each, trained using the \verb|Adam| optimizer with a learning rate of \(10^{-2}\) and a batch size of 2, is presented in Figure~\ref{fig:learning-curve}.
-The training process was conducted over \changed{360} epochs, with the \changed{objective} function $\mathcal{L}$ monitored on both the training and validation datasets to provide insights into convergence behavior and potential overfitting. The learning curve demonstrates a \changed{consistent decrease}
+The training process was conducted over 360 epochs, with the objective function $\mathcal{L}$ monitored on both the training and validation datasets to provide insights into convergence behavior and potential overfitting. The learning curve demonstrates a consistent decrease
 %ZG removed "and smooth"
-in values of $\mathcal{L}$ for both datasets, which indicates effective optimization and \changed{a} satisfactory model fitting to the experimental data. The close agreement between the training and validation loss further confirms the generalization ability of the selected architecture.
+in values of $\mathcal{L}$ for both datasets, which indicates effective optimization and a satisfactory model fitting to the experimental data. The close agreement between the training and validation loss further confirms the generalization ability of the selected architecture.
 
 In addition to the learning curve, Figure~\ref{fig:learning-curve} also presents the \(\vm\)--\(\im\) hysteresis characteristics obtained at selected stages of the optimization process. These snapshots highlight how the model progressively refines its internal representation of the device dynamics during training. The gradual improvement of the hysteresis fit across epochs illustrates the capability of the neural network to capture the nonlinear and history-dependent behavior of the memristor, thereby validating the suitability of the chosen architecture and training configuration.
 
@@ -528,8 +567,8 @@ In addition to the learning curve, Figure~\ref{fig:learning-curve} also presents
 Representative simulation results demonstrating the neural network model's predictive capabilities are presented in Figure~\ref{fig:sample-results} through comparative analysis of a tungsten-doped memristor device subjected to sinusoidal voltage excitation with an amplitude of $1.5\;\mathrm{V}$ and frequency of $100\;\mathrm{Hz}$.
 %ZG removed the line below to save space
 %These specific excitation parameters were selected to capture the characteristic switching dynamics while maintaining operation within the device's linear regime, enabling comprehensive evaluation of the model's ability to reproduce fundamental memristive behaviors.
-The analysis \changed{encompasses the voltage waveform, the current waveform and the voltage-current hysteresis relationships}.
-\changed{The voltage profile confirms the fidelity of the input stimulus. The temporal current response reveals the device's instantaneous electrical behavior and switching kinetics. The voltage-current hysteresis loops (\(\vm - \im\)) illustrate the fundamental memory properties that define memristive behavior.}
+The analysis \changed[approved]{encompasses the voltage waveform, the current waveform and the voltage-current hysteresis relationships}.
+\changed[approved]{The voltage profile confirms the fidelity of the input stimulus. The temporal current response reveals the device's instantaneous electrical behavior and switching kinetics. The voltage-current hysteresis loops (\(\vm - \im\)) illustrate the fundamental memory properties that define memristive behavior.}
 %ZG above is a shortened version of the paragraph below
 %The analysis encompasses three critical dynamic characteristics that collectively characterize memristor behavior: temporal current evolution, applied voltage profiles, and voltage-current hysteresis relationships.
 %The temporal current response reveals the device's instantaneous electrical behavior and switching kinetics, while the applied voltage profile confirms the fidelity of the input stimulus.
@@ -558,16 +597,16 @@ The hysteresis loops are particularly diagnostic of memristor performance, as th
 \end{figure}
 
 
-\subsection{Comparative Analysis with \changed{the MMS and GMMS Models}}
+\subsection{Comparative Analysis with \changed[approved]{the MMS and GMMS Models}}
 
 \noindent
-To \changed{assess} the performance of the neural \changed{ODE} approach, a comprehensive comparative analysis is conducted between the developed neural network \changed{models} and the \changed{existing models of SDC memristors: the} Mean Metastable Switch (MMS) model and \changed{the} Generalized Mean Metastable Switch (GMMS) model.
+To assess the performance of the neural ODE approach, a comprehensive comparative analysis is conducted between the developed neural network models and the existing models of SDC memristors: the Mean Metastable Switch (MMS) model and the Generalized Mean Metastable Switch (GMMS) model.
 
 %ZG \autocite -> \cite
 %ZG removed "across multiple performance dimensions"
 This comparison is particularly significant as the MMS and GMMS models have been extensively validated against experimental data and serve as a benchmark for memristor circuit simulation in the scientific literature~\cite{Bednarz2024, Ostrovskii2021}. The comparative evaluation encompasses temporal voltage and current evolution, hysteretic characteristics, and quantitative loss function metrics to provide comprehensive assessment of modeling fidelity. 
 
-\changed{Comparison results are plotted in Fig.~\ref{fig:comparison_mms}.} Quantitative analysis reveals substantial performance improvements achieved by the neural network approach. 
+\changed[approved]{Comparison results are plotted in Fig.~\ref{fig:comparison_mms}.} Quantitative analysis reveals substantial performance improvements achieved by the neural network approach.
 
 \begin{figure*}[!t]
   \centering
@@ -586,7 +625,7 @@ This comparison is particularly significant as the MMS and GMMS models have been
   }
   \caption{Comparative analysis of loss function values:
     (a) the Det-MemODE model, (b) the Dual-NN-MemODE model, (c) the MMS model, (d) the GMMS model. 
-    \changed{Results for voltage amplitudes \(\Vs =0.5, 1.0, 1.5\rm \ V\) are plotted in red (\redbar{}), blue (\bluebar{}) and green (\greenbar{}), respectively}. 
+    \changed[approved]{Results for voltage amplitudes \(\Vs =0.5, 1.0, 1.5\rm \ V\) are plotted in red (\redbar{}), blue (\bluebar{}) and green (\greenbar{}), respectively}. 
 %      where the following colors distinguish different supply : (\redbar{})~\(\Vs =0.5\rm \ V\), (\bluebar{})~\(\Vs =1.0\rm \ V\), and (\greenbar{}) \(\Vs =1.5\rm \ V\).
     %The neural network demonstrates superior convergence characteristics and achieves significantly lower final loss values, indicating enhanced modeling accuracy and better agreement with experimental memristor dynamics. %ZG removed
   }
@@ -594,7 +633,7 @@ This comparison is particularly significant as the MMS and GMMS models have been
 \end{figure*}
 
 %ZG removed "representative", removed "across key electrical characteristics"
-Table~\ref{tab:mms_comp} presents a comparative analysis of the loss functions $\mathcal{L}_{\mathrm{base}}$ obtained for the \changed{proposed and existing} models, offering a quantitative assessment of their performance. The results highlight the neural network’s enhanced capability to reproduce complex and subtle aspects of memristor dynamics that are insufficiently captured by the phenomenological MMS/GMMS framework. For clarity, the highest loss value in each row is marked in red, whereas the lowest is marked in green. Overall, the neural network model consistently achieves substantially lower loss values, demonstrating superior accuracy and fidelity in representing the device behavior.
+Table~\ref{tab:mms_comp} presents a comparative analysis of the loss functions $\mathcal{L}_{\mathrm{base}}$ obtained for the proposed and existing models, offering a quantitative assessment of their performance. The results highlight the neural network’s enhanced capability to reproduce complex and subtle aspects of memristor dynamics that are insufficiently captured by the phenomenological MMS/GMMS framework. For clarity, the highest loss value in each row is marked in red, whereas the lowest is marked in green. Overall, the neural network model consistently achieves substantially lower loss values, demonstrating superior accuracy and fidelity in representing the device behavior.
 
 \begin{table}
   \caption{Comparative \(\mathcal{L}_{\mathrm{base}}\) loss function analysis.}
@@ -644,7 +683,7 @@ Table~\ref{tab:mms_comp} presents a comparative analysis of the loss functions $
   \end{tabular}
 \end{table}
 
-Table~\ref{tab:mms_comp_test} \changed{reports} the average loss function values $\mathcal{L}_{\mathrm{base}}$ calculated on the test dataset for the \changed{proposed and existing} models, providing a quantitative evaluation of their generalization performance across unseen memristor dynamics.
+Table~\ref{tab:mms_comp_test} reports the average loss function values $\mathcal{L}_{\mathrm{base}}$ calculated on the test dataset for the proposed and existing models, providing a quantitative evaluation of their generalization performance across unseen memristor dynamics.
 The best result of \(8.82 \times 10^{-3}\) is obtained for the Dual-NN-MemODE model. The above two times reduction of the average values of the loss function for both proposed method when compared to existing methods demonstrates the enhanced modeling capability achieved through the neural ODE framework. 
 %The average test loss function $\mathcal{L}_{\mathrm{base}}$ values \changed{are} \(1.82 \times 10^{-2}\) and \(8.82 \times 10^{-3}\) \changed{for the Det-MemODE and Dual-NN-MemODE models, respectively. This represents} a significant improvement compared to the \changed{average loss function values of \(5.30 \times 10^{-2}\) and \(4.19 \times 10^{-2}\) for the MMS and GMMS models}.
 %ZG line below removed to save space

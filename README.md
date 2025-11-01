@@ -6,6 +6,11 @@
 # WARNING: 
 IEEE version of file, For compilation is using memoize package to cache tikz picture temporary file, to not compiling tikz pictures for every compilation. For this project `Python` version is involved. 
 Instalation: http://polish-mirror.evolution-host.com/ctan/macros/generic/memoize/doc/memoize-doc.pdf
+If the `Python` is installed, for the `UNIX` systems,  type in terminal: 
+```bash
+$(which python3)  -m pip install --break-system-packages  pdfrw2
+```
+
 
 ### 2025-09-10 Meeting notes:
   - [x] controversial constraints function 

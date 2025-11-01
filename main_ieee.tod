@@ -1,0 +1,17 @@
+\contentsline {todo}{\numberline {1}To do.}{1}{}%
+\contentsline {todo}{\numberline {2}I suggest to change the acronym for the first method to ``SingleNN-MemODE''. What is your opinion?}{2}{}%
+\contentsline {todo}{\numberline {3}Removed definition of $M(x)$, is it needed?}{2}{}%
+\contentsline {todo}{\numberline {4}More description needed.}{2}{}%
+\contentsline {todo}{\numberline {6}Replace $f_x$ by $f$ in the figure.}{3}{}%
+\contentsline {todo}{\numberline {9}Replace $f_x$ by $f$ in the figure.}{3}{}%
+\contentsline {todo}{\numberline {10}Description needed for the second ANN.}{3}{}%
+\contentsline {todo}{\numberline {11}What is ``validation loss minimization''?}{3}{}%
+\contentsline {todo}{\numberline {12}(verify $f$)}{5}{}%
+\contentsline {todo}{\numberline {13}What is $x(t)$ for the Dual-NN-MemODE?}{5}{}%
+\contentsline {todo}{\numberline {14}Is the objective function common for all models? If so, perhaps section ``C. Objective Function'' could be placed before section ``A. Neural ODE based Memristor Modeling''. }{5}{}%
+\contentsline {todo}{\numberline {15}Change of notations. $i_{\mathrm md}$ - memory dependent current, previously $i_{\mathrm m}$, $i_{\mathrm m}$ - the total current, previously $i$. Please confirm whether this is ok.}{5}{}%
+\contentsline {todo}{\numberline {16}The notions of the batch size and learning rates should be explained.}{6}{}%
+\contentsline {todo}{\numberline {17}Sizes of training and validation datasets should be given.}{6}{}%
+\contentsline {todo}{\numberline {18}I don't know if this section is necessary... but here it is anyway.}{7}{}%
+\contentsline {todo}{\numberline {19}It might be of interest to potential readers :-).}{7}{}%
+\contentsline {todo}{\numberline {20}What is the importance of optimizer type (mentioned in the search space). It would be interesting to know what are the obtained values of the loss function when using different values of certain hyperparameters (other parameters should be ones used for computations).}{8}{}%
