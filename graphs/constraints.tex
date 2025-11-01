@@ -3,7 +3,8 @@
     width=12cm,
     height=6cm,
     xlabel={$\mathbf{x}$},
-    ylabel={$\mathcal{L}_{\mathrm{con}}(\mathbf{x})$},
+    %ZG replaced \mathbf{x} by x
+    ylabel={$\mathcal{L}_{\mathrm{con}}(\changed{x})$},
     grid=major,
     grid style={dashed,gray!70},
     legend style={at={(0.98,0.98)},anchor=north east},
@@ -21,7 +22,8 @@
     ]
     {(1/(1 + exp(-(-((x - 0.01)/0.0025)))) * (0.01 - x)
       + 1/(1 + exp(-((x - 0.99)/0.0025))) * (x - 0.99))^2};
-    \addlegendentry{$\mathcal{L}_{\mathrm{con}}(\mathbf{x})$}
+    %ZG replaced \mathbf{x} by x
+    \addlegendentry{$\mathcal{L}_{\mathrm{con}}(\changed{x})$}
 
     % Vertical reference lines using simple approach
     \addplot[dashed, gray, forget plot] coordinates {(0,0) (0,0.5)};
