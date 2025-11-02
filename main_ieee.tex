@@ -68,9 +68,9 @@
 
 
 \newcommand{\TODO}[2][]{%
-  {\color{red}#2}%
+  {\color{red} TODO: #2}%
   \ifthenelse{\equal{#1}{}}{}{%
-    {\color{cyan} -- #1}%
+    {\color{cyan}---#1}%
   }%
 }
 
@@ -193,14 +193,14 @@ where \(\xvec\) denotes the vector of internal state variables, whose temporal e
 
 \subsection{\changed[approved]{Neural ODE based Memristor Modeling}}
 
-\TODO[I was wondering Det - for deterministic equation, however this might be misleading]{I suggest to change the acronym for the first method to ``SingleNN-MemODE''. What is your opinion?}
+\TODO[DONE -- I was wondering Det - for deterministic equation, however this might be misleading]{I suggest to change the acronym for the first method to ``SingleNN-MemODE''. What is your opinion?}
 
-\noindent In this study, two neural network-based modeling approaches are \changed[approved]{proposed}. The first \changed[approved]{one}, denoted as \textbf{Det-MemODE}, employs a deterministic formulation of the memristor conductance \changed[approved]{$\G$, while the function $f$ defining the dynamics of internal variables is modeled using a neural network. In} the second \changed[approved]{one}, referred to as \textbf{Dual-NN-MemODE}, both \changed[approved]{$\G$ and $f$ are modeled} using neural networks. 
+\noindent In this study, two neural network-based modeling approaches are \changed[approved]{proposed}. The first \changed[approved]{one}, denoted as \textbf{SingleNN-MemODE}, employs a deterministic formulation of the memristor conductance \changed[approved]{$\G$, while the function $f$ defining the dynamics of internal variables is modeled using a neural network. In} the second \changed[approved]{one}, referred to as \textbf{Dual-NN-MemODE}, both \changed[approved]{$\G$ and $f$ are modeled} using neural networks. 
 
 
 %ZG next line removed to save space
 %Although both approaches utilize neural networks to approximate the \changed{function} \(f(\xvec(t), \ua(t))\), they differ fundamentally in the representation of the memristor conductance.
-\changed[approved]{For the Det-MemODE approach, the function $f$ is implemented using an artificial neural network with a single output. For the Dual-NN-MemODE approach the number of outputs which is equal to the number of internal variables may be larger than 1. For both cases, the} neural network consists of interconnected nodes (neurons) that process information through weighted connections. Each neuron in the network computes its output according to:
+\changed[approved]{For the SingleNN-MemODE approach, the function $f$ is implemented using an artificial neural network with a single output. For the Dual-NN-MemODE approach the number of outputs which is equal to the number of internal variables may be larger than 1. For both cases, the} neural network consists of interconnected nodes (neurons) that process information through weighted connections. Each neuron in the network computes its output according to:
 \begin{equation}
   y = \sigma\left(\sum_{i=1}^{n} w_i x_i + b\right), %ZG comma added 
 \end{equation}
@@ -213,9 +213,9 @@ During the optimization process, the network parameters (weights \(w_i\) and bia
 
 The learning process involves iteratively adjusting the network parameters to minimize \changed[approved]{the} loss function that quantifies the difference between predicted and target outputs. This is  achieved through backpropagation algorithm combined with gradient descent optimization, where gradients of the loss function with respect to each parameter are computed and used to update the weights and biases in the direction that reduces the overall error.
 
-In the first approach (Det-MemODE), the memristor conductance is defined on the basis of the physical mechanisms underlying self-directed channel (SDC) devices. In such memristors, the resistance evolves as a result of \(\mathrm{Ag^+}\) ion migration and the dynamic formation of conductive filaments. Consequently, the device conductance exhibits a continuous transition between distinct resistance states. This transition can be described as a weighted combination of the limiting resistance values, modulated by the \changed[approved]{internal variable}. % ZG: removed "state"
+In the first approach (SingleNN-MemODE), the memristor conductance is defined on the basis of the physical mechanisms underlying self-directed channel (SDC) devices. In such memristors, the resistance evolves as a result of \(\mathrm{Ag^+}\) ion migration and the dynamic formation of conductive filaments. Consequently, the device conductance exhibits a continuous transition between distinct resistance states. This transition can be described as a weighted combination of the limiting resistance values, modulated by the \changed[approved]{internal variable}. % ZG: removed "state"
 \changed[approved]{The relation between the internal variable and the memristor conductance has the form}
-\TODO[I think it is not needed.]{Removed definition of $M(x)$, is it needed?}
+\TODO[DONE -- I think it is not needed.]{Removed definition of $M(x)$, is it needed?}
 %Formally, memristor conductance is expressed as \(G_m(x) = \M(x)^{-1}\), where \(\M(x)\) denotes the state-dependent resistance.
 \begin{equation}
   G_{m}(x) = \frac{x}{R_{\rm ON}} + \frac{1 - x}{R_{\rm OFF}},
@@ -223,27 +223,28 @@ In the first approach (Det-MemODE), the memristor conductance is defined on the 
 \end{equation}
 where \(\Ron\) and \(\Roff\) denote the resistances in the low-conductance and high-conductance states, respectively.
 
-\changed[approved]{In the second approach (Dual-NN-MemODE), the memristor conductance is modeled using the second neural network.} \TODO{More description needed.}
+\changed[approved]{In the second approach (Dual-NN-MemODE), the memristor conductance is modeled using the second neural network.} \changed{This neural network takes the current state \(x(t)\) as input and produces the corresponding conductance \(G_m(x)\) as output. In this approach, the memristor state variable \(\mathbf{x}\) is not constrained to a single dimension, enabling a more flexible representation of the device’s internal dynamics. Moreover, it is not restricted to a physically interpretable range, such as the interval \([0,1]\) in Eq.~\eqref{eq:conductance}.
+}
 
-Conceptual architectures are illustrated in Fig.~\ref{fig:nn_structure} for the Det-MemODE and in Fig.~\ref{fig:nn_structure_dual} for the Dual-NN-MemODE.
+Conceptual architectures are illustrated in Fig.~\ref{fig:nn_structure} for the SingleNN-MemODE and in Fig.~\ref{fig:nn_structure_dual} for the Dual-NN-MemODE.
 
 \begin{figure}[t!]
   \centering
-  \includegraphics[width=\columnwidth]{figs/Rysowanie_schematów (2).pdf}
+  \includegraphics[width=\columnwidth]{figs/nn_diagram_Det_MemODE.pdf}
   %ZG replaced "computes the derivative function \(f_x(x,v)\)" by "evaluates the function \(f(x,v)\)" (subscript x removed)
-  \caption{ Conceptual diagram illustrating the use of a neural network to simulate the dynamics of the memristor, for the Det-MemODE, with schematic representation of the Neural ODE framework, where \changed[approved]{the} artificial neural network (ANN) evaluates \changed[approved]{the function \(f(x,v)\)}, which is then integrated by \changed[approved]{the} ODE solver to predict the state at the next time step \(x(t + \Delta t)\). The dashed feedback loop indicates the recurrent nature of the process, where the output state is fed back as input for subsequent predictions. \TODO{Replace $f_x$ by $f$ in the figure.}}
+  \caption{ Conceptual diagram illustrating the use of a neural network to simulate the dynamics of the memristor, for the SingleNN-MemODE, with schematic representation of the Neural ODE framework, where \changed[approved]{the} artificial neural network (ANN) evaluates \changed[approved]{the function \(f(x,v)\)}, which is then integrated by \changed[approved]{the} ODE solver to predict the state at the next time step \(x(t + \Delta t)\). The dashed feedback loop indicates the recurrent nature of the process, where the output state is fed back as input for subsequent predictions. \TODO[DONE]{Replace $f_x$ by $f$ in the figure.}}
   \label{fig:nn_structure}
 \end{figure}
 
 \begin{figure}[t!]
   \centering
-  \includegraphics[width=\columnwidth]{figs/Rysowanie_schematów (3).pdf}
+  \includegraphics[width=\columnwidth]{figs/nn_diagram_Dual_MemODE.pdf}
   %ZG replaced "computes the derivative function \(f_x(x,v)\)" by "evaluates the function \(f(x,v)\)" (subscript x removed)
-  \caption{ Conceptual diagram illustrating the use of a neural network to simulate the dynamics of the memristor, for the Dual-NN-MemODE, with schematic representation of the Neural ODE framework, where \changed[approved]{the} artificial neural network (ANN) evaluates \changed[approved]{the function \(f(x,v)\)}, which is then integrated by \changed[approved]{the} ODE solver to predict the state at the next time step \(x(t + \Delta t)\).
+  \caption{ Conceptual diagram illustrating the use of a neural network to simulate the dynamics of the memristor, for the Dual-NN-MemODE, with schematic representation of the Neural ODE framework, where \changed[approved]{the} artificial neural network (ANN) evaluates \changed[approved]{the function \(f(x,v)\)}, which is then integrated by \changed[approved]{the} ODE solver to predict the state at the next time step \(x(t + \Delta t)\). \changed{Additionally, a second ANN models the memristor conductance \(G_m(x)\) based on the current state \(x(t)\).}
     %ZG commented the next line
     %The dashed feedback loop indicates the recurrent nature of the process, where the output state is fed back as input for subsequent predictions.
-    \TODO{Replace $f_x$ by $f$ in the figure.}
-    \TODO{Description needed for the second ANN.}
+    \TODO[DONE]{Replace $f_x$ by $f$ in the figure.}
+    \TODO[DONE]{Description needed for the second ANN.}
   }
   \label{fig:nn_structure_dual}
 \end{figure}
@@ -290,7 +291,7 @@ The neural network architecture, illustrated in Figure~\ref{fig:nn-arch}, employ
 %ZG removed ", as described in"
 The choice of an optimizer and its parameters is guided by hyperparameter tuning conducted with the \texttt{Optuna} framework~\cite{Akiba2019}. The hyperparameter search space comprises the learning rate, weight decay, and the batch size, or architecture parameters like the width or the depth of the neural network.
 %removed ", while"
-The optimal configuration was selected based on validation loss minimization. \TODO{What is ``validation loss minimization''?}
+The optimal configuration was selected based on test loss minimization.  \changed{This approach focuses on minimizing the loss on the test set, ensuring that the model generalizes well to unseen data.} \TODO[DONE]{What is ``validation loss minimization''?}
 
 % To enable adaptive control of the learning rate throughout training, the \texttt{ReduceLROnPlateau} scheduling strategy was employed. This performance-based scheduler dynamically adjusts the learning rate in response to plateaus in the monitored validation loss, thereby improving convergence stability. Specifically, the scheduler reduces the learning rate once the monitored loss stagnates, applies a predefined reduction factor, incorporates a patience interval before making adjustments, and enforces lower and upper bounds to prevent instability. This implementation strategy ensures robust and efficient training of neural differential equation models for memristor circuit simulation, integrating state-of-the-art deep learning practices with domain-specific techniques for dynamic system modeling.
 
@@ -458,20 +459,21 @@ The function \changed[approved]{$\mathcal{L}_{\mathrm{con}}(x)$} exhibits minima
 %During neural network training, specific interval constraints were implemented to ensure physically meaningful and numerically stable parameter values that align with experimental memristor characteristics and theoretical boundaries. These constraints prevent parameter drift into unphysical regimes while maintaining the differentiability required for gradient-based optimization algorithms.
 
 %ZG removed "critical"
-The following constraint intervals are applied to
-%critical
-memristor model parameters for the Det-MemODE and Dual-NN-MemODE approaches:
+\changed{The following constraint intervals are applied to
+memristor model parameters for the SingleNN-MemODE approach:
 %ZG removed long descriptions to save space, a shorter description is added below the list
 \begin{itemize}
 \item \(R_{\mathrm{ON}} \in (0, R_{\mathrm{OFF}})\,\mathrm{k}\Omega\),
-  %– These constraints establish a physically meaningful hierarchy where the ON-state resistance is strictly smaller than the OFF-state resistance (\(R_{\mathrm{ON}} < R_{\mathrm{OFF}}\)), consistent with typical memristor switching behavior. The lower bound for \(R_{\mathrm{ON}}\) prevents zero resistance values that would cause numerical singularities in current calculations, while the upper bound of 200 k\(\Omega\) for \(R_{\mathrm{OFF}}\) reflects experimentally observed resistance ranges in memristive devices and ensures computational stability during optimization.
 \item \(R_{\mathrm{OFF}} \in (R_{\mathrm{ON}}, 200)\,\mathrm{k}\Omega\),
 \item \(x(t) \in (0, 1)\),
-  %– This temporal constraint maintains the internal state variable within the normalized domain throughout the entire simulation duration, preserving the physical interpretation of \(x(t)\) as a fractional parameter representing the extent of ionic migration or structural modification within the memristive element.
-\item \(\G \in (0, 2) \rm mS\).
-  %– This constraint limits the conductance parameter to a realistic range based on empirical measurements of memristor devices, preventing unphysically high conductance values that could lead to numerical instability or divergence during training, and ensuring passive device nature.
 \end{itemize}
-\TODO{What is $x(t)$ for the Dual-NN-MemODE?}\\
+and for the Dual-NN-MemODE approach:
+\begin{itemize}
+\item \(\G \in (0, 2) \rm mS\).
+\end{itemize}
+As the state variable \(\mathbf{x}(t)\) in the Dual-NN-MemODE approach is not restricted to a specific range, no explicit constraints are applied to it.
+}
+\TODO[DONE]{What is $x(t)$ for the Dual-NN-MemODE?}\\
 \changed[approved]{The upper bound for the OFF-state resistance~$R_{\mathrm{OFF}}$ and bounds for the conductance parameter~$G$ are based on empirical measurements.
   Remaining constraints are consequences of physically meaningful values of parameters and variables.}\\
 \TODO{Is the objective function common for all models? If so, perhaps section ``C. Objective Function'' could be placed before section ``A. Neural ODE based Memristor Modeling''. }
@@ -518,7 +520,7 @@ The evolution of the state variable is governed by~\eqref{eq:mms}, while the cur
 \end{align}
 %ZG replaced "current through the device" by "current of the device"
 where \(\phi \in [0,1]\) is a parameter representing the \changed[approved]{ratio of the memory dependent current $\imd$ and total current $\im$ flowing through the device}. The parameters \(\alpha_f\), \(\beta_f\), \(\alpha_r\), and \(\beta_r\) are positive constants characterizing the forward and reverse current behavior along the Schottky barrier.
-\TODO{Change of notations. $\imd$ - memory dependent current, previously $\im$, $\im$ - the total current, previously $i$. Please confirm whether this is ok.}
+\TODO[I think this is appopriate, I've using original notation from paper before]{Change of notations. $\imd$ - memory dependent current, previously $\im$, $\im$ - the total current, previously $i$. Please confirm whether this is ok.}
 
 %ZG removed Eq.~\eqref{eq:nonlinear_eq}
 The inclusion of additional parameters and nonlinearities \changed[approved]{in the GMMS model} increases model's complexity and poses challenges for parameter optimization.An additional challenge arises due to the Schottky effect, which introduces nonlinearity into the current–voltage characteristic. When the memristor is connected in series with a resistor, this requires solving \changed[approved]{a set of differential-algebraic equations (DAEs)} of the form 
@@ -546,7 +548,7 @@ The optimization process consists of two stages, combining global exploration wi
 
 \TODO{The notions of the batch size and learning rates should be explained.}\\
 \TODO{Sizes of training and validation datasets should be given.}\\
-A representative learning curve corresponding to the Det-MemODE architecture, consisting of two hidden layers with 128 neurons each, trained using the \verb|Adam| optimizer with a learning rate of \(10^{-2}\) and a batch size of 2, is presented in Figure~\ref{fig:learning-curve}.
+A representative learning curve corresponding to the SingleNN-MemODE architecture, consisting of two hidden layers with 128 neurons each, trained using the \verb|Adam| optimizer with a learning rate of \(10^{-2}\) and a batch size of 2, is presented in Figure~\ref{fig:learning-curve}.
 The training process was conducted over 360 epochs, with the objective function $\mathcal{L}$ monitored on both the training and validation datasets to provide insights into convergence behavior and potential overfitting. The learning curve demonstrates a consistent decrease
 %ZG removed "and smooth"
 in values of $\mathcal{L}$ for both datasets, which indicates effective optimization and a satisfactory model fitting to the experimental data. The close agreement between the training and validation loss further confirms the generalization ability of the selected architecture.
@@ -556,7 +558,7 @@ In addition to the learning curve, Figure~\ref{fig:learning-curve} also presents
 \begin{figure}[!t]
   \centering
   \includegraphics[width=\linewidth]{figs/Training_process.pdf}
-  \caption{Learning curve for the Det-MemODE neural network architecture during training over 360 epochs.
+  \caption{Learning curve for the SingleNN-MemODE neural network architecture during training over 360 epochs.
     %The figure depicts a gradual decrease in the loss function values for both the training and validation datasets, reflecting effective optimization and adequate convergence of the model toward the experimental memristor data. %ZG removed
     The insets illustrate the evolution of the \( \vm - \im \) hysteresis loops at selected epochs, where the dashed lines correspond to the measured responses and the solid lines denote the model predictions.
     %These results demonstrate the model’s ability to accurately reproduce the nonlinear and history-dependent characteristics of the memristor as training advances. %ZG removed
@@ -624,7 +626,7 @@ This comparison is particularly significant as the MMS and GMMS models have been
     \includegraphics[width=0.48\linewidth]{mms_results/loss_per_freq_GMMS Model.pdf}%
   }
   \caption{Comparative analysis of loss function values:
-    (a) the Det-MemODE model, (b) the Dual-NN-MemODE model, (c) the MMS model, (d) the GMMS model. 
+    (a) the SingleNN-MemODE model, (b) the Dual-NN-MemODE model, (c) the MMS model, (d) the GMMS model. 
     \changed[approved]{Results for voltage amplitudes \(\Vs =0.5, 1.0, 1.5\rm \ V\) are plotted in red (\redbar{}), blue (\bluebar{}) and green (\greenbar{}), respectively}. 
 %      where the following colors distinguish different supply : (\redbar{})~\(\Vs =0.5\rm \ V\), (\bluebar{})~\(\Vs =1.0\rm \ V\), and (\greenbar{}) \(\Vs =1.5\rm \ V\).
     %The neural network demonstrates superior convergence characteristics and achieves significantly lower final loss values, indicating enhanced modeling accuracy and better agreement with experimental memristor dynamics. %ZG removed
