@@ -191,109 +191,8 @@ Measurements \changed[approved]{are} carried out for various combinations of sup
 \end{subequations}
 where \(\xvec\) denotes the vector of internal state variables, whose temporal evolution is governed by the \changed[approved]{function} \(f\), and \(\G\) represents the memductance of the device. \changed[approved]{The} fundamental challenge in memristor modeling lies in accurately identifying the functional forms of \(\G(\xvec,\ua)\) and \(f(\xvec,\ua)\).
 
-\subsection{\changed[approved]{Neural ODE based Memristor Modeling}}
-
-\TODO[DONE -- I was wondering Det - for deterministic equation, however this might be misleading]{I suggest to change the acronym for the first method to ``SingleNN-MemODE''. What is your opinion?}
-
-\noindent In this study, two neural network-based modeling approaches are \changed[approved]{proposed}. The first \changed[approved]{one}, denoted as \textbf{SingleNN-MemODE}, employs a deterministic formulation of the memristor conductance \changed[approved]{$\G$, while the function $f$ defining the dynamics of internal variables is modeled using a neural network. In} the second \changed[approved]{one}, referred to as \textbf{Dual-NN-MemODE}, both \changed[approved]{$\G$ and $f$ are modeled} using neural networks. 
 
 
-%ZG next line removed to save space
-%Although both approaches utilize neural networks to approximate the \changed{function} \(f(\xvec(t), \ua(t))\), they differ fundamentally in the representation of the memristor conductance.
-\changed[approved]{For the SingleNN-MemODE approach, the function $f$ is implemented using an artificial neural network with a single output. For the Dual-NN-MemODE approach the number of outputs which is equal to the number of internal variables may be larger than 1. For both cases, the} neural network consists of interconnected nodes (neurons) that process information through weighted connections. Each neuron in the network computes its output according to:
-\begin{equation}
-  y = \sigma\left(\sum_{i=1}^{n} w_i x_i + b\right), %ZG comma added 
-\end{equation}
-%ZG removed empty line,
-%ZG removed "and importance" 
-where \(w_i\) are the weights that determine the \changed[approved]{strength of} each input connection \(x_i\), \(b\) is the bias term that provides an adjustable threshold for neuron activation, and \(\sigma\) is the activation function (e.g., sigmoid, ReLU, or tanh) that introduces non-linearity into the model.
-During the optimization process, the network parameters (weights \(w_i\) and biases \(b\)) are tuned jointly with the values of \(R_{\rm ON}\) and \(R_{\rm OFF}\).
-%ZG shortened
-%The weights represent the learnable parameters that encode the relationship between inputs and outputs, while biases allow neurons to shift their activation threshold, enabling the network to better fit the training data even when all inputs are zero. During the optimization process, the network parameters (weights and biases) are tuned jointly with the values of \(R_{\rm ON}\) and \(R_{\rm OFF}\).
-
-The learning process involves iteratively adjusting the network parameters to minimize \changed[approved]{the} loss function that quantifies the difference between predicted and target outputs. This is  achieved through backpropagation algorithm combined with gradient descent optimization, where gradients of the loss function with respect to each parameter are computed and used to update the weights and biases in the direction that reduces the overall error.
-
-In the first approach (SingleNN-MemODE), the memristor conductance is defined on the basis of the physical mechanisms underlying self-directed channel (SDC) devices. In such memristors, the resistance evolves as a result of \(\mathrm{Ag^+}\) ion migration and the dynamic formation of conductive filaments. Consequently, the device conductance exhibits a continuous transition between distinct resistance states. This transition can be described as a weighted combination of the limiting resistance values, modulated by the \changed[approved]{internal variable}. % ZG: removed "state"
-\changed[approved]{The relation between the internal variable and the memristor conductance has the form}
-\TODO[DONE -- I think it is not needed.]{Removed definition of $M(x)$, is it needed?}
-%Formally, memristor conductance is expressed as \(G_m(x) = \M(x)^{-1}\), where \(\M(x)\) denotes the state-dependent resistance.
-\begin{equation}
-  G_{m}(x) = \frac{x}{R_{\rm ON}} + \frac{1 - x}{R_{\rm OFF}},
-  \label{eq:conductance}
-\end{equation}
-where \(\Ron\) and \(\Roff\) denote the resistances in the low-conductance and high-conductance states, respectively.
-
-\changed[approved]{In the second approach (Dual-NN-MemODE), the memristor conductance is modeled using the second neural network.} \changed{This neural network takes the current state \(x(t)\) as input and produces the corresponding conductance \(G_m(x)\) as output. In this approach, the memristor state variable \(\mathbf{x}\) is not constrained to a single dimension, enabling a more flexible representation of the device’s internal dynamics. Moreover, it is not restricted to a physically interpretable range, such as the interval \([0,1]\) in Eq.~\eqref{eq:conductance}.
-}
-
-Conceptual architectures are illustrated in Fig.~\ref{fig:nn_structure} for the SingleNN-MemODE and in Fig.~\ref{fig:nn_structure_dual} for the Dual-NN-MemODE.
-
-\begin{figure}[t!]
-  \centering
-  \includegraphics[width=\columnwidth]{figs/nn_diagram_Det_MemODE.pdf}
-  %ZG replaced "computes the derivative function \(f_x(x,v)\)" by "evaluates the function \(f(x,v)\)" (subscript x removed)
-  \caption{ Conceptual diagram illustrating the use of a neural network to simulate the dynamics of the memristor, for the SingleNN-MemODE, with schematic representation of the Neural ODE framework, where \changed[approved]{the} artificial neural network (ANN) evaluates \changed[approved]{the function \(f(x,v)\)}, which is then integrated by \changed[approved]{the} ODE solver to predict the state at the next time step \(x(t + \Delta t)\). The dashed feedback loop indicates the recurrent nature of the process, where the output state is fed back as input for subsequent predictions. \TODO[DONE]{Replace $f_x$ by $f$ in the figure.}}
-  \label{fig:nn_structure}
-\end{figure}
-
-\begin{figure}[t!]
-  \centering
-  \includegraphics[width=\columnwidth]{figs/nn_diagram_Dual_MemODE.pdf}
-  %ZG replaced "computes the derivative function \(f_x(x,v)\)" by "evaluates the function \(f(x,v)\)" (subscript x removed)
-  \caption{ Conceptual diagram illustrating the use of a neural network to simulate the dynamics of the memristor, for the Dual-NN-MemODE, with schematic representation of the Neural ODE framework, where \changed[approved]{the} artificial neural network (ANN) evaluates \changed[approved]{the function \(f(x,v)\)}, which is then integrated by \changed[approved]{the} ODE solver to predict the state at the next time step \(x(t + \Delta t)\). \changed{Additionally, a second ANN models the memristor conductance \(G_m(x)\) based on the current state \(x(t)\).}
-    %ZG commented the next line
-    %The dashed feedback loop indicates the recurrent nature of the process, where the output state is fed back as input for subsequent predictions.
-    \TODO[DONE]{Replace $f_x$ by $f$ in the figure.}
-    \TODO[DONE]{Description needed for the second ANN.}
-  }
-  \label{fig:nn_structure_dual}
-\end{figure}
-
-%ZG removed "Design"
-\subsection{Neural Network Architecture}
-
-%ZG replaced "model development and training pipeline was" by "training is"
-%ZG removed ", described in"
-%ZG replaced "leveraging" by "utilizing"
-%ZG removed ", well described in"
-%ZG replaced "learning dynamic systems governed by differential equations" by "learning dynamics of systems governed by ODEs"
-\noindent The neural network \changed[approved]{training is} implemented using the \texttt{PyTorch} deep learning framework~\cite{paszke2019pytorchimperativestylehighperformance}, within the \texttt{Python} programming environment, \changed[approved]{utilizing} its automatic differentiation capabilities. To enable seamless integration of ordinary differential equations (ODEs) within the neural network training paradigm, the specialized \texttt{torchdiffeq} library is employed. This library provides differentiable ODE solvers that facilitate efficient gradient computation with respect to solution trajectories through the adjoint sensitivity method~\cite{Ricky2018, Ricky2021, torchdiffeq}. This approach enables end-to-end training of neural differential equation models by maintaining gradient flow through the numerical integration process, which is essential for learning \changed[approved]{dynamics of systems governed by ODEs}.
-
-%ZG replaced "embedded error estimation" by "error estimation"
-Specifically, the \texttt{dopri5} (Dormand-Prince 5th order) adaptive Runge-Kutta solver is utilized for its superior balance between computational efficiency and numerical accuracy. This solver \changed[approved]{employs error estimation} for adaptive step-size control, ensuring stable integration of the memristor dynamics while maintaining computational tractability during training.
-
-The neural network architecture, illustrated in Figure~\ref{fig:nn-arch}, employs an expansion–compression (diamond-shaped) topology that incorporates a double reduction in dimensionality in both the initial and final hidden layers.
-\changed[approved]{This architectural configuration substantially decreases the overall number of trainable parameters and helps to mitigate vanishing and exploding gradient issues commonly encountered in deep architectures processing temporal sequences.}
-%ZG the list below was replaced by a short description above
-%This architectural configuration effectively addresses several challenges associated with neural ODE training and the modeling of memristive systems: 
-%\begin{itemize}
-%  \item dimensionality reduction at the network’s input and output stages ,
-%  \item the reduced parameterization facilitates more stable optimization dynamics by limiting the complexity of the parameter search space,
-%  \item the controlled dimensional transitions help mitigate vanishing and exploding gradient issues commonly encountered in deep architectures processing extended temporal sequences,
-%  \item the compression phase at the output acts as an implicit regularizer, constraining the learned representations to a compact, low-dimensional subspace consistent with the underlying physical behavior of memristor dynamics.
-%\end{itemize}
-%KB: I think the list is not needed, the description above is enough.
-
-\begin{figure}[ht!]
-  \centering
-  \resizebox{2in}{!}{%
-    \input{graphs/neuralODE_ver.tex}
-  }
-  %ZG replaced (\(\lfloor N/2 \rfloor, N, \lfloor N/2 \rfloor\)) $\(\left(\lfloor N/2 \rfloor, N, \lfloor N/2 \rfloor\right)\)$ by
-  %ZG removed "derivative", replaced "in the differential equation system" by "of the ODE system". 
-  \caption{Architecture of the feedforward neural network used within the Neural ODE framework for memristor dynamics modeling. The network consists of an input layer receiving two inputs, multiple hidden layers with decreasing-increasing-decreasing neuron counts \changed[approved]{$\left(\lfloor N/2 \rfloor, N,\ldots,N, \lfloor N/2 \rfloor\right)$}, activation functions between layers, and a single output. The Neural ODE block encompasses the core computational layers that approximate the function \(f(\xw(t), \ua(t))\) \changed[approved]{of the ODE system}.}
-
-  \label{fig:nn-arch}
-\end{figure}
-
-%ZG replaced "The network weights were optimized using several optimization techniques, including the \texttt{Adam} (Adaptive Moment Estimation) optimizer." by "Several techniques were tested for the optimization of network weights and the \texttt{Adam} (Adaptive Moment Estimation) optimizer was selected due to its superior performance."
-\changed[approved]{Several techniques are tested for the optimization of network weights and the \texttt{Adam} (Adaptive Moment Estimation) optimizer is selected due to its superior performance.}
-%ZG removed ", as described in"
-The choice of an optimizer and its parameters is guided by hyperparameter tuning conducted with the \texttt{Optuna} framework~\cite{Akiba2019}. The hyperparameter search space comprises the learning rate, weight decay, and the batch size, or architecture parameters like the width or the depth of the neural network.
-%removed ", while"
-The optimal configuration was selected based on test loss minimization.  \changed{This approach focuses on minimizing the loss on the test set, ensuring that the model generalizes well to unseen data.} \TODO[DONE]{What is ``validation loss minimization''?}
-
-% To enable adaptive control of the learning rate throughout training, the \texttt{ReduceLROnPlateau} scheduling strategy was employed. This performance-based scheduler dynamically adjusts the learning rate in response to plateaus in the monitored validation loss, thereby improving convergence stability. Specifically, the scheduler reduces the learning rate once the monitored loss stagnates, applies a predefined reduction factor, incorporates a patience interval before making adjustments, and enforces lower and upper bounds to prevent instability. This implementation strategy ensures robust and efficient training of neural differential equation models for memristor circuit simulation, integrating state-of-the-art deep learning practices with domain-specific techniques for dynamic system modeling.
 
 \subsection{Objective Function}
 \noindent The \changed[approved]{objective function $\mathcal{L}$ to be minimized in the optimization process} is based on \changed[approved]{trajectories generated by the dynamical system. It} is designed to simultaneously account for both the signal values and its dynamic structure. To this end, it is defined as the sum of four components, each serving a distinct and complementary role in the optimization process
@@ -476,7 +375,113 @@ As the state variable \(\mathbf{x}(t)\) in the Dual-NN-MemODE approach is not re
 \TODO[DONE]{What is $x(t)$ for the Dual-NN-MemODE?}\\
 \changed[approved]{The upper bound for the OFF-state resistance~$R_{\mathrm{OFF}}$ and bounds for the conductance parameter~$G$ are based on empirical measurements.
   Remaining constraints are consequences of physically meaningful values of parameters and variables.}\\
-\TODO{Is the objective function common for all models? If so, perhaps section ``C. Objective Function'' could be placed before section ``A. Neural ODE based Memristor Modeling''. }
+\TODO[DONE]{Is the objective function common for all models? If so, perhaps section ``C. Objective Function'' could be placed before section ``A. Neural ODE based Memristor Modeling''. }
+
+
+
+\subsection{\changed[approved]{Neural ODE based Memristor Modeling}}
+
+\TODO[DONE -- I was wondering Det - for deterministic equation, however this might be misleading]{I suggest to change the acronym for the first method to ``SingleNN-MemODE''. What is your opinion?}
+
+\noindent In this study, two neural network-based modeling approaches are \changed[approved]{proposed}. The first \changed[approved]{one}, denoted as \textbf{SingleNN-MemODE}, employs a deterministic formulation of the memristor conductance \changed[approved]{$\G$, while the function $f$ defining the dynamics of internal variables is modeled using a neural network. In} the second \changed[approved]{one}, referred to as \textbf{Dual-NN-MemODE}, both \changed[approved]{$\G$ and $f$ are modeled} using neural networks. 
+
+
+%ZG next line removed to save space
+%Although both approaches utilize neural networks to approximate the \changed{function} \(f(\xvec(t), \ua(t))\), they differ fundamentally in the representation of the memristor conductance.
+\changed[approved]{For the SingleNN-MemODE approach, the function $f$ is implemented using an artificial neural network with a single output. For the Dual-NN-MemODE approach the number of outputs which is equal to the number of internal variables may be larger than 1. For both cases, the} neural network consists of interconnected nodes (neurons) that process information through weighted connections. Each neuron in the network computes its output according to:
+\begin{equation}
+  y = \sigma\left(\sum_{i=1}^{n} w_i x_i + b\right), %ZG comma added 
+\end{equation}
+%ZG removed empty line,
+%ZG removed "and importance" 
+where \(w_i\) are the weights that determine the \changed[approved]{strength of} each input connection \(x_i\), \(b\) is the bias term that provides an adjustable threshold for neuron activation, and \(\sigma\) is the activation function (e.g., sigmoid, ReLU, or tanh) that introduces non-linearity into the model.
+During the optimization process, the network parameters (weights \(w_i\) and biases \(b\)) are tuned jointly with the values of \(R_{\rm ON}\) and \(R_{\rm OFF}\).
+%ZG shortened
+%The weights represent the learnable parameters that encode the relationship between inputs and outputs, while biases allow neurons to shift their activation threshold, enabling the network to better fit the training data even when all inputs are zero. During the optimization process, the network parameters (weights and biases) are tuned jointly with the values of \(R_{\rm ON}\) and \(R_{\rm OFF}\).
+
+The learning process involves iteratively adjusting the network parameters to minimize \changed[approved]{the} loss function that quantifies the difference between predicted and target outputs. This is  achieved through backpropagation algorithm combined with gradient descent optimization, where gradients of the loss function with respect to each parameter are computed and used to update the weights and biases in the direction that reduces the overall error.
+
+In the first approach (SingleNN-MemODE), the memristor conductance is defined on the basis of the physical mechanisms underlying self-directed channel (SDC) devices. In such memristors, the resistance evolves as a result of \(\mathrm{Ag^+}\) ion migration and the dynamic formation of conductive filaments. Consequently, the device conductance exhibits a continuous transition between distinct resistance states. This transition can be described as a weighted combination of the limiting resistance values, modulated by the \changed[approved]{internal variable}. % ZG: removed "state"
+\changed[approved]{The relation between the internal variable and the memristor conductance has the form}
+\TODO[DONE -- I think it is not needed.]{Removed definition of $M(x)$, is it needed?}
+%Formally, memristor conductance is expressed as \(G_m(x) = \M(x)^{-1}\), where \(\M(x)\) denotes the state-dependent resistance.
+\begin{equation}
+  G_{m}(x) = \frac{x}{R_{\rm ON}} + \frac{1 - x}{R_{\rm OFF}},
+  \label{eq:conductance}
+\end{equation}
+where \(\Ron\) and \(\Roff\) denote the resistances in the low-conductance and high-conductance states, respectively.
+
+\changed[approved]{In the second approach (Dual-NN-MemODE), the memristor conductance is modeled using the second neural network.} \changed{This neural network takes the current state \(x(t)\) as input and produces the corresponding conductance \(G_m(x)\) as output. In this approach, the memristor state variable \(\mathbf{x}\) is not constrained to a single dimension, enabling a more flexible representation of the device’s internal dynamics. Moreover, it is not restricted to a physically interpretable range, such as the interval \([0,1]\) in Eq.~\eqref{eq:conductance}.
+}
+
+Conceptual architectures are illustrated in Fig.~\ref{fig:nn_structure} for the SingleNN-MemODE and in Fig.~\ref{fig:nn_structure_dual} for the Dual-NN-MemODE.
+
+\begin{figure}[t!]
+  \centering
+  \includegraphics[width=\columnwidth]{figs/nn_diagram_Det_MemODE.pdf}
+  %ZG replaced "computes the derivative function \(f_x(x,v)\)" by "evaluates the function \(f(x,v)\)" (subscript x removed)
+  \caption{ Conceptual diagram illustrating the use of a neural network to simulate the dynamics of the memristor, for the SingleNN-MemODE, with schematic representation of the Neural ODE framework, where \changed[approved]{the} artificial neural network (ANN) evaluates \changed[approved]{the function \(f(x,v)\)}, which is then integrated by \changed[approved]{the} ODE solver to predict the state at the next time step \(x(t + \Delta t)\). The dashed feedback loop indicates the recurrent nature of the process, where the output state is fed back as input for subsequent predictions. \TODO[DONE]{Replace $f_x$ by $f$ in the figure.}}
+  \label{fig:nn_structure}
+\end{figure}
+
+\begin{figure}[t!]
+  \centering
+  \includegraphics[width=\columnwidth]{figs/nn_diagram_Dual_MemODE.pdf}
+  %ZG replaced "computes the derivative function \(f_x(x,v)\)" by "evaluates the function \(f(x,v)\)" (subscript x removed)
+  \caption{ Conceptual diagram illustrating the use of a neural network to simulate the dynamics of the memristor, for the Dual-NN-MemODE, with schematic representation of the Neural ODE framework, where \changed[approved]{the} artificial neural network (ANN) evaluates \changed[approved]{the function \(f(x,v)\)}, which is then integrated by \changed[approved]{the} ODE solver to predict the state at the next time step \(x(t + \Delta t)\). \changed{Additionally, a second ANN models the memristor conductance \(G_m(x)\) based on the current state \(x(t)\).}
+    %ZG commented the next line
+    %The dashed feedback loop indicates the recurrent nature of the process, where the output state is fed back as input for subsequent predictions.
+    \TODO[DONE]{Replace $f_x$ by $f$ in the figure.}
+    \TODO[DONE]{Description needed for the second ANN.}
+  }
+  \label{fig:nn_structure_dual}
+\end{figure}
+
+%ZG removed "Design"
+\subsection{Neural Network Architecture}
+
+%ZG replaced "model development and training pipeline was" by "training is"
+%ZG removed ", described in"
+%ZG replaced "leveraging" by "utilizing"
+%ZG removed ", well described in"
+%ZG replaced "learning dynamic systems governed by differential equations" by "learning dynamics of systems governed by ODEs"
+\noindent The neural network \changed[approved]{training is} implemented using the \texttt{PyTorch} deep learning framework~\cite{paszke2019pytorchimperativestylehighperformance}, within the \texttt{Python} programming environment, \changed[approved]{utilizing} its automatic differentiation capabilities. To enable seamless integration of ordinary differential equations (ODEs) within the neural network training paradigm, the specialized \texttt{torchdiffeq} library is employed. This library provides differentiable ODE solvers that facilitate efficient gradient computation with respect to solution trajectories through the adjoint sensitivity method~\cite{Ricky2018, Ricky2021, torchdiffeq}. This approach enables end-to-end training of neural differential equation models by maintaining gradient flow through the numerical integration process, which is essential for learning \changed[approved]{dynamics of systems governed by ODEs}.
+
+%ZG replaced "embedded error estimation" by "error estimation"
+Specifically, the \texttt{dopri5} (Dormand-Prince 5th order) adaptive Runge-Kutta solver is utilized for its superior balance between computational efficiency and numerical accuracy. This solver \changed[approved]{employs error estimation} for adaptive step-size control, ensuring stable integration of the memristor dynamics while maintaining computational tractability during training.
+
+The neural network architecture, illustrated in Figure~\ref{fig:nn-arch}, employs an expansion–compression (diamond-shaped) topology that incorporates a double reduction in dimensionality in both the initial and final hidden layers.
+\changed[approved]{This architectural configuration substantially decreases the overall number of trainable parameters and helps to mitigate vanishing and exploding gradient issues commonly encountered in deep architectures processing temporal sequences.}
+%ZG the list below was replaced by a short description above
+%This architectural configuration effectively addresses several challenges associated with neural ODE training and the modeling of memristive systems: 
+%\begin{itemize}
+%  \item dimensionality reduction at the network’s input and output stages ,
+%  \item the reduced parameterization facilitates more stable optimization dynamics by limiting the complexity of the parameter search space,
+%  \item the controlled dimensional transitions help mitigate vanishing and exploding gradient issues commonly encountered in deep architectures processing extended temporal sequences,
+%  \item the compression phase at the output acts as an implicit regularizer, constraining the learned representations to a compact, low-dimensional subspace consistent with the underlying physical behavior of memristor dynamics.
+%\end{itemize}
+%KB: I think the list is not needed, the description above is enough.
+
+\begin{figure}[ht!]
+  \centering
+  \resizebox{2in}{!}{%
+    \input{graphs/neuralODE_ver.tex}
+  }
+  %ZG replaced (\(\lfloor N/2 \rfloor, N, \lfloor N/2 \rfloor\)) $\(\left(\lfloor N/2 \rfloor, N, \lfloor N/2 \rfloor\right)\)$ by
+  %ZG removed "derivative", replaced "in the differential equation system" by "of the ODE system". 
+  \caption{Architecture of the feedforward neural network used within the Neural ODE framework for memristor dynamics modeling. The network consists of an input layer receiving two inputs, multiple hidden layers with decreasing-increasing-decreasing neuron counts \changed[approved]{$\left(\lfloor N/2 \rfloor, N,\ldots,N, \lfloor N/2 \rfloor\right)$}, activation functions between layers, and a single output. The Neural ODE block encompasses the core computational layers that approximate the function \(f(\xw(t), \ua(t))\) \changed[approved]{of the ODE system}.}
+
+  \label{fig:nn-arch}
+\end{figure}
+
+%ZG replaced "The network weights were optimized using several optimization techniques, including the \texttt{Adam} (Adaptive Moment Estimation) optimizer." by "Several techniques were tested for the optimization of network weights and the \texttt{Adam} (Adaptive Moment Estimation) optimizer was selected due to its superior performance."
+\changed[approved]{Several techniques are tested for the optimization of network weights and the \texttt{Adam} (Adaptive Moment Estimation) optimizer is selected due to its superior performance.}
+%ZG removed ", as described in"
+The choice of an optimizer and its parameters is guided by hyperparameter tuning conducted with the \texttt{Optuna} framework~\cite{Akiba2019}. The hyperparameter search space comprises the learning rate, weight decay, and the batch size, or architecture parameters like the width or the depth of the neural network.
+%removed ", while"
+The optimal configuration was selected based on test loss minimization.  \changed{This approach focuses on minimizing the loss on the test set, ensuring that the model generalizes well to unseen data.} \TODO[DONE]{What is ``validation loss minimization''?}
+
+% To enable adaptive control of the learning rate throughout training, the \texttt{ReduceLROnPlateau} scheduling strategy was employed. This performance-based scheduler dynamically adjusts the learning rate in response to plateaus in the monitored validation loss, thereby improving convergence stability. Specifically, the scheduler reduces the learning rate once the monitored loss stagnates, applies a predefined reduction factor, incorporates a patience interval before making adjustments, and enforces lower and upper bounds to prevent instability. This implementation strategy ensures robust and efficient training of neural differential equation models for memristor circuit simulation, integrating state-of-the-art deep learning practices with domain-specific techniques for dynamic system modeling.
 
 %ZG next paragraph removed to save space
 %These constraints are particularly crucial for memristor modeling because they preserve the fundamental physical relationships governing resistive switching phenomena while preventing the emergence of artifacts that could arise from parameter values outside the feasible operating regime.
@@ -520,7 +525,7 @@ The evolution of the state variable is governed by~\eqref{eq:mms}, while the cur
 \end{align}
 %ZG replaced "current through the device" by "current of the device"
 where \(\phi \in [0,1]\) is a parameter representing the \changed[approved]{ratio of the memory dependent current $\imd$ and total current $\im$ flowing through the device}. The parameters \(\alpha_f\), \(\beta_f\), \(\alpha_r\), and \(\beta_r\) are positive constants characterizing the forward and reverse current behavior along the Schottky barrier.
-\TODO[I think this is appopriate, I've using original notation from paper before]{Change of notations. $\imd$ - memory dependent current, previously $\im$, $\im$ - the total current, previously $i$. Please confirm whether this is ok.}
+\TODO[I think this is appropriate, I've using original notation from paper before]{Change of notations. $\imd$ - memory dependent current, previously $\im$, $\im$ - the total current, previously $i$. Please confirm whether this is ok.}
 
 %ZG removed Eq.~\eqref{eq:nonlinear_eq}
 The inclusion of additional parameters and nonlinearities \changed[approved]{in the GMMS model} increases model's complexity and poses challenges for parameter optimization.An additional challenge arises due to the Schottky effect, which introduces nonlinearity into the current–voltage characteristic. When the memristor is connected in series with a resistor, this requires solving \changed[approved]{a set of differential-algebraic equations (DAEs)} of the form 
@@ -712,8 +717,6 @@ The best result of \(8.82 \times 10^{-3}\) is obtained for the Dual-NN-MemODE mo
 The superior performance of the neural network model can be attributed to its capacity for learning complex nonlinear mappings directly from experimental data, whereas the MMS model relies on predetermined phenomenological relationships that may not fully capture the device-specific dynamics and material-dependent switching characteristics inherent in experimental memristor devices.
 
 \subsection{Hyperparameter Sensitivity Analysis}
-
-\TODO{I don't know if this section is necessary... but here it is anyway.}\\
 \TODO{It might be of interest to potential readers :-).}
 
 \noindent Hyperparameter optimization was conducted to systematically explore the parameter space and identify configurations that maximize the predictive performance of the neural network. The optimization employed the Tree-structured Parzen Estimator (TPE) algorithm, implemented in the \verb|Optuna| framework~\cite{akiba2019optuna}. The TPE algorithm models the objective function probabilistically by constructing two separate density estimators: one for configurations associated with above-average performance and another for those yielding below-average results. By sampling preferentially from the former, while still maintaining diversity through exploration of the latter, the algorithm achieves an efficient balance between exploitation of promising regions and exploration of the broader search space.
@@ -733,7 +736,7 @@ Both approaches consistently identified the learning rate and gradient clipping 
   \label{fig:hyperparameter_importance}
 \end{figure}
 
-\TODO{What is the importance of optimizer type (mentioned in the search space). It would be interesting to know what are the obtained values of the loss function when using different values of certain hyperparameters (other parameters should be ones used for computations).}
+\TODO[That would be interesting to explore.]{What is the importance of optimizer type (mentioned in the search space). It would be interesting to know what are the obtained values of the loss function when using different values of certain hyperparameters (other parameters should be ones used for computations).}
 
 \bibliographystyle{IEEEtran} % added %ZG
 \bibliography{bibliography} % added %ZG
