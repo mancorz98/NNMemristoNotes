@@ -184,7 +184,7 @@ Measurements are carried out for the \changed{following combinations of supply v
   \resizebox{2.5in}{!}{\input{graphs/schematic.tex}}
   \vspace{-0.5in}
   \caption{Schematic diagram of the measurement setup used for the SDC memristor. The device is connected in series with a resistor, and the input voltage is applied via an arbitrary waveform generator. Voltage measurements are acquired using a data acquisition (DAQ) system.
-    \TODO{In this figure and in several other figures \(v_m\) should be replaced by \(v\) and \(i_m\) should be replaced by \(i\).}
+    \TODO[Done]{In this figure and in several other figures \(v_m\) should be replaced by \(v\) and \(i_m\) should be replaced by \(i\).}
   }
   \label{fig:memristor_setup}
 \end{figure}
@@ -442,7 +442,7 @@ The optimization process consists of two stages, combining global exploration wi
 \noindent During the preliminary experiments, a range of neural network architectures \changed{is} systematically evaluated in order to identify the most suitable configuration for modeling memristor dynamics. The evaluation considered \changed{the number} of hidden layers, \changed{the number of} neurons per layer, and optimization settings, with the aim of achieving a balance between model accuracy, generalization capability, and computational efficiency. Among these settings, the batch size determines the number of training samples processed before the model parameters are updated, thereby influencing both the convergence speed and the stability of the learning process. In this study, the batch size corresponds to the number of trajectories processed in parallel before each parameter update. The learning rate, on the other hand, controls the step size of each parameter update during training. An excessively high learning rate may cause the optimization process to diverge, while too low a value \changed{may} result in slow convergence or trapping in local minima.
 
 \changed{In this study, the dataset consists of 18 trajectories obtained from measurements for all combinations of supply voltage amplitudes \(\Vs  \in \{0.5\V,1.0\V,1.5\V\}\) and frequencies \(f \in \{1\Hz,5\Hz,10\Hz,20\Hz,50\Hz,100\Hz\}\).}
-\TODO{The numbers of periods and samples per trajectory should be specified.}
+\TODO[DOING]{The numbers of periods and samples per trajectory should be specified.}
 \changed{This dataset is divided into the training dataset consisting of 14 trajectories and the validation datasets comprising 4 trajectories.}
 The trajectories used for training and validation \changed{are} selected to cover a diverse range of \changed{memristor's} operating conditions, thereby enhancing the model's ability to generalize across different dynamic regimes.
 \changed{The validation dataset contains the following pairs of supply voltages and frequencies: \((1.5\V, 5\Hz)\), \((1\V, 1\Hz)\), \((1\V, 100\Hz)\), and \((0.5\V, 5\Hz)\).}
@@ -458,10 +458,8 @@ In addition to the learning curve, Figure~\ref{fig:learning-curve} also presents
   \centering
   \includegraphics[width=\linewidth]{figs/Training_process.pdf}
   \caption{Learning curve for the \MemODEOne\ neural network architecture during training over 360 epochs.
-    %The figure depicts a gradual decrease in the loss function values for both the training and validation datasets, reflecting effective optimization and adequate convergence of the model toward the experimental memristor data. %ZG removed
     The insets illustrate the evolution of the \( \vm - \im \) hysteresis loops at selected epochs, where the dashed lines correspond to the measured responses and the solid lines denote the model predictions.
-    \TODO{replace ``Train loss'' by ``Training set loss'' and ``Validation loss'' by ``Validation set loss''}
-    %These results demonstrate the model’s ability to accurately reproduce the nonlinear and history-dependent characteristics of the memristor as training advances. %ZG removed
+    \TODO[DONE]{replace ``Train loss'' by ``Training set loss'' and ``Validation loss'' by ``Validation set loss''}
   }
   \label{fig:learning-curve}
 \end{figure}
