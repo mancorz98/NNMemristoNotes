@@ -11,6 +11,14 @@ If the `Python` is installed, for the `UNIX` systems,  type in terminal:
 $(which python3)  -m pip install --break-system-packages  pdfrw2
 ```
 
+# Removing adnotation
+
+To remove approved changed commands from the text you can use prepared python script: 
+```bash
+python replace_changed.py $inputFile $outputFile
+```
+
+
 
 ### 2025-09-10 Meeting notes:
   - [x] controversial constraints function 
