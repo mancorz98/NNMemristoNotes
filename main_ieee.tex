@@ -103,7 +103,7 @@
 %ZG2 replaced "v_{\mathrm m}" by "v", replaced "i_{\mathrm m}" by "i"
 \newcommand{\vm}{v}  % memristor voltage
 \newcommand{\im}{i}  % memristor current
-\newcommand{\imd}{i_{\mathrm md}} % memory dependent current
+\newcommand{\imd}{i_{\rm md}} % memory dependent current
 \newcommand{\Rs}{R_{\mathrm s}}
 \newcommand{\Hz}{\,{\mathrm Hz}}
 \newcommand{\V}{\,{\mathrm V}}
@@ -410,9 +410,9 @@ In the GMMS model the memristor is represented as a parallel connection of memor
 The evolution of the state variable is governed by~\eqref{eq:mms}, while the current--voltage relationship is
 \begin{align}
   \begin{split}
-    \im(t)     & = \phi \imd(v, x) + (1-\phi) i_d(v),                \\ %ZG added comma
-    i_d(v)     & = \alpha_f e^{\beta_f v} - \alpha_r e^{-\beta_r v}, \\ %ZG added comma
-    \imd(v, x) & = \G_m(x) v,                                        %ZG added comma
+    \im(t)     & = \phi \imd(v, x) + (1-\phi) i_{\rm d}(v),                \\ %ZG added comma
+    i_d(v)     & = \alpha_{\rm f} e^{\beta_{\rm f} v} - \alpha_{\rm r} e^{-\beta_{\rm r} v}, \\ %ZG added comma
+    \imd(v, x) & = \G_{\rm m}(x) v,                                        %ZG added comma
   \end{split}
   \label{eq:gmms}
 \end{align}
@@ -482,7 +482,8 @@ The analysis encompasses the voltage waveform, the current waveform and the volt
 The voltage profile confirms the fidelity of the input stimulus. The temporal current response reveals the device's instantaneous electrical behavior and switching kinetics. The voltage-current hysteresis loops (\(\vm - \im\)) illustrate the fundamental memory properties that define memristive behavior.
 
 
-The hysteresis loops are particularly diagnostic of memristor performance, as their shape, area, and switching thresholds directly reflect the underlying ionic transport mechanisms and structural modifications responsible for resistive switching. The pinched hysteresis characteristic observed at the origin serves as a definitive signature of memristive behavior, while the loop area quantifies the energy dissipation associated with switching events. These features enable comprehensive validation of the neural network model's ability to capture both the static and dynamic aspects of memristor operation.
+The hysteresis loops are particularly diagnostic of memristor performance, as their shape, area, and switching thresholds directly reflect the underlying ionic transport mechanisms and structural modifications responsible for resistive switching. \changed{The pinched hysteresis loop, which intersects at the origin, serves as a definitive signature of memristive behavior, while the loop area quantifies the energy dissipation associated with switching events.}%The pinched hysteresis characteristic observed at the origin serves as a definitive signature of memristive behavior, while the loop area quantifies the energy dissipation associated with switching events.
+These features enable comprehensive validation of the neural network model's ability to capture both the static and dynamic aspects of memristor operation.
 
 \newcommand{\subwidth}{0.49\linewidth}
 \begin{figure}[!t]
@@ -510,7 +511,8 @@ The hysteresis loops are particularly diagnostic of memristor performance, as th
 To assess the performance of the neural ODE approach, a comprehensive comparative analysis is conducted between the developed neural network models and the existing models of SDC memristors: the Mean Metastable Switch (MMS) model and the Generalized Mean Metastable Switch (GMMS) model.
 
 
-This comparison is particularly significant as the MMS and GMMS models have been extensively validated against experimental data and serve as a benchmark for memristor circuit simulation in the scientific literature~\cite{Bednarz2024, Ostrovskii2021}. The comparative evaluation encompasses temporal voltage and current evolution, hysteretic characteristics, and quantitative loss function metrics to provide comprehensive assessment of modeling fidelity.
+This comparison is particularly significant as the MMS and GMMS models have been extensively validated against experimental data and serve as a benchmark for memristor circuit simulation in the %scientific
+literature~\cite{Bednarz2024, Ostrovskii2021}. The comparative evaluation encompasses temporal voltage and current evolution, hysteretic characteristics, and quantitative loss function metrics to provide comprehensive assessment of modeling fidelity.
 
 Comparison results are plotted in Fig.~\ref{fig:comparison_mms}. Quantitative analysis reveals substantial performance improvements achieved by the neural network approach.
 
