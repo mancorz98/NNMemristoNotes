@@ -324,7 +324,7 @@ The following constraint intervals are applied to
   As the state variables \(\mathbf{x}(t)\) in the \MemODETwo\ approach are not restricted to a specific range, no explicit constraints are applied to them.
 
 
-The upper bound for the OFF-state resistance~\(R_{\mathrm{OFF}}\) and bounds for the conductance parameter~\(G\) are based on empirical measurements.
+The upper bound for the OFF-state resistance~\(R_{\mathrm{OFF}}\) and bounds for the conductance parameter~\(\changed{\G}\) are based on empirical measurements.
   Remaining constraints are consequences of physically meaningful values of parameters and variables.\\
 
 
@@ -338,7 +338,7 @@ The relation between the internal variable and the memristor conductance has the
 \end{equation}
 where \(\Ron\) and \(\Roff\) denote the resistances in the low-conductance and high-conductance states, respectively.
 
-In the second approach (\MemODETwo), the memristor conductance is modeled using the second neural network. This neural network takes the current state \(\mathbf{x}\) as the input and produces the corresponding conductance \(G_m(\mathbf{x})\) as the output. In this approach, the memristor state variable \(\mathbf{x}\) is not constrained to a single dimension, enabling a more flexible representation of the device’s internal dynamics. Moreover, it is not restricted to a physically interpretable range, such as the interval \([0,1]\) in Eq.~\eqref{eq:conductance}.
+In the second approach (\MemODETwo), the memristor conductance is modeled using the second neural network. This neural network takes the current state \(\mathbf{x}\) as the input and produces the corresponding conductance \changed{\(\G_m(\mathbf{x})\)} as the output. In this approach, the memristor state variable \(\mathbf{x}\) is not constrained to a single dimension, enabling a more flexible representation of the device’s internal dynamics. Moreover, it is not restricted to a physically interpretable range, such as the interval \([0,1]\) in Eq.~\eqref{eq:conductance}.
 
 
 Conceptual architectures are illustrated in Fig.~\ref{fig:nn_structure} for the \MemODEOne\ and in Fig.~\ref{fig:nn_structure_dual} for the \MemODETwo.
