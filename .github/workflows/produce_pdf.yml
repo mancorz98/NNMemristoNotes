@@ -51,7 +51,7 @@ jobs:
         uses: willo32/google-drive-upload-action@v1
         with:
           credentials: ${{ secrets.GOOGLE_KEY }}
-          target: "manuscipt.pdf" # optional string
+          target: "manuscript.pdf" # optional string
           parent_folder_id: ${{ secrets.FOLDER_ID }}
           name: "manuscript.pdf" # optional string
           child_folder: "$(date +%Y-%m-%d)" # optional string
