@@ -51,8 +51,7 @@ jobs:
         uses: willo32/google-drive-upload-action@v1
         with:
           credentials: ${{ secrets.GOOGLE_KEY }}
-          target: "manuscript.pdf" # optional string
-          parent_folder_id: ${{ secrets.FOLDER_ID }}
-          child_folder: "$(date +%Y-%m-%d)" # optional string
-          # overwrite: "true" # optional boolean
+          filename: "manuscript.pdf" # optional string
+          folderId: ${{ secrets.FOLDER_ID }}
+          overwrite: "true" # optional boolean
           # mirrorDirectoryStructure: "true"
