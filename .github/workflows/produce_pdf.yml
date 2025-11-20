@@ -51,8 +51,8 @@ jobs:
         uses: adityak74/google-drive-upload-git-action@main
         with:
           credentials: ${{ secrets.GOOGLE_KEY }}
-          filename: "main_ieee.pdf" # optional string
+          filename: "manuscipt.pdf" # optional string
           folderId: ${{ secrets.FOLDER_ID }}
           name: "manuscript.pdf" # optional string
-          overwrite: "true" # optional boolean
+          # overwrite: "true" # optional boolean
           # mirrorDirectoryStructure: "true"
