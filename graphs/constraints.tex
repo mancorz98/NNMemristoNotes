@@ -10,7 +10,8 @@
     legend style={at={(0.98,0.98)},anchor=north east},
     domain=-1.5:2.5,
     samples=500,
-    thick,
+%    ultra thick,
+    line width=2.2pt,
     % Automatic spacing like matplotlib margins
     enlarge x limits=0.05,
     enlarge y limits=0.1,
@@ -18,7 +19,7 @@
 
     % Main function plot
     \addplot [
-      color=black,
+      color=blue,
     ]
     {(1/(1 + exp(-(-((x - 0.01)/0.0025)))) * (0.01 - x)
       + 1/(1 + exp(-((x - 0.99)/0.0025))) * (x - 0.99))^2};
@@ -26,10 +27,10 @@
     \addlegendentry{$\mathcal{L}_{\mathrm{con}}(x)$}
 
     % Vertical reference lines using simple approach
-    \addplot[dashed, gray, forget plot] coordinates {(0,0) (0,0.5)};
+    \addplot[dashed, gray, forget plot] coordinates {(0,-0.1) (0,0.7)};
     \addlegendentry{$a = 0$}
 
-    \addplot[dashed, gray, forget plot] coordinates {(1,0) (1,0.5)};
+    \addplot[dashed, gray, forget plot] coordinates {(1,-0.1) (1,0.7)};
     \addlegendentry{$b = 1$}
 
     % \addplot[dotted, blue, forget plot] coordinates {(0.01,0) (0.01,0.5)};
