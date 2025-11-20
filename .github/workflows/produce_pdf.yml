@@ -1,0 +1,41 @@
+name: Build LaTeX document
+on: [push]
+
+permissions:
+  contents: write # This allows pushing to the repo
+
+jobs:
+  build_latex:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Git repository
+        uses: actions/checkout@v4
+      - name: Compile LaTeX document
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: main_ieee.tex
+          latexmk_shell_escape: true
+          os: debian
+
+      - name: Upload PDF file
+        uses: actions/upload-artifact@v4
+        with:
+          name: PDF
+          path: main_ieee.pdf
+
+      - name: Upload to orphan branch
+        run: |
+          DATE=$(date +"%Y-%m-%d %H:%M:%S")
+          PDF_PATH="${PWD}/main_ieee.pdf"
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          cp main_ieee.pdf /tmp/manuscript.pdf
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+          git checkout --orphan pdf-output
+          git rm -rf . 
+
+          cp /tmp/manuscript.pdf ./manuscript.pdf
+          git add manuscript.pdf
+          git commit -m "Update PDF from ${DATE} - ${COMMIT_MSG}"
+          git push -f origin pdf-output
