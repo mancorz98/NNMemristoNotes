@@ -147,7 +147,7 @@
 \maketitle
 
 \begin{abstract}
-  \TODO{To do.} %ZG
+  \changed[approved]{The development of modern memristive technologies requires accurate dynamic models to enable reliable simulation and prototyping in applications such as resistive RAM, neural networks, and neuromorphic computing. Existing symbolic models often exhibit limitations in accurately capturing the complex dynamic behavior of physical devices across various operating conditions, impacting their reliability in simulations. This work proposes a neural-network-based modeling approach for an SDC memristor using Neural Ordinary Differential Equation (Neural ODE) models. Prior neural-network-based studies were limited by training data derived solely from theoretical models, preventing reliable assessment on real devices. The proposed method leverages a backpropagation technique based on solving the corresponding adjoint ODE backward in time using adjoint sensitivity methods. Experimental data obtained directly from fabricated SDC memristors are used to train and validate the model. Results show that the Neural ODE approach accurately reproduces the device’s dynamic characteristics and provides improved flexibility and robustness compared to traditional theoretical models. These findings demonstrate the feasibility of Neural ODE–based frameworks for data-driven modeling of physical memristive devices.} %ZG
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -156,7 +156,7 @@
 
 % \listoftodos %KB
 \section{Introduction}
-\IEEEPARstart{N}{umerous} memristor models have been proposed in the scientific literature following the discovery of memristive behavior at the nanoscale. The original model, introduced in~\cite{Strukov2008}, conceptualizes the memristor as a series connection of two variable resistances corresponding to the conductive and insulating regions of the thin film. To more accurately model Self-Directed Channel (SDC) memristors, M.~Nugent and T.~Molter proposed the generalized \textit{Mean Metastable Switch} (MMS) model, which is a semi-empirical formulation. In this approach, the time derivative of the internal state variable is defined as a function of both the transition probabilities between metastable states and the current value of the state variable~\cite{Molter2016}. In~\cite{Lee2024}, the authors attempted to model memristive behavior using the \textit{Physics-Informed Neural Networks} (PINNs) framework. Although the reported results indicate the potential of this method, the study is not grounded in experimental measurements of physical memristor devices. Instead, the analysis is limited to comparisons with the outcomes of existing simulation models. Moreover, the training data employed during the neural network learning process were generated based on previously developed theoretical models, thereby limiting the ability to assess the method's accuracy in the context of real-world physical systems.
+\IEEEPARstart{N}{umerous} memristor models have been proposed in the scientific literature following the discovery of memristive behavior at the nanoscale. The original model, introduced in~\cite{Strukov2008}, conceptualizes the memristor as a series connection of two variable resistances corresponding to the conductive and insulating regions of the thin film. To more accurately model Self-Directed Channel (SDC) memristors, M.~Nugent and T.~Molter proposed the generalized \textit{Mean Metastable Switch} (MMS) model, which is a semi-empirical formulation. In this approach, the time derivative of the internal state variable is defined as a function of both the transition probabilities between metastable states and the current value of the state variable~\cite{Molter2016}. \changed{While existing symbolic models can accurately simulate memristor behavior under narrowly defined input conditions (e.g., specific signal shape, amplitude, or frequency), their generalization capability and reliability significantly diminish when the parameters of the driving signal are altered. This limitation is particularly challenging for applications like modeling memristors in chaotic oscillators, where current/voltage undergoes continuous and highly dynamic changes.} In~\cite{Lee2024}, the authors attempted to model memristive behavior using the \textit{Physics-Informed Neural Networks} (PINNs) framework. Although the reported results indicate the potential of this method, the study is not grounded in experimental measurements of physical memristor devices. Instead, the analysis is limited to comparisons with the outcomes of existing simulation models. Moreover, the training data employed during the neural network learning process were generated based on previously developed theoretical models, thereby limiting the ability to assess the method's accuracy in the context of real-world physical systems.
 
 
 In~\cite{Ricky2018}, the authors introduce the concept of deep neural models in which the dynamics of the hidden state are governed by an \textit{ordinary differential equation} (ODE). The training process is performed in an end-to-end manner, meaning that all parameters are optimized simultaneously within a single training routine. A key innovation of the proposed approach is a novel backpropagation technique, which relies on solving the corresponding adjoint ODE backward in time using \textit{adjoint sensitivity methods}. This formulation enables efficient gradient computation and facilitates the application of neural ODEs in various architectures, including continuous-depth residual networks and generative flow-based models.
@@ -177,7 +177,7 @@ Our objective is to assess whether neural network-based models can accurately re
 
 The experimental setup, illustrated in Fig.~\ref{fig:memristor_setup}, consists of an SDC memristor connected in series with a resistor. The sinusoidal input voltage is supplied by an arbitrary waveform generator.e voltage signals are measured using a data acquisition (DAQ) system.
 %
-Measurements are carried out for the following combinations of supply voltage amplitudes \(\Vs\) and frequencies \(f\): \(\Vs  \in \{0.5,\ 1.0,\ 1.5\}~\mathrm{[V]}\), \(f \in \{1,\ 5,\ 10,\ 20,\ 50,\ 100\}~\mathrm{[Hz]}\).
+Measurements are carried out for the following combinations of supply voltage amplitudes \(\Vs\) and frequencies \(f\): \(\Vs  \in \{0.5,\ 1.0,\ 1.5\}~\mathrm{[V]}\), \(f \in \{1,\ 5,\ 10,\ 20,\ 50,\ 100\}~[\changed{\mathrm Hz}]\).
 
 \begin{figure}[!t]
   \centering
@@ -235,8 +235,7 @@ where the trajectory temporal mean is defined as \(\bar{z}_k = \frac{1}{T} \sum_
 
 
 By implementing trajectory-specific normalization rather than global standardization, the methodology preserves the inherent temporal dynamics and statistical properties unique to each circuit configuration while simultaneously ensuring that amplitude disparities do not introduce systematic bias during predictive modeling procedures.
-This approach is particularly advantageous in scenarios involving
-varying operational conditions, where maintaining the relative temporal structure is paramount for accurate system identification and dynamic analysis.
+This approach is particularly advantageous in scenarios involving varying operational conditions, where maintaining the relative temporal structure is paramount for accurate system identification and dynamic analysis.
 The normalized mean squared error between two sequences \(({z}_{k,t})_{t=1}^T\) and \((\tilde{z}_{k,t})_{t=1}^T\) of \(T\) data points is defined as
 \begin{equation}
   \NMSE(z_k,\tilde{z}_k)=\MSE\left(\frac{z_k}{\sigma_{z,k}},\frac{\tilde{z}_k}{\sigma_{z,k}}\right)=\frac{1}{T}\sum_{t=1}^{T}\left(\frac{{z}_{k,t}}{\sigma_{z,k}} -\frac{\tilde{z}_{k,t}}{\sigma_{z,k}}\right)^2.
@@ -595,8 +594,8 @@ The best result of \(8.82 \times 10^{-3}\) is obtained for the \MemODETwo\  mode
 \begin{table}
   \caption{Comparative \changed{analysis of the loss function \(\mathcal{L}_{\mathrm{b}}\) for the whole dataset and validation} dataset. \TODO[DONE]{Results for the whole dataset should be provided in the first row.}}
   \label{tab:mms_comp_test}
-  
-  \begin{tabular}{c|cccc}
+\begin{center}
+	  \begin{tabular}{c|cccc}
     \toprule
      & \makecell{SingleNN-\\MemODE} & \makecell{DualNN-\\ MemODE} & \makecell{GMMS\\Model} & \makecell{MMS\\Model}\\ 
     \midrule
@@ -609,6 +608,7 @@ The best result of \(8.82 \times 10^{-3}\) is obtained for the \MemODETwo\  mode
     \(\mathcal{L}_{\mathrm{b}}\) & $1.52 \mtimes 10^{-2}$ & \color{ieeegreen} \bfseries $2.23 \mtimes 10^{-3}$ & $3.58 \mtimes 10^{-2}$ & \color{ieeered} \bfseries $7.24 \mtimes 10^{-2}$ \\
     \bottomrule
   \end{tabular}
+\end{center}
 \end{table}
 
 The superior performance of the neural network model can be attributed to its capacity for learning complex nonlinear mappings directly from experimental data, whereas the MMS model relies on predetermined phenomenological relationships that may not fully capture the device-specific dynamics and material-dependent switching characteristics inherent in experimental memristor devices.
