@@ -43,8 +43,8 @@ jobs:
         uses: adityak74/google-drive-upload-git-action@main
         with:
           credentials: ${{ secrets.GOOGLE_KEY }}
-          filename: "archive.zip"
+          filename: "manuscript.pdf" # optional string
           folderId: ${{ secrets.FOLDER_ID }}
-          name: "manuscript.pdf" # optional string
+          name: "$(date +%Y-%m-%d)/manuscript.pdf" # optional string
           overwrite: "true" # optional boolean
-
+          mirrorDirectoryStructure: "true"
