@@ -1,5 +1,12 @@
 name: Build LaTeX document
-on: [push]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    types: [closed] # Only when PR is closed
 
 permissions:
   contents: write # This allows pushing to the repo
