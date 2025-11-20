@@ -47,6 +47,7 @@ jobs:
           git add manuscript.pdf
           git commit -m "Update PDF from ${DATE} - ${COMMIT_MSG}"
           git push -f origin pdf-output
+          export TODAY=$(date +"%Y-%m-%d")
       - name: Upload to gdrive
         uses: adityak74/google-drive-upload-git-action@main
         with:
