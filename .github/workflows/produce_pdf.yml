@@ -48,7 +48,7 @@ jobs:
           git commit -m "Update PDF from ${DATE} - ${COMMIT_MSG}"
           git push -f origin pdf-output
       - name: Upload to gdrive
-        uses: willo32/google-drive-upload-action@v1
+        uses: google-drive-upload-git-action
         with:
           credentials: ${{ secrets.GOOGLE_KEY }}
           filename: "manuscript.pdf" # optional string
