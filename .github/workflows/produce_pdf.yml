@@ -45,6 +45,6 @@ jobs:
           credentials: ${{ secrets.GOOGLE_KEY }}
           filename: "manuscript.pdf" # optional string
           folderId: ${{ secrets.FOLDER_ID }}
-          name: "$(date +%Y-%m-%d)/manuscript.pdf" # optional string
+          name: "manuscript.pdf" # optional string
           overwrite: "true" # optional boolean
           mirrorDirectoryStructure: "true"
