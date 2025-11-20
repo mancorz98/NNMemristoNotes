@@ -436,7 +436,7 @@ The optimization process consists of two stages, combining global exploration wi
 
 \section{Results}
 \label{sec:results}
-\TODO{If possible the following information should be provided in this section for each method, including the existing models: the learning time, the evaluation time needed to generate a single trajectory.}
+\TODO[DONE]{If possible the following information should be provided in this section for each method, including the existing models: the learning time, the evaluation time needed to generate a single trajectory.}
 
 \noindent During the \changed{hyperparameter tuning}, a range of neural network architectures was systematically evaluated in order to identify the most suitable configuration for modeling memristor dynamics. The evaluation considered the number of hidden layers, the number of neurons per layer, and optimization settings \changed{(e.g. batch size, learning rate)}, with the aim of achieving a balance between model accuracy, \changed{and generalization capability}, as described in the section \ref{sec:nn_architecture}. Among these settings, the batch size determines the number of training samples processed before the model parameters are updated, thereby influencing both the convergence speed and the stability of the learning process. In this study, the batch size corresponds to the number of trajectories processed in parallel before each parameter update. The learning rate, on the other hand, controls the step size of each parameter update during training. An excessively high learning rate may cause the optimization process to diverge, while too low a value may result in slow convergence or trapping in local minima.
 
