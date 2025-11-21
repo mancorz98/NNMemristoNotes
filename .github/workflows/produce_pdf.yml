@@ -48,11 +48,13 @@ jobs:
           git commit -m "Update PDF from ${DATE} - ${COMMIT_MSG}"
           git push -f origin pdf-output
           export TODAY=$(date +"%Y-%m-%d")
-      - name: Upload to gdrive
-        uses: adityak74/google-drive-upload-git-action@main
-        with:
-          credentials: ${{ secrets.GOOGLE_KEY }}
-          filename: "manuscript.pdf" # optional string
-          folderId: ${{ secrets.FOLDER_ID }}
-          overwrite: "true" # optional boolean
-          # mirrorDirectoryStructure: "true"
+
+      # Optional: Upload to Google Drive
+      # - name: Upload to gdrive
+      #   uses: adityak74/google-drive-upload-git-action@main
+      #   with:
+      #     credentials: ${{ secrets.GOOGLE_KEY }}
+      #     filename: "manuscript.pdf" # optional string
+      #     folderId: ${{ secrets.FOLDER_ID }}
+      #     overwrite: "true" # optional boolean
+      #     # mirrorDirectoryStructure: "true"
