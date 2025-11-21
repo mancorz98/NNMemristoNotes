@@ -49,6 +49,23 @@ jobs:
           git push -f origin pdf-output
           export TODAY=$(date +"%Y-%m-%d")
 
+      - name: Upload PDF to Releases
+        run: |
+          TAG_NAME="pdf-$(date +"%Y-%m-%d")"
+          DATE=$(date +"%Y-%m-%d %H:%M:%S")
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+
+          git tag "${TAG_NAME}"
+          git push origin "${TAG_NAME}"
+
+          # Create release from this orphan branch commit
+          gh release create "${TAG_NAME}" \
+            manuscript.pdf \
+            --title "PDF Build ${DATE}" \
+            --notes "Auto-generated PDF from orphan branch\nCommit: ${COMMIT_MSG}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       # Optional: Upload to Google Drive
       # - name: Upload to gdrive
       #   uses: adityak74/google-drive-upload-git-action@main
