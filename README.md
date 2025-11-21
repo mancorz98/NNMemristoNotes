@@ -34,7 +34,16 @@ python replace_changed.py $inputFile $outputFile
 
 
 ### 2025-10-22 Meeting notes: 
-  - [ ] Controversial validation metrics
+  - [x] Controversial validation metrics
+
+
+### 2025-11-21
+  - [ ] Controversial Algorithm. 1
+  - [ ] Compare the evaluation time
+  - [ ] Extend training time section
+  - [ ] Analyse, the hyperparameter space influence
+  
+
 
 
 
