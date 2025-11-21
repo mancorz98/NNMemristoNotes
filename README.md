@@ -30,7 +30,7 @@ python replace_changed.py $inputFile $outputFile
 ### 2025-10-03 Meeting notes: 
   - [x] Rewrite to the IEEE format, 
   - [x] Use test loss instead of full loss, 
-  - [ ] Add information about specific Neural Architecture structure,
+  - [x] Add information about specific Neural Architecture structure,
 
 
 ### 2025-10-22 Meeting notes: 

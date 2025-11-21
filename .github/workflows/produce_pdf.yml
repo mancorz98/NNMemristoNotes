@@ -51,7 +51,7 @@ jobs:
 
       - name: Upload PDF to Releases
         run: |
-          TAG_NAME="pdf-$(date +"%Y-%m-%d")"
+          TAG_NAME="pdf-$(date +"%Y-%m-%d-%H%M%S")"
           DATE=$(date +"%Y-%m-%d %H:%M:%S")
           COMMIT_MSG="${{ github.event.head_commit.message }}"
 
