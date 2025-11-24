@@ -147,7 +147,7 @@
 \maketitle
 
 \begin{abstract}
-  \changed[approved]{The development of modern memristive technologies requires accurate dynamic models to enable reliable simulation and prototyping in applications such as resistive RAM, neural networks, and neuromorphic computing. Existing symbolic models often exhibit limitations in accurately capturing the complex dynamic behavior of physical devices across various operating conditions, impacting their reliability in simulations. This work proposes a neural-network-based modeling approach for an SDC memristor using Neural Ordinary Differential Equation (Neural ODE) models. Prior neural-network-based studies were limited by training data derived solely from theoretical models, preventing reliable assessment on real devices. The proposed method leverages a backpropagation technique based on solving the corresponding adjoint ODE backward in time using adjoint sensitivity methods. Experimental data obtained directly from fabricated SDC memristors are used to train and validate the model. Results show that the Neural ODE approach accurately reproduces the device’s dynamic characteristics and provides improved flexibility and robustness compared to traditional theoretical models. These findings demonstrate the feasibility of Neural ODE–based frameworks for data-driven modeling of physical memristive devices.} %ZG
+  The development of modern memristive technologies requires accurate dynamic models to enable reliable simulation and prototyping in applications such as resistive RAM, neural networks, and neuromorphic computing. Existing symbolic models often exhibit limitations in accurately capturing the complex dynamic behavior of physical devices across various operating conditions, impacting their reliability in simulations. This work proposes a neural-network-based modeling approach for an SDC memristor using Neural Ordinary Differential Equation (Neural ODE) models. Prior neural-network-based studies were limited by training data derived solely from theoretical models, preventing reliable assessment on real devices. The proposed method leverages a backpropagation technique based on solving the corresponding adjoint ODE backward in time using adjoint sensitivity methods. Experimental data obtained directly from fabricated SDC memristors are used to train and validate the model. Results show that the Neural ODE approach accurately reproduces the device’s dynamic characteristics and provides improved flexibility and robustness compared to traditional theoretical models. These findings demonstrate the feasibility of Neural ODE–based frameworks for data-driven modeling of physical memristive devices. %ZG
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -292,9 +292,6 @@ The function \(\mathcal{L}_{\mathrm{con}}(x)\) exhibits minimal penalty in the r
 \end{figure}
 
 \subsection{Neural ODE based Memristor Modeling}
-
-
-\comment{Replaced ``Dual-NN-MemODE'' by ``DualNN-MemODE'' throughout the manuscript}
 
 \noindent In this study, two neural network-based modeling approaches are proposed. The first one, denoted as \textbf{\MemODEOne}, employs a deterministic formulation of the memristor conductance \(\G\), while the function \(f\) defining the dynamics of internal variables is modeled using a neural network. In the second one, referred to as \textbf{\MemODETwo}, both \(\G\) and \(f\) are modeled using neural networks.
 
@@ -448,20 +445,23 @@ The trajectories used for training and validation are selected to cover a divers
 The validation dataset contains the following pairs of supply voltages and frequencies: \((1.5\V, 5\Hz)\), \((1\V, 1\Hz)\), \((1\V, 100\Hz)\), and \((0.5\V, 5\Hz)\).
 
 \changed{
-During the hyperparameter optimization stage, the optimal configuration of the \MemODEOne\ architecture was found to comprise four hidden layers with the structure \(64 \rightarrow 128 \rightarrow 128 \rightarrow 64\). The model was trained using the \texttt{AdamW} optimizer with a learning rate of approximately \(1.89 \times 10^{-2}\) and a batch size of 2. The $\mathrm{swish}$ activation function was employed for the hidden layers, while the final layer utilized a $\mathrm{linear}$ activation function.  
+During the hyperparameter optimization stage, the optimal configuration of the \MemODEOne\ architecture was found to comprise four hidden layers with the structure \(64 \rightarrow 128 \rightarrow 128 \rightarrow 64\). The model was trained using the \texttt{AdamW} optimizer with a learning rate of approximately \(1.89 \times 10^{-2}\) and a batch size of 2. The \(\mathrm{swish}\) activation function was employed for the hidden layers, while the final layer utilized a \(\mathrm{linear}\) activation function.  
 
-For the \MemODETwo\ architecture, the optimal neural network configuration responsible for computing \(\dert{\mathbf{x}}\) consisted of five hidden layers with dimensions \(216 \rightarrow 432 \rightarrow 432 \rightarrow 432 \rightarrow 216\) with 2 latent states. The auxiliary neural network responsible for computing \(\G\) included two hidden layers, each containing 192 neurons. Both networks were trained using the \texttt{NAdamW} optimizer with a learning rate of approximately \(5.52 \times 10^{-4}\) and a batch size of 14. The first neural network employed the $\mathrm{gelu}$ activation function in the hidden layers and a $\mathrm{linear}$ activation in the output layer, whereas the second network used the $\mathrm{elu}$ activation function with a $\mathrm{sigmoid}$ output activation.
+For the \MemODETwo\ architecture, the optimal neural network configuration responsible for computing \(\dert{\mathbf{x}}\) consisted of five hidden layers with dimensions \(216 \rightarrow 432 \rightarrow 432 \rightarrow 432 \rightarrow 216\) with 2 latent states. The auxiliary neural network responsible for computing \(\G\) included two hidden layers, each containing 192 neurons. Both networks were trained using the \texttt{NAdamW} optimizer with a learning rate of approximately \(5.52 \times 10^{-4}\) and a batch size of 14. The first neural network employed the \(\mathrm{gelu}\) activation function in the hidden layers and a \(\mathrm{linear}\) activation in the output layer, whereas the second network used the \(\mathrm{elu}\) activation function with a \(\mathrm{sigmoid}\) output activation.
 }
 %
 \changed{
-Median time for training the \MemODEOne\ architecture is approximately 32 minutes, while for the \MemODETwo\ architecture it is around 27.5 minutes, using only CPU Intel i9-9900X. Comparing to the existing models, the median time for optimizing the MMS model parameters is approximately 20.4 minutes, while for the GMMS model it is around 8.4 minutes, using the same hardware.
+The median training time for the \MemODEOne\ architecture is approximately 11 minutes and 21 seconds, whereas for the \MemODETwo\ architecture it is around 13 minutes and 51 seconds, using only a CPU (Intel i9-9900X). For comparison, the median time required to optimize the MMS model parameters is approximately 20.4 minutes, while the GMMS model requires around 8.4 minutes on the same hardware. The neural network models were trained using a standard deep–learning workflow based on classical gradient-based optimization. In contrast, the parameter identification procedure for the analytical models (MMS and GMMS) required a two–stage optimization scheme. First---and most computationally expensive---a global search was performed over a wide parameter domain to obtain a coarse but robust initial estimate. This was followed by a local refinement step using a gradient-based optimizer. This workflow reflects the practical difficulty of identifying suitable initial parameters for the analytical models and explains why their calibration time is typically longer compared to the one-time training cost of the neural network–based models.
 }
 
-%
+\TODO{
+  0.053639 seconds for all 18 trajectories for MMS model
+}
+
+
 A representative learning curve corresponding to the \MemODEOne\ architecture, is presented in Figure~\ref{fig:learning-curve}.
-The training process is conducted over 360 epochs, with the objective function \(\mathcal{L}\) monitored on both the training and validation datasets to provide insights into convergence behavior and potential overfitting. The learning curve demonstrates a consistent decrease
-%ZG removed "and smooth"
-in values of \(\mathcal{L}\) for both datasets, which indicates effective optimization and a satisfactory model fitting to the experimental data. The close agreement between the training and validation loss further confirms the generalization ability of the selected architecture.
+The training process is conducted over 360 epochs, with the objective function \(\mathcal{L}\) monitored on both the training and validation datasets to provide insights into convergence behavior and potential overfitting. The learning curve demonstrates a consistent decrease in values of \(\mathcal{L}\) for both datasets, which indicates effective optimization and a satisfactory model fitting to the experimental data. The close agreement between the training and validation loss further confirms the generalization ability of the selected architecture. \changed{The loss function defined in Eq.~\eqref{eq:loss_function} was examined during both the training and testing stages. In particular, the effectiveness of optimizing the full loss function \eqref{eq:loss_function} was compared against optimizing only the base loss~\(\mathcal{L}_{\mathrm{b}}\), defined in Eq.~\eqref{eq:base_loss}. The results indicate that incorporating the additional terms~\(\mathcal{L}_{\mathrm{v}}\) and~\(\mathcal{L}_{\mathrm{c}}\) significantly improves convergence and enhances the overall predictive performance of the model, as reflected by reduced validation loss values and higher accuracy on unseen data. For instance, when optimizing only the base loss of the \MemODEOne\ architecture, the validation value is \(\mathcal{L}_{\mathrm{b}} = 2.24 \mtimes 10^{-2}\), whereas optimizing the full loss function yields a lower value of \(\mathcal{L}_{\mathrm{b}} = 1.85 \mtimes 10^{-2}\).
+}
 
 In addition to the learning curve, Figure~\ref{fig:learning-curve} also presents the \(\vm\)--\(\im\) hysteresis characteristics obtained at selected stages of the optimization process. These snapshots highlight how the model progressively refines its internal representation of the device dynamics during training. The gradual improvement of the hysteresis fit across epochs illustrates the capability of the neural network to capture the nonlinear and history-dependent behavior of the memristor, thereby validating the suitability of the chosen architecture and training configuration.
 
@@ -599,13 +599,13 @@ The best result of \(8.82 \times 10^{-3}\) is obtained for the \MemODETwo\  mode
     \toprule
      & \makecell{SingleNN-\\MemODE} & \makecell{DualNN-\\ MemODE} & \makecell{GMMS\\Model} & \makecell{MMS\\Model}\\ 
     \midrule
-     \multicolumn{5}{c}{Whole dataset} \\
+     \multicolumn{5}{c}{Validation dataset} \\
     \midrule
-    \(\mathcal{L}_{\mathrm{b}}\) & \(1.82 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(8.28 \mtimes 10^{-3}\) & \(4.19 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(5.30 \mtimes 10^{-2}\) \\
+    \(\mathcal{L}_{\mathrm{b}}\) & \(1.49 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(8.28 \mtimes 10^{-3}\) & \(4.19 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(5.30 \mtimes 10^{-2}\) \\
     \toprule
-    \multicolumn{5}{c}{Validation dataset} \\
+    \multicolumn{5}{c}{Whole dataset} \\
     \midrule
-    \(\mathcal{L}_{\mathrm{b}}\) & $1.52 \mtimes 10^{-2}$ & \color{ieeegreen} \bfseries $2.23 \mtimes 10^{-3}$ & $3.58 \mtimes 10^{-2}$ & \color{ieeered} \bfseries $7.24 \mtimes 10^{-2}$ \\
+    \(\mathcal{L}_{\mathrm{b}}\) & \(1.52 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(2.23 \mtimes 10^{-3}\) & \(3.58 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(7.24 \mtimes 10^{-2}\) \\
     \bottomrule
   \end{tabular}
 \end{center}
