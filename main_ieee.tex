@@ -455,7 +455,7 @@ The median training time for the \MemODEOne\ architecture is approximately 11 mi
 }
 
 \TODO{
-  0.053639 seconds for all 18 trajectories for MMS model
+  0.0474 seconds for all 18 trajectories for MMS model,  0.0510  seconds for GMMS model
 }
 
 
@@ -625,12 +625,37 @@ As a complementary approach, permutation importance~\cite{Altmann2010} is applie
 
 Both sensitivity analysis methods consistently identified the \textit{MLPG depth} (i.e., the depth of the neural network used to approximate \(\mathcal{G}(x)\)) and the \textit{gradient clipping value} as the dominant hyperparameters. According to the gain-based measure, their relative importance are 0.07 and 0.56, respectively, whereas the permutation-based analysis yields corresponding values of 0.16 and 0.20. Collectively, these two parameters accounted for approximately 50\% of the observed performance variance. In contrast, the choice of activation function exhibited only a marginal effect (importance score \(\leqslant 0.01\)), suggesting that the Neural ODE architecture demonstrates a high degree of robustness with respect to this factor within the examined range.
 
+
+
 \begin{figure}[!t]
   \centering
   \includegraphics[width=\linewidth]{mms_figs/xgboost_permutation_importance.pdf}
   \caption{Hyperparameter importance for the \MemODETwo\  optimization task. Scores are computed using permutation importance applied to an XG Boost surrogate model trained on 200 hyperparameter configurations. Larger values indicate greater relative influence of the corresponding hyperparameter on model performance.}
   \label{fig:hyperparameter_importance}
 \end{figure}
+
+\changed{
+In Figure~\ref{fig:categorical_hyperparameters}, the mean values of the validation loss obtained during the hyperparameter optimization procedure for the categorical hyperparameters are presented. For each categorical option, the reported mean is computed by marginalizing over all remaining hyperparameters, while the corresponding \(95\%\) confidence intervals are indicated by the error bars. The figure summarizes the influence of (a) the number of latent states~\ref{1a3}, (b) the optimizer type~\ref{1b3}, as well as the activation functions employed in the two neural networks constituting the \MemODETwo\ architecture~\ref{1c3}–\ref{1d3}. This analysis highlights the relative sensitivity of the model performance to discrete architectural and training-strategy choices.
+
+\begin{figure}[!t]
+  \subfloat[\label{1a3}]{%
+    \includegraphics[width=0.48\linewidth]{hyper_params_figs/params_latent_states_barplot.pdf}%
+  }
+  \subfloat[\label{1b3}]{%
+    \includegraphics[width=0.48\linewidth]{hyper_params_figs/params_optimizer_barplot.pdf}%
+  }
+
+  \subfloat[\label{1c3}]{%
+    \includegraphics[width=0.48\linewidth]{hyper_params_figs/params_mlpx_activation_barplot.pdf}%
+  }
+  \subfloat[\label{1d3}]{%
+    \includegraphics[width=0.48\linewidth]{hyper_params_figs/params_mlpg_activation_barplot.pdf}%
+  }
+  \caption{Mean validation loss obtained during hyperparameter optimization for the categorical hyperparameters: (a) number of latent states, (b) optimizer type for the first neural network, (c) activation function for the first neural network, used to approximate \(\dert{\mathbf{x}}\), and (d) activation function for the second neural network, used to approximate \(\mathcal{G}(x)\). Mean values are computed by averaging over all other hyperparameters, with error bars indicating the \(95\%\) confidence interval.}
+  \label{fig:categorical_hyperparameters}
+\end{figure}
+
+}
 
 
 \section{Conclusions}
