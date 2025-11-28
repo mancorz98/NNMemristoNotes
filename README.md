@@ -38,10 +38,10 @@ python replace_changed.py $inputFile $outputFile
 
 
 ### 2025-11-21
-  - [ ] Controversial Algorithm. 1
-  - [ ] Compare the evaluation time
-  - [ ] Extend training time section
-  - [ ] Analyse, the hyperparameter space influence
+  - [x] Controversial Algorithm. 1
+  - [x] Compare the evaluation time
+  - [x] Extend training time section
+  - [x] Analyse, the hyperparameter space influence
   
 
 
