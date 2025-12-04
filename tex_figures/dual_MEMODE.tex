@@ -1,0 +1,265 @@
+
+
+
+\tikzset{>=latex}
+\colorlet{myred}{red!80!black}
+\colorlet{myblue}{blue!80!black}
+\colorlet{mygreen}{green!60!black}
+\colorlet{mydarkred}{myred!40!black}
+\colorlet{mydarkblue}{myblue!40!black}
+\colorlet{mydarkgreen}{mygreen!40!black}
+\tikzstyle{node}=[very thick,circle,draw=myblue,minimum size=22,inner sep=0.5,outer sep=0.6]
+\tikzstyle{connect}=[->,thick,mydarkblue,shorten >=1]
+\tikzset{
+  node 1/.style={node,mydarkgreen,draw=mygreen,fill=mygreen!25},
+  node 2/.style={node,mydarkblue,draw=myblue,fill=myblue!20},
+  node 3/.style={node,mydarkred,draw=myred,fill=myred!20},
+}
+\def\nstyle{int(\lay<\Nnodlen?min(2,\lay):3)}
+
+\newcommand{\customLabel}[1]{%
+  \ifcase#1\relax
+    \mathbf{x}%
+  \or
+    \mathbf{x}%
+  \or
+    v%
+  \else
+    v_{#1}%
+  \fi
+}
+
+\begin{tikzpicture}[
+    arrow/.style={-{Stealth}, thick,black},
+    box/.style={rectangle, draw=black, thick, minimum width=2cm, minimum height=1.5cm, align=center},
+    label/.style={black, font=\large},
+    dashed_arrow/.style={-{Stealth}, thick,black, dashed}
+]
+
+% ===== NEURAL NETWORK (replaces ANN box) =====
+\begin{scope}[x=2.4cm,y=1.2cm, shift={(1.,0.5)}]
+  \readlist\Nnod{2,3,5,3}
+  \readlist\Nstr{l,n_1,{}}
+  \readlist\Nnstr{l,n_L,n}
+  \readlist\Cstr{v,h^{(1)},h^{(l)},\frac{{\rm d}x}{{\rm d}t}}
+  \def\yshift{0.55}
+  
+  \node[scale=1.8] at (2.5, -1) {\Large\color{red}$\cdots$};
+  
+  \foreachitem \N \in \Nnod{
+    \def\lay{\Ncnt}
+    \pgfmathsetmacro\prev{int(\Ncnt-1)}
+    \foreach \i [evaluate={\c=int(\i==\N); \y=\N/2-\i-\c*\yshift;
+                 \x=\lay; \n=\nstyle;}] in {1,...,\N}{
+      \ifnum\lay=1
+        \pgfmathsetmacro\index{int(\i)}
+        \node[node \n] (N\lay-\i) at (\x,\y) {$\customLabel{\index}$};
+      \else\ifnum\lay=2
+        \pgfmathsetmacro\index{(\i<\N?int(\i):"\Nstr[\n]")}
+        \node[node \n] (N\lay-\i) at (\x,\y) {$\strut\Cstr[\lay]_{\index}$};
+        \else
+        \pgfmathsetmacro\index{(\i<\N?int(\i):"\Nnstr[\n]")}
+        \node[node \n] (N\lay-\i) at (\x,\y) {$\strut\Cstr[\lay]_{\index}$};
+      \fi\fi
+      
+      \ifnumcomp{\lay}{>}{1}{
+        \ifnum\lay=3
+          \foreach \j in {1,...,\Nnod[\prev]}{
+            \draw[white,line width=1.2,shorten >=1] (N\prev-\j) -- (N\lay-\i);
+            \draw[connect] (N\prev-\j) -- (N\lay-\i);
+          }
+        \else
+          \foreach \j in {1,...,\Nnod[\prev]}{
+            \draw[white,line width=1.2,shorten >=1] (N\prev-\j) -- (N\lay-\i);
+            \draw[connect] (N\prev-\j) -- (N\lay-\i);
+          }
+        \fi
+        
+        \ifnum \lay=\Nnodlen
+          \draw[connect] (N\lay-\i) --++ (0.5,0);
+        \fi
+      }{
+        \draw[connect] (0.5,\y) -- (N\lay-\i);
+      }
+    }
+    
+    \ifnum\lay>1
+      % \ifnum\lay<\Nnodlen
+        \path (N\lay-\N) --++ (0,1+\yshift) node[midway,scale=1.6] {\Large\color{red}$\vdots$};
+      % \fi
+    \fi
+  }
+  
+  \node[above=0.1,align=center,mydarkgreen] (L1) at (N1-1.90) {Input\\[-0.2em]layer};
+  \node[above=0.1,align=center,mydarkblue] (L2) at (N2-1.90) {Hidden\\[-0.2em]layer 1};
+  \node[above=0.1,align=center,mydarkblue] (L3) at (N3-1.90) {Hidden\\[-0.2em]layer $L$};
+  \node[above=0.1,align=center,mydarkred] (L4) at (N\Nnodlen-1.90) {Output\\[-0.2em]layer};
+
+  % \node[left=0] at (N\Nnodlen-1.90) {Output\\[-0.2em]layer};
+  % \node[left=1,align=right,black] at (0,-0.5) {\Huge $\frac{{\rm d}x}{{\rm d}t} \approx$};
+  
+  \def\braceheight{2}
+  \def\braceleftpos{0.25}
+  \def\bracerightpos{4.5}
+  \def\braceoffset{0.5}
+  
+  % \draw[decorate, decoration={brace, amplitude=15pt}, line width=1mm] 
+  %   (\braceleftpos,-\braceheight - \braceoffset) -- (\braceleftpos,\braceheight - \braceoffset);
+  
+  % \draw[decorate, decoration={brace, amplitude=15pt, mirror}, line width=1mm]
+  %   (\bracerightpos,-\braceheight - \braceoffset) -- (\bracerightpos,\braceheight - \braceoffset);
+
+
+
+\node[right=0.5cm of N4-2, font=\large, anchor=west, yshift=-0.4cm] (matrix) {$\begin{bmatrix} \frac{dx_1}{dt} \\[2em] \frac{dx_2}{dt} \\[1em] \vdots\\[1em] \frac{dx_n}{dt} \end{bmatrix} \in \mathbb{R}^{L_s \times 1}$};
+\begin{pgfonlayer}{background}
+  \node[draw=black, dashed, rounded corners=0.3cm, 
+        fit=(N1-1) (N1-2) (N2-1) (N2-3) (N3-1) (N3-5) (N4-1) (L1) (L2) (L3) (L4) (matrix), 
+        inner sep=0.1cm, 
+        label={[font=\Large]above:ANN},
+        draw=myblue, 
+        fill = myblue!10] (ann_box) {};
+        
+
+  \node[above=0.3,align=center,mydarkred, anchor=west] (L4) at (ann_box.south west) {ANN  Network (MLP-X)};
+\end{pgfonlayer}
+
+\end{scope}
+
+
+\coordinate (mypoint) at (N1-2);
+
+
+
+% ===== ODE SOLVER BOX =====
+\node[box, label] (ode) at ([xshift=6cm]matrix.west) {ODE\\solver};
+% ===== Input arrows =====
+\draw[arrow] (N1-1)++(-4,0) -- (N1-1) node[midway, above, label] {$\mathbf{x}(t)$};
+\draw[arrow] (N1-2)++(-4,0) -- (N1-2) node[midway, below, label] {$v(t)$};
+
+% ===== Connection between NN output and ODE solver =====
+\draw[arrow] (matrix.east) -- (ode.west) node[midway, above, label] {${f}(\mathbf{x},v)$};
+
+
+% ===== Dashed feedback line =====
+\draw[dashed_arrow, very thick] let \p1=(N1-1) in 
+      (ode.north) to[out=90, in=90, looseness=1] (\x1-3cm,\y1+0.2cm) coordinate (arrow_end1);
+
+\node[circle, fill=black, inner sep=1.5pt, yshift=-0.2cm] at (arrow_end1) {};
+
+
+% \draw[dashed_arrow, very thick] let \p1=(N1-1) in 
+%       (end) to[out=90, in=90, looseness=1] (\x1-3cm,\y1+5) coordinate (arrow_end);
+% \node[circle, fill=black, inner sep=1.5pt, yshift=-5] at (arrow_end) {};
+
+\node[label] at (10, 6) {$\mathbf{x}(t + \Delta t)$};
+
+
+
+\begin{scope}[x=-2.4cm,y=1.2cm, shift={(-7.5,-6.5)}]
+  \readlist\Nnod{1,3,5,1}
+  \readlist\Nstr{l,n_1,{}}
+  \readlist\Nnstr{l,n_L,{}}
+  \readlist\Cstr{{},h^{(1)},h^{(l)}, {\G}}
+  \def\yshift{0.55}
+  
+  \node[scale=1.8] at (2.5, -1) {\Large\color{red}$\cdots$};
+  
+  \foreachitem \N \in \Nnod{
+    \def\lay{\Ncnt}
+    \pgfmathsetmacro\prev{int(\Ncnt-1)}
+    \foreach \i [evaluate={\c=int(\i==\N); \y=\N/2-\i-\c*\yshift;
+                 \x=\lay; \n=\nstyle;}] in {1,...,\N}{
+      \ifnum\lay=1
+        \pgfmathsetmacro\index{int(\i)}
+        \node[node \n] (N\lay-\i) at (\x,\y) {$\customLabel{\index}$};
+      \else\ifnum\lay=2
+        \pgfmathsetmacro\index{(\i<\N?int(\i):"\Nstr[\n]")}
+        \node[node \n] (N\lay-\i) at (\x,\y) {$\strut\Cstr[\lay]_{\index}$};
+        \else
+        \pgfmathsetmacro\index{(\i<\N?int(\i):"\Nnstr[\n]")}
+        \node[node \n] (N\lay-\i) at (\x,\y) {$\strut\Cstr[\lay]_{\index}$};
+      \fi\fi
+      
+      \ifnumcomp{\lay}{>}{1}{
+        \ifnum\lay=3
+          \foreach \j in {1,...,\Nnod[\prev]}{
+            \draw[white,line width=1.2,shorten >=1] (N\prev-\j) -- (N\lay-\i);
+            \draw[connect] (N\prev-\j) -- (N\lay-\i);
+          }
+        \else
+          \foreach \j in {1,...,\Nnod[\prev]}{
+            \draw[white,line width=1.2,shorten >=1] (N\prev-\j) -- (N\lay-\i);
+            \draw[connect] (N\prev-\j) -- (N\lay-\i);
+          }
+        \fi
+        
+        \ifnum \lay=\Nnodlen
+          % \draw[connect] (N\lay-\i) --++ (0.5,0);
+        \fi
+      }{
+        \draw[connect] (0.5,\y) -- (N\lay-\i);
+        {}
+      }
+    }
+    
+    \ifnum\lay>1
+      \ifnum\lay<\Nnodlen
+        \path (N\lay-\N) --++ (0,1+\yshift) node[midway,scale=1.6] {\Large\color{red}$\vdots$};
+      \fi
+    \fi
+  }
+  
+  \node[above=0.1,align=center,mydarkgreen] (L1) at (N1-1.90) {Input\\[-0.2em]layer};
+  \node[above=0.1,align=center,mydarkblue] (L2) at (N2-1.90) {Hidden\\[-0.2em]layer 1};
+  \node[above=0.1,align=center,mydarkblue] (L3) at (N3-1.90) {Hidden\\[-0.2em]layer $L$};
+  \node[above=0.1,align=center,mydarkred] (L4) at (N\Nnodlen-1.90) {Output\\[-0.2em]layer};
+
+  % \node[left=0] at (N\Nnodlen-1.90) {Output\\[-0.2em]layer};
+  % \node[left=1,align=right,black] at (0,-0.5) {\Huge $\frac{{\rm d}x}{{\rm d}t} \approx$};
+  
+  \def\braceheight{2}
+  \def\braceleftpos{0.25}
+  \def\bracerightpos{4.5}
+  \def\braceoffset{0.5}
+  
+  % \draw[decorate, decoration={brace, amplitude=15pt}, line width=1mm] 
+  %   (\braceleftpos,-\braceheight - \braceoffset) -- (\braceleftpos,\braceheight - \braceoffset);
+  
+  % \draw[decorate, decoration={brace, amplitude=15pt, mirror}, line width=1mm]
+  %   (\bracerightpos,-\braceheight - \braceoffset) -- (\bracerightpos,\braceheight - \braceoffset);
+
+
+
+\begin{pgfonlayer}{background}
+  \node[draw=black, dashed, rounded corners=0.3cm, 
+        fit=(N1-1) (N2-1) (N2-3) (N3-1) (N3-5) (N4-1) (L1) (L2) (L3) (L4) ,
+        inner sep=0.1cm, 
+        label={[font=\Large]above:ANN},
+        draw=mygreen, 
+        fill = mygreen!10] (ann_box) {};
+        
+
+  \node[above=0.4,align=center,mydarkred, anchor=west] (L4) at (ann_box.south west) {ANN Network \\ (MLP-G)};
+\end{pgfonlayer}
+
+\end{scope}
+
+
+
+% ===== Output arrow =====
+\draw[arrow] (ode.south) |- (N1-1) node[midway, below, label] (end) {$\mathbf{x}(t + \Delta t)$};
+
+
+% ===== ODE SOLVER BOX =====
+\node[box, label] (ode) at ([xshift=-3cm]N4-1) {$v=h(\G)$};
+\draw[arrow] (N4-1) -- (ode.east) node[midway, above, label] {};
+
+
+\draw[dashed_arrow, very thick] let \p1=(mypoint) in 
+      (ode.west) to[out=180, in=-90, looseness=1] (\x1-3cm,\y1-0.2cm) coordinate (arrow_end);
+\node[circle, fill=black, inner sep=1.5pt, yshift=0.2cm] at (arrow_end) {};
+
+
+\end{tikzpicture}
+

@@ -27,15 +27,20 @@
 \usepackage{booktabs}
 \usepackage{makecell}
 
+
 % optional packages - NOTES
 \usepackage{ifthen}
 
 
-% \usepackage{algpseudocode}
+%Added packages by KB in 4 June 2024
+\usepackage{etoolbox}
+\usepackage{listofitems}
 
 
-% \pgfplotsset{compat=1.18} % Set the compatibility level for pg
-\usetikzlibrary{shapes.geometric, arrows, positioning, fit, backgrounds}
+
+
+
+\usetikzlibrary{shapes.geometric, arrows, positioning, fit, backgrounds, decorations.pathreplacing,shapes.geometric,arrows.meta,positioning,fit,backgrounds, calc}
 
 
 
@@ -285,7 +290,7 @@ To enforce parameter bounds within specified intervals, a sophisticated constrai
   \Loss_{\rm con}(x) = \mathbb{E}\left[ {\sigma\left(-\tfrac{x-a}{f}\right)}(a-x)^{2}+{\sigma\left(\tfrac{x-b}{f}\right)}(x-b)^{2}\right],
   \label{eq:loss_con}
 \end{equation}
-where \(\sigma(z) = (1+e^{-z})^{-1}\) is the sigmoid activation function, \(a\) and \(b\) denote the lower and upper bounds of the admissible parameter range,
+where \(\sigma(z) = (1+e^{-z})^{-1} \) is the sigmoid activation function, \(a\) and \(b\) denote the lower and upper bounds of the admissible parameter range,
 \(f\) is a scaling factor controlling the steepness of the transition near the bounds, and
 \(\mathbb{E}[\cdot]\) denotes the expected value (ensemble average over samples or trajectories).
 The term \(\sigma(-(x-a)/f)(a-x)\) penalizes values of \(x\) below the lower bound \(a\),
@@ -311,7 +316,9 @@ The function \(\Loss_{\rm con}(x)\) exhibits minimal penalty in the region \(x\i
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\columnwidth]{figs/nn_diagram_Det_MemODE.pdf}
+  \resizebox{\columnwidth}{!}{%
+    \input{tex_figures/single_MemODE.tex}
+  }
   \caption{The \MemODEOne\ approach. The artificial neural network (ANN) evaluates the function \(f\!(x,v)\), which is then integrated by the ODE solver to predict the state at the next time step \(x(t + \Delta t)\). The dashed feedback loop indicates the recurrent nature of the process, where the output state is fed back as input for subsequent predictions.
   }
   \label{fig:nn_structure}
@@ -319,9 +326,15 @@ The function \(\Loss_{\rm con}(x)\) exhibits minimal penalty in the region \(x\i
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\columnwidth]{figs/nn_diagram_Dual_MemODE.pdf}
-
-  \caption{The \MemODETwo\ approach. The the artificial neural network (ANN) evaluates the function \(f(\mathbf{x},v)\), which is then integrated by the ODE solver to predict the state at the next time step \(\mathbf{x}(t\!+\!\Delta t)\). The second ANN models the memristor conductance \(\Gm(\mathbf{x})\) based on the next state \(\mathbf{x}(t\!+\!\Delta t)\). \TODO{Replace \(\G_m\) by \(\G\).} \TODO{Explain what is \(h(\G)\).}
+  \resizebox{\columnwidth}{!}{%
+    \input{tex_figures/dual_MemODE.tex}
+  }
+  \caption{The \MemODETwo\ approach. The the artificial neural network (ANN) evaluates the function \(f(\mathbf{x},v)\), which is then integrated by the ODE solver to predict the state at the next time step \(\mathbf{x}(t\!+\!\Delta t)\). The second ANN models the memristor conductance \(\Gm(\mathbf{x})\) based on the next state \(\mathbf{x}(t\!+\!\Delta t)\). \changed{
+   \changed{
+    The function \(h(G)\) computes the memristor voltage \(\vm\) given the conductance \(G\).
+  }
+    }
+  \TODO[DONE]{Replace \(\G_m\) by \(\G\).} \TODO[DONE]{Explain what is \(h(\G)\).} 
   }
   \label{fig:nn_structure_dual}
 \end{figure}
@@ -631,16 +644,16 @@ The superior performance of the neural network model can be attributed to its ca
 \noindent Hyperparameter optimization is conducted to systematically explore the hyperparameter space and identify configurations that maximize the predictive performance of neural network architectures. The optimization employs the Tree-structured Parzen Estimator (TPE) algorithm, implemented in the \verb|Optuna| framework~\cite{akiba2019optuna}. The TPE algorithm creates a probabilistic model of the objective function by constructing two separate density estimators: one for configurations associated with above-average performance and another for those yielding below-average results. By sampling preferentially from the former, while still maintaining diversity through exploration of the latter, the algorithm achieves an efficient balance between exploitation of promising regions and exploration of the broader search space.   
 The search space encompasses both architectural and training-related hyperparameters. On the architectural side, the number of hidden layers is varied between one and five, with layer widths ranging from 16 to 512 neurons in increments of 16. Candidate activation functions includes widely used nonlinearities such as \(\text{ReLU}\), \(\text{GELU}\), \(\text{SiLU}\), \(\tanh\), \(\text{ELU}\), leaky \(\text{ReLU}\), sigmoid, identity and sine functions. For the output layer, the choice is restricted to \(\text{linear}\), \(\tanh\), \(\text{sigmoid}\), and \(\text{ReLU}\). The training-related search space included the learning rate, sampled on a logarithmic scale between \(10^{-4}\) and \(10^{-1}\), batch size ranging from 1 to 18, optimizer type (Adam, SGD, AdamW, Nadam, AdaBelief), and additional parameters related to regularization and scheduling, including patience, cooldown, reduction factor, tolerance, and weight decay.
 
-To quantify the relative influence of individual hyperparameters on the model performance, a surrogate-based importance analysis is performed. An XGBoost gradient boosting model~\cite{Chen2016} is trained on the explored configurations to predict validation loss. The surrogate achieved an \(\mathrm{R}^2\) (\TODO{explain what is \(\rm R^2\)}) value of 0.99, indicating high fidelity in capturing the dependence of model performance on hyperparameter selection. Importance is first estimated using the \emph{gain} metric, which reflects the cumulative improvement in predictive accuracy attributed to each hyperparameter across the ensemble. Normalization ensured that scores sum up to unity, allowing for direct interpretation as relative contributions to performance variability.
+To quantify the relative influence of individual hyperparameters on the model performance, a surrogate-based importance analysis is performed. An XGBoost gradient boosting model~\cite{Chen2016} is trained on the explored configurations to predict validation loss. The surrogate \changed{model} achieved an \(\mathrm{R}^2\) (\TODO{explain what is \(\rm R^2\)}) value of 0.99, indicating high fidelity in capturing the dependence of model performance on hyperparameter selection\changed{, where \(\mathrm{R}^2 = 1 - \frac{\sum_i (y_i - \hat{y}_i)^2}{\sum_i (y_i - \bar{y})^2}\) represents the coefficient of determination measuring the proportion of explained variance; here \(y_i\) are the observed values, \(\hat{y}_i\) are the model predictions, and \(\bar{y}\) is the mean of observed values}. Importance is first estimated using the \emph{gain} metric, which reflects the cumulative improvement in predictive accuracy attributed to each hyperparameter across the ensemble. Normalization ensured that scores sum up to unity, allowing for direct interpretation as relative contributions to performance variability.
 
 As a complementary approach, permutation importance~\cite{Altmann2010} is applied to the surrogate model. In this procedure, the values of each hyperparameter are permuted at random, and the resulting degradation in predictive accuracy is recorded. Repeated ten times for each feature, the mean error increase provides an alternative measure of importance, which, unlike gain-based metrics, also accounts for nonlinear dependencies and interactions among hyperparameters.
 
-The results are presented in Fig.~\ref{fig:hyperparameter_importance}. Both sensitivity analysis methods consistently identified the \textit{MLPG depth} (i.e., the depth of the neural network used to approximate \(\G(\xvec)\)) and the \textit{gradient clipping value} (\TODO{explain}) as the dominant hyperparameters \TODO{What about ``With Regularization''}. According to the gain-based measure, their relative importance are 0.07 and 0.56, respectively, whereas the permutation-based analysis yields corresponding values of 0.16 and 0.20. Collectively, these two parameters accounted for approximately 50\% of the observed performance variance. In contrast, the choice of activation function exhibited only a marginal effect (importance score less than \(0.01\)), suggesting that the Neural ODE architecture demonstrates a high degree of robustness with respect to this factor within the examined range.
+The results are presented in Fig.~\ref{fig:hyperparameter_importance}. Both sensitivity analysis methods consistently identified the \textit{MLPG depth} (i.e., the depth of the neural network used to approximate \(\G(\xvec)\)), the \textit{gradient clipping value} \changed{(which sets the maximum allowed gradient norm)} \TODO{explain, and validate !! }, \changed{and \textit{with regularization} (boolean argument which enables or disables additional regularization)} as the dominant hyperparameters \TODO{What about ``With Regularization''}. According to the gain-based measure, their relative importance are 0.07 and 0.56, respectively, whereas the permutation-based analysis yields corresponding values of 0.16 and 0.20. Collectively, these three parameters accounted for approximately 50\% of the observed performance variance. In contrast, the choice of activation function exhibited only a marginal effect (importance score less than \(0.01\)), suggesting that the Neural ODE architecture demonstrates a high degree of robustness with respect to this factor within the examined range.
 
 \begin{figure}[thbp]
   \centering
   \includegraphics[width=\linewidth]{mms_figs/xgboost_permutation_importance.pdf}
-  \caption{Hyperparameter importance for the \MemODETwo\  optimization task. Scores are computed using permutation importance applied to an XG Boost surrogate model trained on 200 hyperparameter configurations. Larger values indicate greater relative influence of the corresponding hyperparameter on the model performance.
+  \caption{Hyperparameter importance for the \MemODETwo\  optimization task. Scores are computed using permutation importance applied to an XG Boost surrogate model trained on 200 hyperparameter configurations. Larger values indicate greater relative influence of the corresponding hyperparameter on the model performance, where \changed{MLP-G refers to the neural network used to approximate \(\G(\xvec)\), while MLP-X denotes the neural network used to approximate \(f(\xvec,\ua)\).}
 \TODO{Explain abbreviations MLP-G, MLP-X and hyperparameters not mentioned in the text.}
   }
   \label{fig:hyperparameter_importance}
