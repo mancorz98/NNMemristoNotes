@@ -70,7 +70,7 @@
 
 
 \usepackage[style=numeric, 
-            backend=biber,
+            backend=bibtex,
            ]{biblatex}
            
 \addbibresource{bibliography.bib} % Replace with your .bib file name
@@ -457,6 +457,10 @@ Przykładowe przebiegi napięcia i prądu memrystora, a także pętle histerezy 
 
 \subsection{Analiza wpływu hiperparametrów sieci neuronowej}
 \Todo{Analiza zostanie przeprowadzona po zakończeniu procesu trenowania sieci neuronowej.}
+
+\begin{equation}
+    v_m = \frac{V_s(t)}{1 + R_s \G_m(x)}
+\end{equation}
 
 \clearpage
 \printbibliography[heading=bibintoc, title={Bibliografia}]

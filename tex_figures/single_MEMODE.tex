@@ -30,7 +30,7 @@
     arrow/.style={-{Stealth}, thick,black},
     box/.style={rectangle, draw=black, thick, minimum width=2cm, minimum height=1.5cm, align=center},
     label/.style={black, font=\large},
-    dashed_arrow/.style={-{Stealth}, thick,black, dashed}
+    dashed_arrow/.style={-{Stealth}, thick,black, dashed},
 ]
 
 % ===== NEURAL NETWORK (replaces ANN box) =====
@@ -115,7 +115,7 @@
         fill = myblue!10] (ann_box) {};
         
 
-  \node[above=0.3,align=center,mydarkred, anchor=west] (L4) at (ann_box.south west) {ANN Network (MLP-X)};
+  \node[above=0.3,align=center,mydarkred, anchor=west] (L4) at (ann_box.south west) {ANN Network (ANN-$f$)};
 \end{pgfonlayer}
 
   
@@ -131,13 +131,28 @@
 \draw[arrow] (N4-1) -- (ode.west) node[midway, above, label] {${f}(x,v)$};
 
 % ===== Output arrow =====
-\draw[arrow] (ode.east) -- ++(2, 0) node[midway, above, label] (end) {$x(t + \Delta t)$};
+\draw[arrow] (ode.south) |- ++(-1, -4) node[midway, below, label] (end) {$x(t + \Delta t)$}
+      -- ++(-2, 0)  node[box, label, anchor=east] (gfunc) {\Large $\displaystyle \G(x) = \frac{x}{R_{\text{ON}}} + \frac{1 - x}{R_{\text{OFF}}}$};
+
+\draw[arrow] (gfunc.west) -- ++(-3,0) node[midway, above, label] {$\Gm(t + \Delta t)$}
+      node[box, label, anchor=east] (vm) {\Large $\displaystyle v = h(\G, v_s(t))$};
+
+
+\coordinate (mypoint) at (N1-2);
+
+
+\draw[dashed_arrow, very thick] let \p1=(mypoint) in 
+      (vm.west) to[out=180, in=-90, looseness=1] (\x1-3cm,\y1-0.2cm) coordinate (arrow_end);
+\node[circle, fill=black, inner sep=1.5pt, yshift=0.2cm] at (arrow_end) {};
+
+
+
 
 % ===== Dashed feedback line =====
 % \draw[dashed_arrow, very thick] let \p1=(N1-1) in 
 %       (end) to[out=90, in=90, looseness=1] (\x1-3cm,\y1+10) node[circle, fill=black, inner sep=1pt] {};
 \draw[dashed_arrow, very thick] let \p1=(N1-1) in 
-      (end) to[out=90, in=90, looseness=1] (\x1-3cm,\y1+5) coordinate (arrow_end);
+      (ode.north) to[out=90, in=90, looseness=1.1] (\x1-3cm,\y1+5) coordinate (arrow_end);
 \node[circle, fill=black, inner sep=1.5pt, yshift=-5] at (arrow_end) {};    
 \node[label] at (9.5, 5.9) {$x(t + \Delta t)$};
 

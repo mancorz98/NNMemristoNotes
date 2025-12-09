@@ -121,7 +121,7 @@
         fill = myblue!10] (ann_box) {};
         
 
-  \node[above=0.3,align=center,mydarkred, anchor=west] (L4) at (ann_box.south west) {ANN  Network (MLP-X)};
+  \node[above=0.3,align=center,mydarkred, anchor=west] (L4) at (ann_box.south west) {ANN  Network (ANN-$f$)};
 \end{pgfonlayer}
 
 \end{scope}
@@ -240,7 +240,7 @@
         fill = mygreen!10] (ann_box) {};
         
 
-  \node[above=0.4,align=center,mydarkred, anchor=west] (L4) at (ann_box.south west) {ANN Network \\ (MLP-G)};
+  \node[above=0.4,align=center,mydarkred, anchor=west] (L4) at (ann_box.south west) {ANN Network \\ (ANN-\(\G\))};
 \end{pgfonlayer}
 
 \end{scope}
@@ -252,7 +252,7 @@
 
 
 % ===== ODE SOLVER BOX =====
-\node[box, label] (ode) at ([xshift=-3cm]N4-1) {$v=h(\G)$};
+\node[box, label] (ode) at ([xshift=-3cm]N4-1) {\Large $\displaystyle v= h(\G, v_s(t))$};
 \draw[arrow] (N4-1) -- (ode.east) node[midway, above, label] {};
 
 

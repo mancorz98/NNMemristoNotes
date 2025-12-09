@@ -150,7 +150,7 @@
 
 
 \begin{document}
-\title{Neural ODE based modeling of memristive circuits}
+\title{Neural ODE based modeling of memristive \changed{devices}}
 \author{Karol Bednarz, Bartłomiej Garda, Zbigniew Galias,~\IEEEmembership{Senior Member,~IEEE} %ZG
   \thanks{Manuscript received Month ??, 2026. This work was supported by the National Science Centre, Poland under Grant 2024/53/B/ST7/03841.}
   \thanks{The authors are with the Department of Electrical Engineering, AGH University of Science and Technology, al. Mickiewicza 30, 30--059, Krak\'ow, Poland, (e-mail: kbednarz@agh.edu.pl).} %ZG
@@ -204,7 +204,7 @@ Measurements are carried out for the following combinations of supply voltage am
   \vspace{-0.5in}
   \caption{Schematic diagram of the measurement setup used for the SDC memristor. The device is connected in series with a resistor, and the input voltage is applied via an arbitrary waveform generator. Voltage measurements are acquired using a data acquisition (DAQ) system.
     %    \TODO[Done]{In this figure and in several other figures \(v_m\) should be replaced by \(v\) and \(i_m\) should be replaced by \(i\).}
-    \TODO{\(f_s\) should be replaced by \(f\)}
+    \TODO[DONE]{\(f_s\) should be replaced by \(f\) }
   }
   \label{fig:memristor_setup}
 \end{figure}
@@ -255,7 +255,7 @@ where the trajectory temporal mean is defined as \(\bar{z}_k = \frac{1}{\snum} \
 
 By implementing trajectory-specific normalization rather than global standardization, the methodology preserves the inherent temporal dynamics and statistical properties unique to each circuit configuration while simultaneously ensuring that amplitude disparities do not introduce systematic bias during predictive modeling procedures.
 This approach is particularly advantageous in scenarios involving varying operational conditions, where maintaining the relative temporal structure is paramount for accurate system identification and dynamic analysis.
-The normalized mean squared error between two sequences {\color{red} \(({z}_{k,\sind=})_{\sind==1}^{\snum}\) and \((\tilde{z}_{k,\sind=})_{\sind==1}^{\snum}\) of \(\snum\)} \changed{\(({z}_{k,\sind})_{\sind=1}^{\snum}\) and \((\tilde{z}_{k,\sind})_{\sind=1}^{\snum}\) of \(\snum\)} data points is defined as
+The normalized mean squared error between two sequences \changed{\(({z}_{k,\sind})_{\sind=1}^{\snum}\) and \((\tilde{z}_{k,\sind})_{\sind=1}^{\snum}\) of \(\snum\)} data points is defined as
 \begin{equation}
   \NMSE(z_k,\tilde{z}_k)=\MSE\left(\frac{z_k}{\sigma_{z,k}},\frac{\tilde{z}_k}{\sigma_{z,k}}\right)=\frac{1}{\snum}\sum_{\sind=1}^{\snum}\left(\frac{{z}_{k,\sind}}{\sigma_{z,k}} -\frac{\tilde{z}_{k,\sind}}{\sigma_{z,k}}\right)^2.
 \end{equation}
@@ -312,7 +312,7 @@ The function \(\Loss_{\rm con}(x)\) exhibits minimal penalty in the region \(x\i
 
 \subsection{Neural ODE based Memristor Modeling}
 
-\noindent In this study, two neural network-based modeling approaches are proposed. The first one, denoted as \textbf{\MemODEOne}, employs a deterministic formulation of the memristor conductance \(\G\), while the function \(f\) defining the dynamics of internal variables is modeled using a neural network (see Fig.~\ref{fig:nn_structure}). In the second one, referred to as \textbf{\MemODETwo}, both \(\G\) and \(f\) are modeled using neural networks (see Fig.~\ref{fig:nn_structure_dual}).
+\noindent In this study, two neural network-based modeling approaches are proposed. The first one, denoted as \textbf{\MemODEOne}, employs a deterministic formulation of the memristor \changed{memductance} \(\G\), while the function \(f\) defining the dynamics of internal variables is modeled using a neural network (see Fig.~\ref{fig:nn_structure}). In the second one, referred to as \textbf{\MemODETwo}, both \(\G\) and \(f\) are modeled using neural networks (see Fig.~\ref{fig:nn_structure_dual}).
 
 \begin{figure}[htbp]
   \centering
@@ -329,9 +329,9 @@ The function \(\Loss_{\rm con}(x)\) exhibits minimal penalty in the region \(x\i
   \resizebox{\columnwidth}{!}{%
     \input{tex_figures/dual_MemODE.tex}
   }
-  \caption{The \MemODETwo\ approach. The the artificial neural network (ANN) evaluates the function \(f(\mathbf{x},v)\), which is then integrated by the ODE solver to predict the state at the next time step \(\mathbf{x}(t\!+\!\Delta t)\). The second ANN models the memristor conductance \(\Gm(\mathbf{x})\) based on the next state \(\mathbf{x}(t\!+\!\Delta t)\). \changed{
+  \caption{The \MemODETwo\ approach. The the artificial neural network (ANN) evaluates the function \(f(\mathbf{x},v)\), which is then integrated by the ODE solver to predict the state at the next time step \(\mathbf{x}(t\!+\!\Delta t)\). The second ANN models the memristor \changed{memductance} \(\Gm(\mathbf{x})\) based on the next state \(\mathbf{x}(t\!+\!\Delta t)\). \changed{
    \changed{
-    The function \(h(G)\) computes the memristor voltage \(\vm\) given the conductance \(G\).
+    The function \(h(\G, v_s(t))\) computes the memristor voltage \(\vm\) given the \changed{memductance} \(\G\) and supply voltage \(v_s(t)\).
   }
     }
   \TODO[DONE]{Replace \(\G_m\) by \(\G\).} \TODO[DONE]{Explain what is \(h(\G)\).} 
@@ -345,12 +345,12 @@ For the \MemODEOne\ approach, the function \(f\) is implemented using an artific
 \end{equation}
 where \(k\) is the neuron's index, \(M_k\) is the number of inputs for the \(k\)th neuron, \(w_{k,i}\) are the weights that determine the strengths of input connections \(x_i\) of the \(k\)th neuron, \(b_k\) is the bias term that provides an adjustable threshold for neuron activation, and \(\sigma\) is the activation function (e.g., sigmoid, ReLU, or tanh) that introduces nonlinearity into the model.
 
-In the \MemODEOne\ approach, the memristor conductance is defined on the basis of the physical mechanisms underlying self-directed channel (SDC) devices. In such memristors, the resistance evolves as a result of \(\mathrm{Ag^+}\) ions migration and the formation of conductive filaments. Consequently, the device conductance exhibits a continuous transition between different resistance states. This transition can be described as a weighted combination of the limiting resistance values, modulated by the internal variable \(x\)
+In the \MemODEOne\ approach, the memristor \changed{memductance} is defined on the basis of the physical mechanisms underlying self-directed channel (SDC) devices. In such memristors, the resistance evolves as a result of \(\mathrm{Ag^+}\) ions migration and the formation of conductive filaments. Consequently, the device \changed{memductance} exhibits a continuous transition between different resistance states. This transition can be described as a weighted combination of the limiting resistance values, modulated by the internal variable \(x\)
 \begin{equation}
   \Gm(x) = \frac{x}{R_{\rm ON}} + \frac{1 - x}{R_{\rm OFF}},
   \label{eq:conductance}
 \end{equation}
-where \(\Ron\) and \(\Roff\) denote the resistances in the low-conductance and high-conductance states, respectively. During the optimization process, the network parameters (weights \(w_{k,i}\) and biases \(b_k\)) are tuned jointly with the values of \(R_{\rm ON}\) and \(R_{\rm OFF}\). For this approach the following constraints are applied:
+where \(\Ron\) and \(\Roff\) denote the resistances in the low-\changed{memductance} and high-\changed{memductance} states, respectively. During the optimization process, the network parameters (weights \(w_{k,i}\) and biases \(b_k\)) are tuned jointly with the values of \(R_{\rm ON}\) and \(R_{\rm OFF}\). For this approach the following constraints are applied:
 \begin{itemize}
 \item \(R_{\mathrm{ON}} \in (0, R_{\mathrm{OFF}})\kOhm\),
 \item \(R_{\mathrm{OFF}} \in (R_{\mathrm{ON}}, 200)\kOhm\),
@@ -358,7 +358,7 @@ where \(\Ron\) and \(\Roff\) denote the resistances in the low-conductance and h
 \end{itemize}
 The upper bound for the OFF-state resistance~\(R_{\mathrm{OFF}}\) is based on empirical measurements. Remaining constraints are consequences of physically meaningful values of parameters and variables. 
 
-In the \MemODETwo approach, the memristor conductance is modeled using the second neural network. This neural network takes the current state \(\mathbf{x}\) as the input and produces the corresponding conductance \(\Gm(\mathbf{x})\) as the output. The memristor state \(\mathbf{x}\) is not constrained to a single dimension, enabling a more flexible representation of the device’s internal dynamics.
+In the \MemODETwo approach, the memristor \changed{memductance} is modeled using the second neural network. This neural network takes the current state \(\mathbf{x}\) as the input and produces the corresponding \changed{memductance} \(\Gm(\mathbf{x})\) as the output. The memristor state \(\mathbf{x}\) is not constrained to a single dimension, enabling a more flexible representation of the device’s internal dynamics.
 %Moreover, it is not restricted to a physically interpretable range, such as the interval \([0,1]\) in Eq.~\eqref{eq:conductance}.
 The state variables are not restricted to any specific range, and hence no explicit constraints are applied to them. For this approach the only constraint is
 \begin{itemize}
@@ -419,7 +419,7 @@ the high-resistance state (HRS) and the low-resistance state (LRS) based on the 
   f_{\rm ON}(\ua)  & = \sigma\left(-\beta (\ua-\von)\right) \label{eq:mms5b},      \\
   f_{\rm OFF}(\ua) & = 1 - \sigma\left(\beta (\ua-\voff)\right)  \label{eq:mms5c}, 
 \end{align}
-where \(\sigma(z) = (1+e^{-z})^{-1}\), \(\beta= \frac{q}{kT}\), \(k\) is the Boltzmann constant, \(T\) is the absolute temperature, \(q\) represents the elementary charge, while \(\von\) and \(\voff\) denote the switching voltages to LRS and HRS states, respectively. The instantaneous conductance of the memristor is defined in~\eqref{eq:conductance}.
+where \(\sigma(z) = (1+e^{-z})^{-1}\), \(\beta= \frac{q}{kT}\), \(k\) is the Boltzmann constant, \(T\) is the absolute temperature, \(q\) represents the elementary charge, while \(\von\) and \(\voff\) denote the switching voltages to LRS and HRS states, respectively. The instantaneous \changed{memductance} of the memristor is defined in~\eqref{eq:conductance}.
 
 In the GMMS model memristors are represented as a parallel connection of memory-dependent element and a Schottky diode~\cite{Molter2016, Ostrovskii2021}. This formulation extends the original metastable switch concept by incorporating nonlinear current--voltage characteristics, enabling a more accurate representation of memristor's behavior across a wide range of operating conditions.
 The evolution of the state variable is governed by~\eqref{eq:mms}, while the current--voltage relationship is
@@ -517,7 +517,7 @@ Representative simulation results demonstrating the neural network model's predi
   }
   \caption{Simulation test results for tungsten-doped memristor dynamics under sinusoidal voltage excitation (amplitude: \(1.0\;\mathrm{V}\), frequency: \(1.0\;\mathrm{Hz}\)); (a) memristor's voltage waveform, (b) memristor's current response, (c) Voltage-current hysteresis loop (\(v - i\)) illustrating the characteristic pinched behavior and memory properties fundamental to memristive operation.
 %    \TODO[DONE]{Use black dahsed lines instead of black solid lines in the legends.}
-    \TODO{Replace \(v_m\) by \(v\) and \(i_m\) by \(i\).}
+    \TODO[DONE]{Replace \(v_m\) by \(v\) and \(i_m\) by \(i\).}
   }
   \label{fig:sample-results}
 \end{figure}
@@ -563,8 +563,13 @@ Comparison results are plotted in Fig.~\ref{fig:comparison_mms}. Quantitative an
 
 Table~\ref{tab:mms_comp} presents a comparative analysis of the loss functions \(\LossBase\) obtained for the proposed and existing models, offering a quantitative assessment of their performance. The results highlight the neural network’s enhanced capability to reproduce complex and subtle aspects of memristor dynamics that are insufficiently captured by the phenomenological MMS/GMMS framework. For clarity, the highest loss value in each row is marked in red, whereas the lowest is marked in green. Overall, the neural network model consistently achieves substantially lower loss values, demonstrating superior accuracy and fidelity in representing the device behavior.
 
+
+\newcommand{\boxnum}[2][table-format=2.1]{\smash{\fbox{\vphantom{#2}\tablenum[#1]{#2}}}}
+
+
+
 \begin{table}
-  \caption{Comparative analysis of the loss function \(\LossBase\).}
+  \caption{Comparative analysis of the loss function \(\LossBase\). Values are reported for different supply voltage amplitudes \(\Vs\) and frequencies \(f_s\). \changed{Row-wise minimum and maximum loss values are color-coded in green and red, respectively. Records belonging to the validation dataset are demarcated by bounding boxes.} }
   \label{tab:mms_comp}
   \centering
   \begin{tabular}{c|cccc}
@@ -573,12 +578,14 @@ Table~\ref{tab:mms_comp} presents a comparative analysis of the loss functions \
     \midrule
     \(f_s\) [Hz] & \makecell{SingleNN-\\MemODE} & \makecell{DualNN-\\ MemODE} & \makecell{GMMS\\Model} & \makecell{MMS\\Model}\\
     \midrule
-    \textbf{1}   & \(1.92 \mtimes 10^{-3}\) & \color{ieeegreen} \bfseries \(2.07 \mtimes 10^{-4}\) & \(5.21 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(7.86 \mtimes 10^{-2}\) \\
-    \textbf{5}   & \(1.60 \mtimes 10^{-3}\) & \color{ieeegreen} \bfseries \(2.85 \mtimes 10^{-4}\) & \(3.70 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(5.59 \mtimes 10^{-2}\) \\
-    \textbf{10}  & \(3.64 \mtimes 10^{-3}\) & \color{ieeegreen} \bfseries \(1.83 \mtimes 10^{-3}\) & \(3.43 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(6.44 \mtimes 10^{-2}\) \\
-    \textbf{20}  & \(8.69 \mtimes 10^{-3}\) & \color{ieeegreen} \bfseries \(2.27 \mtimes 10^{-3}\) & \(4.24 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(7.96 \mtimes 10^{-2}\) \\
-    \textbf{50}  & \(7.86 \mtimes 10^{-3}\) & \color{ieeegreen} \bfseries \(2.47 \mtimes 10^{-3}\) & \(4.71 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(8.29 \mtimes 10^{-2}\) \\
-    \textbf{100} & \(6.24 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(4.21 \mtimes 10^{-3}\) & \(1.18 \mtimes 10^{-1}\) & \color{ieeered} \bfseries \(2.10 \mtimes 10^{-1}\) \\
+\textbf{1} & \(9.31 \mtimes 10^{-3}\) & \color{ieeegreen} \bfseries \(1.22 \mtimes 10^{-3}\) & \color{ieeered} \bfseries \(3.94 \mtimes 10^{-2}\) & \(2.43 \mtimes 10^{-2}\) \\
+\cline{1-5}
+\multicolumn{1}{|c|}{\textbf{5}} &  \color{ieeegreen} \bfseries \(3.40 \mtimes 10^{-3}\)  &  \(6.43 \mtimes 10^{-3}\)  &  \color{ieeered} \bfseries \(2.97 \mtimes 10^{-2}\)  & \multicolumn{1}{c|}{\(1.46 \mtimes 10^{-2}\) } \\
+\cline{1-5}
+\textbf{10} & \(3.05 \mtimes 10^{-3}\) & \color{ieeegreen} \bfseries \(2.13 \mtimes 10^{-3}\) & \color{ieeered} \bfseries \(2.85 \mtimes 10^{-2}\) & \(2.60 \mtimes 10^{-2}\) \\
+\textbf{20} & \(3.79 \mtimes 10^{-3}\) & \color{ieeegreen} \bfseries \(1.02 \mtimes 10^{-3}\) & \(3.25 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(1.14 \mtimes 10^{-1}\) \\
+\textbf{50} & \(2.03 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(5.60 \mtimes 10^{-3}\) & \color{ieeered} \bfseries \(3.68 \mtimes 10^{-2}\) & \(3.45 \mtimes 10^{-2}\) \\
+\textbf{100} & \(2.82 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(1.07 \mtimes 10^{-2}\) & \(9.91 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(1.11 \mtimes 10^{-1}\) \\
     \bottomrule
   \end{tabular}
   \begin{tabular}{c|cccc}
@@ -587,12 +594,16 @@ Table~\ref{tab:mms_comp} presents a comparative analysis of the loss functions \
     \midrule
     \(f_s\) [Hz] & \makecell{SingleNN-\\MemODE} & \makecell{DualNN-\\ MemODE} & \makecell{GMMS\\Model} & \makecell{MMS\\Model}\\ 
     \midrule
-    \textbf{1}   & \(6.40 \mtimes 10^{-3}\) & \color{ieeegreen} \bfseries \(4.69 \mtimes 10^{-4}\) & \(1.20 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(3.08 \mtimes 10^{-2}\) \\
-    \textbf{5}   & \(4.58 \mtimes 10^{-3}\) & \color{ieeegreen} \bfseries \(2.11 \mtimes 10^{-3}\) & \(1.19 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(3.37 \mtimes 10^{-2}\) \\
-    \textbf{10}  & \(2.74 \mtimes 10^{-3}\) & \color{ieeegreen} \bfseries \(5.27 \mtimes 10^{-4}\) & \(1.36 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(3.93 \mtimes 10^{-2}\) \\
-    \textbf{20}  & \(5.32 \mtimes 10^{-3}\) & \color{ieeegreen} \bfseries \(1.90 \mtimes 10^{-3}\) & \(1.84 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(4.43 \mtimes 10^{-2}\) \\
-    \textbf{50}  & \(2.88 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(4.26 \mtimes 10^{-3}\) & \(5.86 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(8.91 \mtimes 10^{-2}\) \\
-    \textbf{100} & \(5.08 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(2.63 \mtimes 10^{-3}\) & \(5.45 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(7.45 \mtimes 10^{-2}\) \\
+\cline{1-5}
+\multicolumn{1}{|c|}{\textbf{1}} &  \(5.28 \mtimes 10^{-3}\)  &  \color{ieeegreen} \bfseries \(4.47 \mtimes 10^{-3}\)  &  \(1.30 \mtimes 10^{-2}\)  & \multicolumn{1}{c|}{\color{ieeered} \bfseries \(1.63 \mtimes 10^{-2}\) } \\
+\cline{1-5}
+\textbf{5} & \(8.25 \mtimes 10^{-3}\) & \color{ieeegreen} \bfseries \(2.67 \mtimes 10^{-3}\) & \(1.46 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(1.71 \mtimes 10^{-2}\) \\
+\textbf{10} & \(4.72 \mtimes 10^{-3}\) & \color{ieeegreen} \bfseries \(8.86 \mtimes 10^{-4}\) & \(1.49 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(1.58 \mtimes 10^{-2}\) \\
+\textbf{20} & \(7.77 \mtimes 10^{-3}\) & \color{ieeegreen} \bfseries \(5.53 \mtimes 10^{-3}\) & \(1.88 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(1.90 \mtimes 10^{-2}\) \\
+\textbf{50} & \(3.29 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(7.37 \mtimes 10^{-3}\) & \color{ieeered} \bfseries \(6.29 \mtimes 10^{-2}\) & \(6.22 \mtimes 10^{-2}\) \\
+\cline{1-5}
+\multicolumn{1}{|c|}{\textbf{100}} &  \(4.48 \mtimes 10^{-2}\)  &  \color{ieeegreen} \bfseries \(8.58 \mtimes 10^{-3}\)  &  \color{ieeered} \bfseries \(4.53 \mtimes 10^{-2}\)  & \multicolumn{1}{c|}{\(3.25 \mtimes 10^{-2}\) } \\
+\cline{1-5}
     \bottomrule
   \end{tabular}
   \begin{tabular}{c|cccc}
@@ -601,23 +612,25 @@ Table~\ref{tab:mms_comp} presents a comparative analysis of the loss functions \
     \midrule
     \(f_s\) [Hz] & \makecell{SingleNN-\\MemODE} & \makecell{DualNN-\\ MemODE} & \makecell{GMMS\\Model} & \makecell{MMS\\Model}\\
     \midrule
-    \textbf{1}   & \(1.99 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(2.95 \mtimes 10^{-3}\) & \(1.77 \mtimes 10^{-2}\)                           & \color{ieeered} \bfseries \(9.95 \mtimes 10^{-2}\) \\
-    \textbf{5}   & \(1.17 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(1.26 \mtimes 10^{-3}\) & \(1.73 \mtimes 10^{-2}\)                           & \color{ieeered} \bfseries \(7.88 \mtimes 10^{-2}\) \\
-    \textbf{10}  & \(1.14 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(2.08 \mtimes 10^{-3}\) & \(1.56 \mtimes 10^{-2}\)                           & \color{ieeered} \bfseries \(5.24 \mtimes 10^{-2}\) \\
-    \textbf{20}  & \(1.09 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(5.51 \mtimes 10^{-3}\) & \(1.96 \mtimes 10^{-2}\)                           & \color{ieeered} \bfseries \(5.09 \mtimes 10^{-2}\) \\
-    \textbf{50}  & \(1.09 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(3.46 \mtimes 10^{-3}\) & \(1.87 \mtimes 10^{-2}\)                           & \color{ieeered} \bfseries \(8.90 \mtimes 10^{-2}\) \\
-    \textbf{100} & \(2.44 \mtimes 10^{-2}\) & \color{ieeegreen} \(1.65 \mtimes 10^{-3}\)           & \color{ieeered} \bfseries \(5.63 \mtimes 10^{-2}\) & \(4.87 \mtimes 10^{-2}\)                           \\
+\textbf{1} & \(1.74 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(2.48 \mtimes 10^{-3}\) & \(1.75 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(4.74 \mtimes 10^{-2}\) \\
+\cline{1-5}
+\multicolumn{1}{|c|}{\textbf{5}} &  \(1.57 \mtimes 10^{-2}\)  &  \color{ieeegreen} \bfseries \(3.60 \mtimes 10^{-3}\)  &  \(2.15 \mtimes 10^{-2}\)  & \multicolumn{1}{c|}{\color{ieeered} \bfseries \(3.71 \mtimes 10^{-2}\) } \\
+\cline{1-5}
+\textbf{10} & \(1.55 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(3.70 \mtimes 10^{-3}\) & \(2.08 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(2.31 \mtimes 10^{-2}\) \\
+\textbf{20} & \(1.32 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(7.93 \mtimes 10^{-3}\) & \(2.07 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(2.41 \mtimes 10^{-2}\) \\
+\textbf{50} & \(1.37 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(8.41 \mtimes 10^{-3}\) & \(1.69 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(4.70 \mtimes 10^{-2}\) \\
+\textbf{100} & \(2.64 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(1.20 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(5.54 \mtimes 10^{-2}\) & \(2.41 \mtimes 10^{-2}\) \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 Table~\ref{tab:mms_comp_test} reports the average loss function values \(\LossBase\) calculated on the validation dataset and the whole dataset for the proposed and existing models, providing a quantitative evaluation of their generalization performance across unseen memristor dynamics.
-The best result of \(8.82 \times 10^{-3}\) is obtained for the \MemODETwo\ model. The above two times reduction of the average values of the loss function for both proposed method when compared to existing methods demonstrates the enhanced modeling capability achieved through the neural ODE framework.
+The best result of \(5.77 \times 10^{-3}\) is obtained for the \MemODETwo\ model. The above two times reduction of the average values of the loss function for both proposed method when compared to existing methods demonstrates the enhanced modeling capability achieved through the neural ODE framework.
 
 \begin{table}
   \caption{Comparative analysis of the loss function \(\LossBase\) for the validation dataset and the whole dataset.
 %    \TODO[DONE]{Results for the whole dataset should be provided in the first row.}
-    \TODO{It is surprising that for two methods the results for the validation dataset are worse than for the whole dataset. It would be good to show results for the test dataset in another row. Perhaps this would explain this phenomenon (sorry for not suggesting it before).}
+    \TODO[DONE]{It is surprising that for two methods the results for the validation dataset are worse than for the whole dataset. It would be good to show results for the test dataset in another row. Perhaps this would explain this phenomenon (sorry for not suggesting it before).}
   }
   \label{tab:mms_comp_test}
 \begin{center}
@@ -627,13 +640,16 @@ The best result of \(8.82 \times 10^{-3}\) is obtained for the \MemODETwo\ model
     \midrule
      \multicolumn{5}{c}{Validation dataset} \\
     \midrule
-    \(\LossBase\) & \(1.49 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(8.28 \mtimes 10^{-3}\) & \(4.19 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(5.30 \mtimes 10^{-2}\) \\
+    \(\LossBase\) & \(1.73 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(5.77 \mtimes 10^{-3}\) & \color{ieeered} \bfseries \(2.74 \mtimes 10^{-2}\) & \(2.51 \mtimes 10^{-2}\) \\
+    \toprule
+    \multicolumn{5}{c}{Train dataset} \\
+    \midrule
+    \(\LossBase\) &\(1.46 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(5.11 \mtimes 10^{-3}\) & \(3.42 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(4.22 \mtimes 10^{-2}\) \\
     \toprule
     \multicolumn{5}{c}{Whole dataset} \\
     \midrule
-    \(\LossBase\) & \(1.52 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(2.23 \mtimes 10^{-3}\) & \(3.58 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(7.24 \mtimes 10^{-2}\) \\
-    \bottomrule
-  \end{tabular}
+    \(\LossBase\) & \(1.52 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(5.26 \mtimes 10^{-3}\) & \(3.27 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(3.84 \mtimes 10^{-2}\) \\
+    \bottomrule  \end{tabular}
 \end{center}
 \end{table}
 
@@ -644,17 +660,28 @@ The superior performance of the neural network model can be attributed to its ca
 \noindent Hyperparameter optimization is conducted to systematically explore the hyperparameter space and identify configurations that maximize the predictive performance of neural network architectures. The optimization employs the Tree-structured Parzen Estimator (TPE) algorithm, implemented in the \verb|Optuna| framework~\cite{akiba2019optuna}. The TPE algorithm creates a probabilistic model of the objective function by constructing two separate density estimators: one for configurations associated with above-average performance and another for those yielding below-average results. By sampling preferentially from the former, while still maintaining diversity through exploration of the latter, the algorithm achieves an efficient balance between exploitation of promising regions and exploration of the broader search space.   
 The search space encompasses both architectural and training-related hyperparameters. On the architectural side, the number of hidden layers is varied between one and five, with layer widths ranging from 16 to 512 neurons in increments of 16. Candidate activation functions includes widely used nonlinearities such as \(\text{ReLU}\), \(\text{GELU}\), \(\text{SiLU}\), \(\tanh\), \(\text{ELU}\), leaky \(\text{ReLU}\), sigmoid, identity and sine functions. For the output layer, the choice is restricted to \(\text{linear}\), \(\tanh\), \(\text{sigmoid}\), and \(\text{ReLU}\). The training-related search space included the learning rate, sampled on a logarithmic scale between \(10^{-4}\) and \(10^{-1}\), batch size ranging from 1 to 18, optimizer type (Adam, SGD, AdamW, Nadam, AdaBelief), and additional parameters related to regularization and scheduling, including patience, cooldown, reduction factor, tolerance, and weight decay.
 
-To quantify the relative influence of individual hyperparameters on the model performance, a surrogate-based importance analysis is performed. An XGBoost gradient boosting model~\cite{Chen2016} is trained on the explored configurations to predict validation loss. The surrogate \changed{model} achieved an \(\mathrm{R}^2\) (\TODO{explain what is \(\rm R^2\)}) value of 0.99, indicating high fidelity in capturing the dependence of model performance on hyperparameter selection\changed{, where \(\mathrm{R}^2 = 1 - \frac{\sum_i (y_i - \hat{y}_i)^2}{\sum_i (y_i - \bar{y})^2}\) represents the coefficient of determination measuring the proportion of explained variance; here \(y_i\) are the observed values, \(\hat{y}_i\) are the model predictions, and \(\bar{y}\) is the mean of observed values}. Importance is first estimated using the \emph{gain} metric, which reflects the cumulative improvement in predictive accuracy attributed to each hyperparameter across the ensemble. Normalization ensured that scores sum up to unity, allowing for direct interpretation as relative contributions to performance variability.
+To quantify the relative influence of individual hyperparameters on the model performance, a surrogate-based importance analysis is performed. An XGBoost gradient boosting model~\cite{Chen2016} is trained on the explored configurations to predict validation loss. The surrogate \changed{model} achieved an \(\mathrm{R}^2\) value of 0.99, indicating high fidelity in capturing the dependence of model performance on hyperparameter selection\changed{, where \(\mathrm{R}^2 = 1 - \frac{\sum_i (y_i - \hat{y}_i)^2}{\sum_i (y_i - \bar{y})^2}\) represents the coefficient of determination measuring the proportion of explained variance; here \(y_i\) are the observed values, \(\hat{y}_i\) are the model predictions, and \(\bar{y}\) is the mean of observed values}. Importance is first estimated using the \emph{gain} metric, which reflects the cumulative improvement in predictive accuracy attributed to each hyperparameter across the ensemble. Normalization ensured that scores sum up to unity, allowing for direct interpretation as relative contributions to performance variability.
 
 As a complementary approach, permutation importance~\cite{Altmann2010} is applied to the surrogate model. In this procedure, the values of each hyperparameter are permuted at random, and the resulting degradation in predictive accuracy is recorded. Repeated ten times for each feature, the mean error increase provides an alternative measure of importance, which, unlike gain-based metrics, also accounts for nonlinear dependencies and interactions among hyperparameters.
 
-The results are presented in Fig.~\ref{fig:hyperparameter_importance}. Both sensitivity analysis methods consistently identified the \textit{MLPG depth} (i.e., the depth of the neural network used to approximate \(\G(\xvec)\)), the \textit{gradient clipping value} \changed{(which sets the maximum allowed gradient norm)} \TODO{explain, and validate !! }, \changed{and \textit{with regularization} (boolean argument which enables or disables additional regularization)} as the dominant hyperparameters \TODO{What about ``With Regularization''}. According to the gain-based measure, their relative importance are 0.07 and 0.56, respectively, whereas the permutation-based analysis yields corresponding values of 0.16 and 0.20. Collectively, these three parameters accounted for approximately 50\% of the observed performance variance. In contrast, the choice of activation function exhibited only a marginal effect (importance score less than \(0.01\)), suggesting that the Neural ODE architecture demonstrates a high degree of robustness with respect to this factor within the examined range.
+\changed{
 
+The results of the sensitivity analysis are presented in Fig.~\ref{fig:hyperparameter_importance}. Both evaluation methods consistently identified four parameters as dominant hyperparameters influencing model performance: the \textit{number of epochs}, the \textit{gradient clipping value} (which defines the maximum allowable gradient norm), the \textit{learning rate}, and the \textit{ANN-\(\mathcal{G}\) depth} (the depth of the neural network used to approximate \(\mathcal{G}(\mathbf{x})\)).
+
+The relative importance scores for these four parameters (listed in the order above) are detailed below, comparing the results of the gain-based and permutation-based analyses:
+
+\begin{itemize}
+    \item \textit{Gain-Based Scores:} 0.47, 0.27, \(2.97 \times 10^{-3}\), and 0.01, respectively.
+    \item \textit{Permutation-Based Scores:} 0.19, 0.24, 0.27, and 0.19, respectively.
+\end{itemize}
+
+Collectively, the three most significant parameters accounted for approximately 70\% of the total observed performance variance (derived from summing the three highest scores in the permutation analysis). In contrast, the choice of activation function exhibited a negligible effect (importance score \(< 0.01\)), indicating that the Neural ODE architecture demonstrates a high degree of robustness with respect to this factor across the examined range.
+}
 \begin{figure}[thbp]
   \centering
   \includegraphics[width=\linewidth]{mms_figs/xgboost_permutation_importance.pdf}
-  \caption{Hyperparameter importance for the \MemODETwo\  optimization task. Scores are computed using permutation importance applied to an XG Boost surrogate model trained on 200 hyperparameter configurations. Larger values indicate greater relative influence of the corresponding hyperparameter on the model performance, where \changed{MLP-G refers to the neural network used to approximate \(\G(\xvec)\), while MLP-X denotes the neural network used to approximate \(f(\xvec,\ua)\).}
-\TODO{Explain abbreviations MLP-G, MLP-X and hyperparameters not mentioned in the text.}
+  \caption{Hyperparameter importance for the \MemODETwo\  optimization task. Scores are computed using permutation importance applied to an XG Boost surrogate model trained on 200 hyperparameter configurations. Larger values indicate greater relative influence of the corresponding hyperparameter on the model performance, where \changed{MLP-\(\G\) refers to the neural network used to approximate \(\G(\xvec)\), while MLP-\(f\) denotes the neural network used to approximate \(f(\xvec,\ua)\).}
+\TODO[DONE]{Explain abbreviations MLP-G, MLP-X and hyperparameters not mentioned in the text.}
   }
   \label{fig:hyperparameter_importance}
 \end{figure}
