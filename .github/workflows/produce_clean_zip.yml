@@ -47,9 +47,9 @@ jobs:
           # Copy style files and class files if present
           find . -maxdepth 2 \( -name "*.sty" -o -name "*.cls" \) -not -path "*/\.*" -exec cp --parents {} publication-package/ \;
           
-          # Copy README if it exists
-          [ -f README.md ] && cp README.md publication-package/
-          [ -f README.txt ] && cp README.txt publication-package/
+          # # Copy README if it exists
+          # [ -f README.md ] && cp README.md publication-package/
+          # [ -f README.txt ] && cp README.txt publication-package/
           
           # Create the zip file
           cd publication-package
