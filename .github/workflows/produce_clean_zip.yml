@@ -1,0 +1,145 @@
+name: Prepare Publication Package
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    types: [closed]
+
+permissions:
+  contents: write
+
+jobs:
+  build_latex:
+    environment: env
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Git repository
+        uses: actions/checkout@v4
+
+      - name: Compile LaTeX document
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: main_ieee.tex
+          latexmk_shell_escape: true
+          os: debian
+
+      - name: Prepare publication package
+        run: |
+          # Create a clean directory for publication files
+          mkdir -p publication-package
+          
+          # Copy the compiled PDF
+          cp main_ieee.pdf publication-package/
+          
+          # Copy all .tex files (main document and any included files)
+          find . -maxdepth 3 -name "*.tex" -not -path "*/\.*" -exec cp --parents {} publication-package/ \;
+          
+          # Copy bibliography files
+          find . -maxdepth 3 \( -name "*.bib" -o -name "*.bst" \) -not -path "*/\.*" -exec cp --parents {} publication-package/ \;
+          
+          # Copy image files (common formats)
+          find . -maxdepth 3 \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.pdf" -o -name "*.eps" -o -name "*.svg" \) \
+            -not -path "*/\.*" -not -name "main_ieee.pdf" -exec cp --parents {} publication-package/ \;
+          
+          # Copy style files and class files if present
+          find . -maxdepth 2 \( -name "*.sty" -o -name "*.cls" \) -not -path "*/\.*" -exec cp --parents {} publication-package/ \;
+          
+          # Copy README if it exists
+          [ -f README.md ] && cp README.md publication-package/
+          [ -f README.txt ] && cp README.txt publication-package/
+          
+          # Create the zip file
+          cd publication-package
+          zip -r ../publication-package.zip .
+          cd ..
+          
+          # Display contents for verification
+          echo "=== Publication package contents ==="
+          unzip -l publication-package.zip
+
+      - name: Upload publication package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: publication-package
+          path: publication-package.zip
+
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PDF
+          path: main_ieee.pdf
+
+      - name: Upload to orphan branch
+        run: |
+          DATE=$(date +"%Y-%m-%d %H:%M:%S")
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          
+          # Copy files to temp
+          cp main_ieee.pdf /tmp/manuscript.pdf
+          cp publication-package.zip /tmp/publication-package.zip
+          
+          # Configure git
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          # Switch to orphan branch
+          git checkout --orphan publication-output
+          git rm -rf .
+          
+          # Add files
+          cp /tmp/manuscript.pdf ./manuscript.pdf
+          cp /tmp/publication-package.zip ./publication-package.zip
+          
+          git add manuscript.pdf publication-package.zip
+          git commit -m "Update from ${DATE} - ${COMMIT_MSG}"
+          git push -f origin publication-output
+
+      - name: Create release with publication package
+        run: |
+          TAG_NAME="release-$(date +"%Y-%m-%d-%H%M%S")-publication"
+          DATE=$(date +"%Y-%m-%d %H:%M:%S")
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          
+          git tag "${TAG_NAME}"
+          git push origin "${TAG_NAME}"
+          
+          gh release create "${TAG_NAME}" \
+            manuscript.pdf \
+            publication-package.zip \
+            --title "Publication Release ${DATE}" \
+            --notes "**Auto-generated publication package**
+            
+            📄 **Contents:**
+            - \`manuscript.pdf\`: Compiled PDF document
+            - \`publication-package.zip\`: Complete source package including:
+              - LaTeX source files (.tex)
+              - Bibliography files (.bib, .bst)
+              - Images and figures
+              - Style and class files (.sty, .cls)
+              - README (if present)
+            
+            ✅ **Ready for journal submission**
+            
+            Commit: ${COMMIT_MSG}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Optional: Upload to Google Drive
+      # - name: Upload PDF to Google Drive
+      #   uses: adityak74/google-drive-upload-git-action@main
+      #   with:
+      #     credentials: ${{ secrets.GOOGLE_KEY }}
+      #     filename: "manuscript.pdf"
+      #     folderId: ${{ secrets.FOLDER_ID }}
+      #     overwrite: "true"
+      #
+      # - name: Upload package to Google Drive
+      #   uses: adityak74/google-drive-upload-git-action@main
+      #   with:
+      #     credentials: ${{ secrets.GOOGLE_KEY }}
+      #     filename: "publication-package.zip"
+      #     folderId: ${{ secrets.FOLDER_ID }}
+      #     overwrite: "true"
