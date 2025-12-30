@@ -28,6 +28,7 @@
 \usepackage{makecell}
 
 
+
 % optional packages - NOTES
 \usepackage{ifthen}
 
@@ -35,6 +36,8 @@
 %Added packages by KB in 4 June 2024
 \usepackage{etoolbox}
 \usepackage{listofitems}
+\usepackage[normalem]{ulem}
+
 
 
 
@@ -70,6 +73,8 @@
 \newcommand\changed[2][pending]{%
   \ifthenelse{\equal{#1}{approved}}{#2}{{\color{blue}#2}}%
 }
+\newcommand{\removed}[1]{\color{red}\sout{#1}\color{black}}
+
 \renewcommand\comment[2][pending]{%
   \ifthenelse{\equal{#1}{approved}}{#2}{{\color{green}#2}}%
 }
@@ -162,19 +167,39 @@
 
 % \listoftodos %KB
 \section{Introduction}
-\IEEEPARstart{N}{umerous} memristor models have been proposed in the scientific literature following the discovery of memristive behavior at the nanoscale. The original model, introduced in~\cite{Strukov2008}, conceptualizes the memristor as a series connection of two variable resistances corresponding to the conductive and insulating regions of the thin film.
-The generalized \textit{Mean Metastable Switch} (MMS) model was proposed in~\cite{Molter2016} for a more accurate modeling of Self-Directed Channel (SDC) memristors. In this approach based on semi-empirical formulation, the time derivative of the internal state variable is defined as a function of both the transition probabilities between metastable states and the current value of the state variable~\cite{Molter2016}. While existing symbolic models can accurately simulate memristor behavior under narrowly defined input conditions (e.g., specific signal shape, amplitude, or frequency), their generalization capability and reliability significantly diminish when the parameters of the driving signal are altered. This limitation is particularly challenging for applications like modeling memristors in chaotic oscillators, where current and voltage of the device undergoes continuous and highly dynamic changes. In~\cite{Lee2024}, the authors attempted to model memristive behavior using the \textit{Physics-Informed Neural Networks} (PINNs) framework. Although the reported results indicate the potential of this method, the study is not grounded in experimental measurements of physical memristor devices. Instead, the analysis is limited to comparisons with the outcomes of existing simulation models. Moreover, the training data employed during the neural network learning process were generated based on previously developed theoretical models, thereby limiting the ability to assess the method's accuracy in the context of real-world physical systems.
+\IEEEPARstart{N}{umerous} memristor models have been proposed in the scientific literature following the discovery of memristive behavior at the nanoscale. The original model, introduced in~\cite{Strukov2008}, conceptualizes the memristor as a series connection of two variable resistances corresponding to the conductive and insulating regions of the thin film. 
 
+
+\changed{
+Yakopcic et al.~\cite{Yakopcic2011} developed a generalized memristor device model that captures the characteristic hyperbolic sinusoid I-V relationship arising from metal-insulator-metal (MIM) structures, while incorporating voltage-dependent programming thresholds and polarity-asymmetric dynamics.  In \cite{Kvatinsky2013}, the authors proposed the \textit{TEAM} (ThrEshold Adaptive Memristor) model, which introduces a threshold-based approach to capture the switching behavior of memristors. The model defines distinct voltage thresholds for the SET and RESET operations, allowing for more accurate representation of the device's non-linear dynamics during state transitions. In \cite{Kvatinsky2015}, the \textit{VTEAM} (Voltage ThrEshold Adaptive Memristor) model extends the TEAM framework by incorporating voltage-dependent dynamics, enabling improved modeling of memristor behavior under varying voltage conditions. Both models have been widely adopted for simulating memristive devices in various applications.
+
+Among the widely adopted models for practical memristive devices is the \textit{Stanford} model~\cite{sheridan2011device, guan2012spice, jiang2014verilog, chen2015compact, di2022oscillatory}, which provides a physics-based compact representation of bipolar resistive random access memory (RRAM) structures incorporating metal-oxide layers. As an extended memristor formulation, this framework successfully describes the nonlinear resistive switching dynamics observed across a diverse range of device implementations, particularly capturing critical phenomena such as apparent threshold behavior, temporal voltage-dependent switching characteristics, and multilevel conductance programming capabilities.
+
+The \textit{Generalized Metastable Switch} (GMS) model~\cite{Molter2016} provides enhanced accuracy in modeling Self-Directed Channel (SDC) memristors through a semi-empirical formulation where the state variable dynamics depend on transition probabilities between metastable states. However, such symbolic models exhibit limited generalization capability when driving signal parameters vary, posing challenges for applications with highly dynamic operating conditions such as memristor-based chaotic oscillators.
+
+Memristive circuits exhibit complex dynamical phenomena, including amplitude control mechanisms. In~\cite{Galias2018}, a memristive band pass filter circuit was analyzed, revealing both partial amplitude control (PAC), enabling independent rescaling of selected state variables, and total amplitude control (TAC), facilitating uniform scaling of all system variables through modification of a single parameter. These properties are particularly advantageous in applications where signal amplitude adjustment is required without employing additional amplification stages.
+To address these limitations, Minati et al.~\cite{Minati2020} introduced the \textit{Mean Metastable Switch} (MMS) model, which simplifies the GMS framework by computing the derivative of the internal state variable through linear interpolation of mean values obtained from Gaussian sampling of each probabilistic function, while eliminating the Schottky effect to preserve model simplicity. Subsequently, Laguna-Sánchez et al.~\cite{LagunaSanchez2023} proposed the \textit{Generalized Mean Metastable Switch} (GMMS) model, which extends the MMS framework by reincorporating the Schottky diode effect originally described in~\cite{Molter2016}.
+}
+\changed{
+Numerical simulation of memristors with bounded states poses computational challenges, as window functions constraining internal variables introduce discontinuities that cause artifacts in standard integration methods. Paper~\cite{Galias2019} addressed this through a Poincaré map approach, partitioning the state space into smooth regions to enable accurate trajectory computation across discontinuity boundaries.
+}
+
+In~\cite{Lee2024}, the authors attempted to model memristive behavior using the \textit{Physics-Informed Neural Networks} (PINNs) framework. Although the reported results indicate the potential of this method, the study is not grounded in experimental measurements of physical memristor devices. Instead, the analysis is limited to comparisons with the outcomes of existing simulation models. Moreover, the training data employed during the neural network learning process were generated based on previously developed theoretical models, thereby limiting the ability to assess the method's accuracy in the context of real-world physical systems.
+\changed{
+Kleitsiotis et al.~\cite{Kleitsiotis2025} introduced a semi-recurrent physics-informed neural network architecture that synergistically combines data-driven learning mechanisms with fundamental physical principles governing memristive behavior, enabling simultaneous characterization of nonlinear quasi-static current-voltage relationships and time-dependent stochastic dynamics inherent to resistive switching phenomena.
+}
 
 In~\cite{Ricky2018}, the authors introduce the concept of deep neural models in which the dynamics of the hidden state of a dynamical system is governed by an \textit{ordinary differential equation} (ODE). The training process is performed in an end-to-end manner, meaning that all parameters are optimized simultaneously within a single training procedure. A key innovation of the proposed approach is a novel backpropagation technique, which relies on solving the corresponding adjoint ODE backward in time using \textit{adjoint sensitivity methods}. This formulation enables efficient gradient computation and facilitates the application of neural ODEs in various architectures, including continuous-depth residual networks and generative flow-based models.
 
-
+\removed{
 In~\cite{Ricky2021}, the authors extend the classical Neural ODE framework to enable the modeling of discontinuous events in continuous time—without requiring prior knowledge of the number or timing of such events. The proposed differentiable event functions allow for efficient simulation of hybrid systems, such as systems with collisions, state-switching mechanisms, or point processes. This development opens up new possibilities for modeling and training systems with discrete control inputs and non-smooth dynamics.
+}
 
+\changed{
+This paper investigates the application of artificial neural networks to the modeling and characterization of memristive devices, with particular emphasis on data-driven approaches that leverage experimental measurements from physical systems. While numerous physics-based analytical models have been developed to capture memristor dynamics, these approaches often require extensive parameter tuning and may exhibit limited accuracy when device behavior deviates from idealized assumptions. To address these limitations, we propose and evaluate Neural Ordinary Differential Equation (Neural ODE) frameworks as an alternative modeling paradigm for Self-Directed Channel (SDC) memristors.
 
-The present study aims to investigate the feasibility of modeling memristor devices using artificial neural networks, and to compare the effectiveness of this approach with that of existing theoretical models. Specifically, we focus on the application of Neural Ordinary Differential Equation (Neural ODE) models to simulate the behavior of SDC memristors, utilizing experimental data obtained from real physical systems.
-
-Our objective is to assess whether neural network-based models can accurately reproduce the dynamics of SDC memristors, and to determine whether they offer any advantages over traditional theoretical approaches—particularly in terms of modeling flexibility, accuracy, and applicability to real-world, measurement-driven scenarios.
+The primary objective of this study is threefold: first, to assess whether neural network-based models can accurately reproduce the dynamic I-V characteristics and internal state evolution of SDC memristors across diverse operating conditions; second, to evaluate the generalization capability of trained neural models when applied to input signals outside the training distribution; and third, to provide a systematic comparison with established theoretical models in terms of prediction accuracy, computational efficiency, and practical applicability to circuit simulation scenarios. Through comprehensive experimental validation using measurements from physical devices, we demonstrate the feasibility and effectiveness of Neural ODE models for memristor characterization, highlighting their potential as complementary tools to traditional physics-based modeling approaches in the design and analysis of memristive circuits and neuromorphic computing systems.
+}
 
 The remaining part of this paper is organized as follows. In Sec.~\ref{sec:NNModeling}, the neural network architecture is presented and two neural network-based models (SingleNN-MemODE and DualNN-MemODE) are proposed. The objective function defining the optimization problem to be solved is defined and existing memristors models used for comparison are briefly described. In Sec.~\ref{sec:results}, proposed models are trained using experimental data to obtain accurate models of real SDC memristors. The results are compared with the results obtained using existing methods. The influence of hyperparameters of the proposed methods on their performance is discussed. The last section concludes the study.
 
@@ -361,10 +386,9 @@ The learning process involves iteratively adjusting the network parameters to mi
 %ZG removed "Design"
 \subsection{Neural Network Architecture}
 \label{sec:nn_architecture}
-\noindent The neural network training is implemented using the \texttt{JAX}, library for array-oriented numerical computation~\cite{jax2018github}, and \texttt{Equinox}~\cite{kidger2021equinox} within the \texttt{Python} programming environment, utilizing its automatic differentiation capabilities. To enable seamless integration of ordinary differential equations (ODEs) within the neural network training paradigm, the specialized \texttt{Diffrax} library is employed. This library provides differentiable ODE solvers that facilitate efficient gradient computation with respect to solution trajectories through the adjoint sensitivity method~\cite{Ricky2018, Ricky2021, kidger2021on, stumm2010new, wang2009minimal}. This approach enables end-to-end training of neural differential equation models by maintaining gradient flow through the numerical integration process, which is essential for learning dynamics of systems governed by ODEs.
-
+\noindent \changed{The neural network training is implemented using the \texttt{JAX} library~\cite{jax2018github} for array-oriented numerical computation and \texttt{Equinox}~\cite{kidger2021equinox} for neural network construction in \texttt{Python}. The \texttt{Diffrax} library~\cite{kidger2021on} provides differentiable ODE solvers enabling efficient gradient computation through adjoint sensitivity methods~\cite{wang2009minimal, stumm2010new, Ricky2018, Ricky2021}. The \texttt{tsit5} adaptive Runge-Kutta solver~\cite{Tsitouras2011} is employed for its computational efficiency and numerical accuracy, with adaptive step-size control ensuring stable integration during training.
+}
 %ZG replaced "embedded error estimation" by "error estimation"
-Specifically, the \texttt{tsit5} (Tsitouras 5/4 Runge-Kutta)~\cite{Tsitouras2011},  adaptive Runge-Kutta solver is utilized for its superior balance between computational efficiency and numerical accuracy. This solver employs error estimation for adaptive step-size control, ensuring stable integration of the memristor dynamics while maintaining computational tractability during training.
 
 The neural network architecture, illustrated in Fig.~\ref{fig:nn-arch}, employs an expansion–compression (diamond-shaped) topology that incorporates a double reduction in dimensionality in both the initial and final hidden layers.
 This architectural configuration substantially decreases the overall number of trainable parameters and helps to mitigate vanishing and exploding gradient issues commonly encountered in deep architectures processing temporal sequences.
@@ -426,9 +450,10 @@ The inclusion of additional parameters and nonlinearities in the GMMS model incr
 \end{equation}
 where \(\vs\) denotes the supply voltage, \(\vr=\Rs i\) is the voltage across the resistor, and \(\vm\) is the voltage across the memristor.
 
+\changed{
+Parameter estimation for existing memristor models employs a two-stage hybrid optimization strategy. Global exploration is performed using Adaptive Differential Evolution with radius-limited sampling from the \texttt{BlackBoxOptim} package~\cite{BlackBoxOptim} in \texttt{Julia}, followed by local refinement via the L-BFGS-B quasi-Newton method~\cite{Zhu1997} implemented in \texttt{Optim.jl}. This approach efficiently identifies optimal parameter sets while avoiding premature convergence to local minima.
+}
 
-Since the existing models considered involve multiple parameters, a hybrid optimization framework is implemented to find the parameter set that minimizes the discrepancy between model predictions and experimental data.
-The optimization process consists of two stages, combining global exploration with local refinement. In the first stage, a global optimization algorithm is employed to systematically explore the parameter space and identify promising regions. Specifically, the Adaptive Differential Evolution with radius-limited sampling algorithm, available in the \verb|BlackBoxOptim| package~\cite{BlackBoxOptim} for the \texttt{Julia} programming language, is utilized to efficiently search for candidate solutions. In the second stage, local refinement is performed using the L-BFGS-B algorithm~\cite{Zhu1997}, as implemented in the \texttt{Optim.jl} library. This hybrid optimization strategy effectively balances exploration and exploitation, thereby enhancing convergence towards the optimal parameter set while mitigating the risk of premature stagnation in suboptimal regions of the parameter space.
 
 \section{Results}
 \label{sec:results}
@@ -625,7 +650,9 @@ The computation time for trajectory generation comprising 18 trajectories using 
 
 \subsection{Hyperparameter Sensitivity Analysis}
 
-\noindent Hyperparameter optimization is conducted to systematically explore the hyperparameter space and identify configurations that maximize the predictive performance of neural network architectures. The optimization employs the Tree-structured Parzen Estimator (TPE) algorithm, implemented in the \verb|Optuna| framework~\cite{akiba2019optuna}. The TPE algorithm creates a probabilistic model of the objective function by constructing two separate density estimators: one for configurations associated with above-average performance and another for those yielding below-average results. By sampling preferentially from the former, while still maintaining diversity through exploration of the latter, the algorithm achieves an efficient balance between exploitation of promising regions and exploration of the broader search space.   
+\noindent Hyperparameter optimization is conducted to systematically explore the hyperparameter space and identify configurations that maximize the predictive performance of neural network architectures. \changed{The optimization employs the Tree-structured Parzen Estimator (TPE) algorithm via the \texttt{Optuna} framework~\cite{akiba2019optuna}. TPE constructs probabilistic models of high- and low-performing configurations, sampling preferentially from promising regions while maintaining exploration diversity.
+}
+
 The search space encompasses both architectural and training-related hyperparameters. On the architectural side, the number of hidden layers is varied between one and five, with layer widths ranging from 16 to 512 neurons in increments of 16. Candidate activation functions includes widely used nonlinearities such as \(\text{ReLU}\), \(\text{GELU}\), \(\text{SiLU}\), \(\tanh\), \(\text{ELU}\), leaky \(\text{ReLU}\), sigmoid, identity and sine functions. For the output layer, the choice is restricted to \(\text{linear}\), \(\tanh\), \(\text{sigmoid}\), and \(\text{ReLU}\). The training-related search space included the learning rate, sampled on a logarithmic scale between \(10^{-4}\) and \(10^{-1}\), batch size ranging from 1 to 18, optimizer type (Adam, SGD, AdamW, Nadam, AdaBelief), and additional parameters related to regularization and scheduling, including patience, cooldown, reduction factor, tolerance, and weight decay.
 
 To quantify the relative influence of individual hyperparameters on the model performance, a surrogate-based importance analysis is performed. An XGBoost gradient boosting model~\cite{Chen2016} is trained on the explored configurations to predict validation loss. The surrogate model achieved an \(\mathrm{R}^2\) value of 0.99, indicating high fidelity in capturing the dependence of model performance on hyperparameter selection, where \(\mathrm{R}^2 = 1 - \frac{\sum_i (y_i - \hat{y}_i)^2}{\sum_i (y_i - \bar{y})^2}\) represents the coefficient of determination measuring the proportion of explained variance, \(y_i\) are the observed values, \(\hat{y}_i\) are the model predictions, and \(\bar{y}\) is the mean of observed values. Importance is first estimated using the \emph{gain} metric, which reflects the cumulative improvement in predictive accuracy attributed to each hyperparameter across the ensemble. Normalization ensured that scores sum up to unity, allowing for direct interpretation as relative contributions to performance variability.
