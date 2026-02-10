@@ -124,6 +124,7 @@
 %ZG2 added next lines
 \newcommand{\MemODEOne}{SingleNN-MemODE}
 \newcommand{\MemODETwo}{DualNN-MemODE}
+\newcommand{\MemODE}{MemODE}
 \newcommand{\MSE}{\mathrm{MSE}}
 \newcommand{\NMSE}{\mathrm{NMSE}}
 
@@ -314,9 +315,9 @@ Squaring ensures that the penalty is non-negative and grows quadratically with t
 \begin{figure}[htbp]
   \centering
   \resizebox{\columnwidth}{!}{%
-    \input{tex_figures/single_MemODE.tex}
+    \input{tex_figures/general_MEMODE.tex}
   }
-  \caption{The \MemODEOne\ approach. The artificial neural network (ANN) evaluates the function \(f\!(x,v)\), which is then integrated by the ODE solver to predict the state at the next time step \(x(t + \Delta t)\). The upper dashed feedback loop indicates the recurrent nature of the process, where the output state is fed back as input for subsequent predictions. The memductance \(\Gm(x)\) is defined using a deterministic function based on the internal variable~\(x\). The function \(h(\G, v_s(t))\) computes the memristor voltage \(\vm\) given the memductance \(\G\) and supply voltage \(v_s(t)\).
+  \caption{The \changed{\MemODE}\ approach. The artificial neural network (ANN) evaluates the function \(f\!(x,v)\), which is then integrated by the ODE solver to predict the state at the next time step \(x(t + \Delta t)\). The upper dashed feedback loop indicates the recurrent nature of the process, where the output state is fed back as input for subsequent predictions. The memductance \(\Gm(x)\) is defined using a deterministic function based on the internal variable~\(x\). The function \(h(\G, v_s(t))\) computes the memristor voltage \(\vm\) given the memductance \(\G\) and supply voltage \(v_s(t)\).
   }
   \label{fig:nn_structure}
 \end{figure}
