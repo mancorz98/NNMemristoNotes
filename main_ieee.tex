@@ -641,64 +641,7 @@ The median computational time necessary for parameter optimization of the MMS mo
 The computation time for trajectory generation comprising 18 trajectories using the MMS model is approximately 0.047 seconds, whereas the GMMS model requires approximately 0.051 seconds. In contrast, the \MemODETwo\ architecture needs approximately 3.97 seconds, while the \MemODEOne\ architecture requires approximately 5.56 seconds to generate an equivalent trajectory ensemble. The neural network models are integrated numerically using a relative error tolerance of \(10^{-3}\) and an absolute error tolerance of \(10^{-6}\).
 
 
-
-\subsection{Hyperparameter Sensitivity Analysis}
-
-\noindent Hyperparameter optimization is conducted to systematically explore the hyperparameter space and identify configurations that maximize the predictive performance of neural network architectures. The optimization employs the Tree-structured Parzen Estimator (TPE) algorithm via the \texttt{Optuna} framework~\cite{akiba2019optuna}. TPE constructs probabilistic models of high- and low-performing configurations, sampling preferentially from promising regions while maintaining exploration diversity.
-
-
-The search space encompasses both architectural and training-related hyperparameters. On the architectural side, the number of hidden layers is varied between one and five, with layer widths ranging from 16 to 512 neurons in increments of 16. Candidate activation functions includes widely used nonlinearities such as \(\text{ReLU}\), \(\text{GELU}\), \(\text{SiLU}\), \(\tanh\), \(\text{ELU}\), leaky \(\text{ReLU}\), sigmoid, identity and sine functions. For the output layer, the choice is restricted to \(\text{linear}\), \(\tanh\), \(\text{sigmoid}\), and \(\text{ReLU}\). The training-related search space included the learning rate, sampled on a logarithmic scale between \(10^{-4}\) and \(10^{-1}\), batch size ranging from 1 to 18, optimizer type (Adam, SGD, AdamW, Nadam, AdaBelief), and additional parameters related to regularization and scheduling, including patience, cooldown, reduction factor, tolerance, and weight decay.
-
-To quantify the relative influence of individual hyperparameters on the model performance, a surrogate-based importance analysis is performed. An XGBoost gradient boosting model~\cite{Chen2016} is trained on the explored configurations to predict validation loss. The surrogate model achieved an \(\mathrm{R}^2\) value of 0.99, indicating high fidelity in capturing the dependence of model performance on hyperparameter selection, where \(\mathrm{R}^2 = 1 - \frac{\sum_i (y_i - \hat{y}_i)^2}{\sum_i (y_i - \bar{y})^2}\) represents the coefficient of determination measuring the proportion of explained variance, \(y_i\) are the observed values, \(\hat{y}_i\) are the model predictions, and \(\bar{y}\) is the mean of observed values. Importance is first estimated using the \emph{gain} metric, which reflects the cumulative improvement in predictive accuracy attributed to each hyperparameter across the ensemble. Normalization ensured that scores sum up to unity, allowing for direct interpretation as relative contributions to performance variability.
-
-As a complementary approach, permutation importance~\cite{Altmann2010} is applied to the surrogate model. In this procedure, the values of each hyperparameter are permuted at random, and the resulting degradation in predictive accuracy is recorded. Repeated ten times for each feature, the mean error increase provides an alternative measure of importance, which, unlike gain-based metrics, also accounts for nonlinear dependencies and interactions among hyperparameters.
-
-
-
-Results of the sensitivity analysis are presented in Fig.~\ref{fig:hyperparameter_importance}.
-According to the XGBoost Gain approach the dominant hyperparameters are
-the number of epochs,
-the gradient clipping value  (the maximum allowable gradient norm),
-the ANN-\(f\) depth (the depth of the neural network used to approximate \(f(\xvec,\ua)\)), and
-the number of latent states, 
-with the relative importance scores of 0.47, 0.27, 0.12, and 0.06, respectively. 
-
-Collectively, the four most significant parameters account for more than 90\% of the total observed performance variance.
-
-The permutation importance approach identifies the following four most dominant hyperparameters influencing model performance: the learning rate, the gradient clipping value, the number of epochs, and the ANN-\(\mathcal{G}\) depth (the depth of the neural network used to approximate \(\mathcal{G}(\mathbf{x})\)).
-Their relative importance scores are 0.27, 0.24, 0.19, and 0.19, respectively.
-
-Summarizing, the most important hyperparameters are identified as the number of epochs, the gradient clipping value, the learning rate, depths of neural networks and the number of latent states. Widths of neural networks, the batch size and the step length have moderate influence. 
-  The following hyperparameters have negligible effects of the model performance: the choice of activation and output functions, and the optimizer type. For example, the choice of activation function exhibits a negligible effect (importance score below \(0.01\)), indicating that the Neural ODE architecture demonstrates a high degree of robustness with respect to this factor across the examined range.
-\begin{figure}[thbp]
-  \centering
-  \includegraphics[width=\linewidth]{mms_figs/xgboost_permutation_importance.pdf}
-    \caption{Hyperparameter importance for the \MemODETwo\  optimization task. Scores are computed using
-  the XG Boost surrogate model and the permutation importance approach. Larger values indicate greater relative influence of the corresponding hyperparameter on the model performance. ANN-\(\G\) and ANN-\(f\) refer to neural networks used to approximate \(\G(\xvec)\) and \(f(\xvec,\ua)\), respectively.
-  }
-  \label{fig:hyperparameter_importance}
-\end{figure}
-
-The mean values of the validation loss obtained during the hyperparameter optimization procedure for selected hyperparameters are presented in Fig.~\ref{fig:categorical_hyperparameters}. The figure summarizes the influence of the number of latent states, the optimizer type, and the activation functions employed in the two neural networks constituting the \MemODETwo\ architecture. For each case, the reported mean is computed by marginalizing over all remaining hyperparameters, while the corresponding \(95\%\) confidence intervals are indicated by error bars. This analysis highlights the relative sensitivity of the model performance to discrete architectural and training-strategy choices.
-
-\begin{figure}[!t]
-  \subfloat[\label{1a3}]{%
-    \includegraphics[width=0.48\linewidth]{hyper_params_figs/params_latent_states_barplot.pdf}%
-  }
-  \subfloat[\label{1b3}]{%
-    \includegraphics[width=0.48\linewidth]{hyper_params_figs/params_optimizer_barplot.pdf}%
-  }
-
-  \subfloat[\label{1c3}]{%
-    \includegraphics[width=0.48\linewidth]{hyper_params_figs/params_mlpx_activation_barplot.pdf}%
-  }
-  \subfloat[\label{1d3}]{%
-    \includegraphics[width=0.48\linewidth]{hyper_params_figs/params_mlpg_activation_barplot.pdf}%
-  }
-  \caption{Validation loss obtained during hyperparameter optimization for selected hyperparameters: (a) number of latent states, (b) optimizer type for the first neural network, (c) activation function for the neural network used to approximate \(f(\xvec,\ua)\), and (d) activation function for the neural network used to approximate \(\G(\xvec)\). Mean values are computed by averaging over all other hyperparameters, with error bars indicating the \(95\%\) confidence interval.}
-  \label{fig:categorical_hyperparameters}
-\end{figure}
-
+ 
 \section{Conclusions}
 
 \noindent This work presented two novel neural ODE-based architectures for modeling the dynamics of memristor devices. The proposed models leverage the power of neural networks to capture complex, nonlinear behaviors inherent in memristive systems, while maintaining the interpretability and physical consistency afforded by the ODE framework.
