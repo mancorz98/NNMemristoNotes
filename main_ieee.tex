@@ -317,20 +317,11 @@ Squaring ensures that the penalty is non-negative and grows quadratically with t
   \resizebox{\columnwidth}{!}{%
     \input{tex_figures/general_MEMODE.tex}
   }
-  \caption{The \changed{\MemODE}\ approach. The artificial neural network (ANN) evaluates the function \(f\!(x,v)\), which is then integrated by the ODE solver to predict the state at the next time step \(x(t + \Delta t)\). The upper dashed feedback loop indicates the recurrent nature of the process, where the output state is fed back as input for subsequent predictions. The memductance \(\Gm(x)\) is defined using a deterministic function based on the internal variable~\(x\). The function \(h(\G, v_s(t))\) computes the memristor voltage \(\vm\) given the memductance \(\G\) and supply voltage \(v_s(t)\).
+  \caption{The \changed{\MemODE}\ approach. The artificial neural network (ANN) evaluates the function \(f\!(x,v)\), which is then integrated by the ODE solver to predict the state at the next time step \(x\!(t + \Delta t)\). The upper dashed feedback loop indicates the recurrent nature of the process, where the output state is fed back as input for subsequent predictions. \changed{The memductance \(\Gm\) is defined as function \(g\) which can be a deterministic function based on the internal variable~\(x\) or the neural network with input \(\mathbf{x}\!(t)\)}. The function \(h\!(\G, v_s\!(t))\) computes the memristor voltage \(\vm\) given the memductance \(\G\) and supply voltage \(v_s\!(t)\).
   }
   \label{fig:nn_structure}
 \end{figure}
 
-\begin{figure}[htbp]
-  \centering
-  \resizebox{\columnwidth}{!}{%
-    \input{tex_figures/dual_MemODE.tex}
-  }
-  \caption{The \MemODETwo\ approach. The the artificial neural network (ANN) evaluates the function \(f(\mathbf{x},v)\), which is then integrated by the ODE solver to predict the state at the next time step \(\mathbf{x}(t\!+\!\Delta t)\). The second ANN models the  memductance \(\Gm(\mathbf{x})\) based on \(\mathbf{x}(t\!+\!\Delta t)\). The function \(h(\G, v_s(t))\) computes the memristor voltage \(\vm\) given the memductance \(\G\) and supply voltage \(v_s(t)\). 
-  }
-  \label{fig:nn_structure_dual}
-\end{figure}
 
 For the \MemODEOne\ approach, the function \(f\) is implemented using an artificial neural network with a single output. For the \MemODETwo\ approach the number of outputs is equal to the number of internal variables and may be larger than 1. For both cases, the neural network consists of interconnected nodes (neurons) that process information through weighted connections. Each neuron in the network computes its output according to:
 \begin{equation}
