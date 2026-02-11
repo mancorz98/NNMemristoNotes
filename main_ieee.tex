@@ -320,48 +320,26 @@ The optimal configuration is selected based on minimizing the objective function
 
 \subsection{Existing Memristor Models for Comparison}
 
-\noindent To evaluate the effectiveness of the proposed models, their performance is compared with the performance of two existing memristor models: the Mean Metastable Switch (MMS) model~\cite{Minati2020} and the  Generalized Mean Metastable Switch Memristor (GMMS) model~\cite{Molter2016, Ostrovskii2021}.
-
-
-The MMS model is a simplified representation of memristor's behavior, focusing on the average switching characteristics rather than the detailed dynamics. It captures essential features of the device by describing transitions between the high-resistance state (HRS) and the low-resistance state (LRS) based on the applied voltage. This model describes memristor's dynamics as
-%ZG replaced "on" by "ON" and "off by ""OFF
-%ZG merged three equations into one align environment
+\noindent The proposed models are compared with two established  memristor models. The Mean Metastable Switch (MMS) model~\cite{Minati2020} describes the state dynamics as
 \begin{align}
   \label{eq:mms}
-  \dert{x}       & = \frac{1}{\tau} \left( f_{\rm ON}(\ua) (1-x) - f_{\rm OFF}(\ua) x \right),              \\
-  f_{\rm ON}(\ua)  & = \sigma\left(-\beta (\ua-\von)\right) \label{eq:mms5b},      \\
-  f_{\rm OFF}(\ua) & = 1 - \sigma\left(\beta (\ua-\voff)\right)  \label{eq:mms5c}, 
+  \dert{x}       & = \frac{1}{\tau} \left( f_{\rm ON}(\ua) (1-x) - f_{\rm OFF}(\ua) x \right), \\
+  f_{\rm ON}(\ua)  & = \sigma\left(-\beta (\ua-\von)\right), \label{eq:mms5b} \\
+  f_{\rm OFF}(\ua) & = 1 - \sigma\left(\beta (\ua-\voff)\right), \label{eq:mms5c}
 \end{align}
-where \(\sigma(z) = (1+e^{-z})^{-1}\), \(\beta= \frac{q}{kT}\), \(k\) is the Boltzmann constant, \(T\) is the absolute temperature, \(q\) represents the elementary charge, while \(\von\) and \(\voff\) denote the switching voltages to LRS and HRS states, respectively. The instantaneous memductance is defined in~\eqref{eq:conductance}.
+where \(\sigma(z) = (1+e^{-z})^{-1}\), \(\beta = q/(kT)\), and \(\von\), \(\voff\) are the switching voltages. The memductance is defined by~\eqref{eq:conductance}.
 
-In the GMMS model memristors are represented as a parallel connection of memory-dependent element and a Schottky diode~\cite{Molter2016, Ostrovskii2021}. This formulation extends the original metastable switch concept by incorporating nonlinear current--voltage characteristics, enabling a more accurate representation of memristor's behavior across a wide range of operating conditions.
-The evolution of the state variable is governed by~\eqref{eq:mms}, while the current--voltage relationship is
+The Generalized MMS (GMMS) model~\cite{Molter2016, Ostrovskii2021} extends MMS by modeling the memristor as a parallel connection of a memory-dependent element and a Schottky diode:
 \begin{align}
   \begin{split}
-    \im(t)     & = \eta \imd(v, x) + (1-\eta) i_{\rm d}(v),                \\
-    i_{\rm d}(v)     & = \alpha_{\rm f} e^{\beta_{\rm f} v} - \alpha_{\rm r} e^{-\beta_{\rm r} v}, \\
-    \imd(v, x) & = \Gm(x) v,
+    \im(t)     & = \eta \, \Gm(x) v + (1-\eta) \, i_{\rm d}(v), \\
+    i_{\rm d}(v) & = \alpha_{\rm f} e^{\beta_{\rm f} v} - \alpha_{\rm r} e^{-\beta_{\rm r} v},
   \end{split}
   \label{eq:gmms}
 \end{align}
-%ZG replaced "current through the device" by "current of the device"
-where \(\eta\in [0,1]\) is the parameter representing the ratio of the memory dependent current \(\imd\) and total current \(\im\) flowing through the device. The parameters \(\alpha_f\), \(\beta_f\), \(\alpha_r\), and \(\beta_r\) are positive constants characterizing the forward and reverse current across the Schottky barrier.
+where \(\eta\in[0,1]\) controls the ratio between memory-dependent and diode currents, and the state dynamics follow~\eqref{eq:mms}. The Schottky nonlinearity requires solving the DAE system \(\vs = \Rs i + \vm\) jointly with the state equation.
 
-The inclusion of additional parameters and nonlinearities in the GMMS model increases model's complexity and poses challenges for parameter optimization. An additional challenge arises due to the Schottky effect, which introduces nonlinearity into the current–voltage characteristic. When the memristor is connected in series with a resistor, this requires solving a set of differential-algebraic equations (DAEs) of the form
-\begin{equation}
-  \left\{
-  \begin{aligned}
-     & \vs=\vr+ \vm,                                                      \\
-     & \dert{x}  = \frac{1}{\tau} \left( f_{\rm ON}(\vm) (1-x) - f_{\rm OFF}(\vm) x \right), 
-  \end{aligned}
-  \right.
-  \label{eq:nonlinear_eq}
-\end{equation}
-where \(\vs\) denotes the supply voltage, \(\vr=\Rs i\) is the voltage across the resistor, and \(\vm\) is the voltage across the memristor.
-
-
-Parameter estimation for existing memristor models employs a two-stage hybrid optimization strategy. Global exploration is performed using Adaptive Differential Evolution with radius-limited sampling from the \texttt{BlackBoxOptim} package~\cite{BlackBoxOptim} in \texttt{Julia}, followed by local refinement via the L-BFGS-B quasi-Newton method~\cite{Zhu1997} implemented in \texttt{Optim.jl}. This approach efficiently identifies optimal parameter sets while avoiding premature convergence to local minima.
-
+Parameter estimation for both models employs global search using Adaptive Differential Evolution~\cite{BlackBoxOptim} followed by local L-BFGS-B refinement~\cite{Zhu1997}.
 
 \section{Results}
 \label{sec:results}
@@ -374,19 +352,20 @@ For \MemODETwo, the network computing \(f(\xvec,\ua)\) has four hidden layers (1
 
 A representative learning curve for \MemODEOne\ is shown in Fig.~\ref{fig:learning-curve}. The consistent decrease of \(\Loss\) on both training and validation sets over 360 epochs, along with their close agreement, confirms effective optimization and generalization.
 
-\begin{figure}[htbp]
+
+The effectiveness of the full loss function \(\Loss\) was verified against using only \(\LossBase\): for \MemODEOne, the validation loss decreased from \(\LossBase = 2.24 \mtimes 10^{-2}\) to \(1.85 \mtimes 10^{-2}\) when including \(\LossVel\) and \(\LossCur\).
+
+Representative test results are shown in Fig.~\ref{fig:sample-results} for sinusoidal excitation at \(1.0\;\mathrm{V}\), \(1.0\;\mathrm{Hz}\).
+
+\begin{figure}[httbp]
   \centering
   \includegraphics[width=\linewidth]{figs/Training_process.pdf}
   \caption{Learning curve for the \MemODEOne\ architecture over 360 epochs. Insets show \(\vm\)--\(\im\) hysteresis loops at selected epochs (dashed: measured, solid: predicted).}
   \label{fig:learning-curve}
 \end{figure}
 
-The effectiveness of the full loss function \(\Loss\) was verified against using only \(\LossBase\): for \MemODEOne, the validation loss decreased from \(\LossBase = 2.24 \mtimes 10^{-2}\) to \(1.85 \mtimes 10^{-2}\) when including \(\LossVel\) and \(\LossCur\).
-
-Representative test results are shown in Fig.~\ref{fig:sample-results} for sinusoidal excitation at \(1.0\;\mathrm{V}\), \(1.0\;\mathrm{Hz}\).
-
 \newcommand{\subwidth}{0.49\linewidth}
-\begin{figure}[htbp]
+\begin{figure}[httbp]
   \centering
   \subfloat[\label{1a}]{%
     \includegraphics[width=\subwidth]{sample_results/sol_plots_amp_1.0_freq_1.0_fig_0_test.pdf}%
@@ -402,16 +381,13 @@ Representative test results are shown in Fig.~\ref{fig:sample-results} for sinus
   }
   \label{fig:sample-results}
 \end{figure}
-
-\subsection{Comparative Analysis with the MMS and GMMS Models}
-
-\noindent The proposed models are compared against the MMS~\cite{Minati2020} and GMMS~\cite{Ostrovskii2021} models, which serve as established benchmarks for SDC memristor simulation~\cite{Bednarz2024}. Fig.~\ref{fig:comparison_mms} presents a comparative analysis of the loss functions \(\LossBase\) obtained for the proposed and existing models, offering a quantitative assessment of their performance. The results highlight the neural network’s enhanced capability to reproduce complex and subtle aspects of memristor dynamics that are insufficiently captured by the phenomenological MMS/GMMS framework.
-
-\begin{figure*}[htbp]
+\renewcommand{\subwidth}{\linewidth}
+\begin{figure}[httbp]
   \centering
   \subfloat[\label{1a2}]{
     \includegraphics[width=\subwidth]{mms_results/loss_per_freq_Single-NN-MemODE.pdf}%
   }
+
   \subfloat[\label{1b2}]{
     \includegraphics[width=\subwidth]{mms_results/loss_per_freq_Dual-NN-MemODE.pdf}%
   }
@@ -419,6 +395,7 @@ Representative test results are shown in Fig.~\ref{fig:sample-results} for sinus
   \subfloat[\label{1c2}]{
     \includegraphics[width=\subwidth]{mms_results/loss_per_freq_MMS Model.pdf}%
   }
+  
   \subfloat[\label{1d2}]{
     \includegraphics[width=\subwidth]{mms_results/loss_per_freq_GMMS Model.pdf}%
   }
@@ -426,12 +403,17 @@ Representative test results are shown in Fig.~\ref{fig:sample-results} for sinus
     (a) the \MemODEOne\ model, (b) the \MemODETwo\ model, (c) the MMS model, (d) the GMMS model.
     Results for voltage amplitudes \(\Vs =0.5, 1.0, 1.5\rm \ V\) are plotted in red (\redbar{}), blue (\bluebar{}) and green (\greenbar{}), respectively.}
   \label{fig:comparison_mms}
-\end{figure*}
+\end{figure}
+
+\subsection{Comparative Analysis with the MMS and GMMS Models}
+
+\noindent The proposed models are compared against the MMS~\cite{Minati2020} and GMMS~\cite{Ostrovskii2021} models, which serve as established benchmarks for SDC memristor simulation~\cite{Bednarz2024}. Fig.~\ref{fig:comparison_mms} presents a comparative analysis of the loss functions \(\LossBase\) obtained for the proposed and existing models, offering a quantitative assessment of their performance. The results highlight the neural network’s enhanced capability to reproduce complex and subtle aspects of memristor dynamics that are insufficiently captured by the phenomenological MMS/GMMS framework.
+
 
 
 Table~\ref{tab:mms_comp_test} summarizes the average \(\LossBase\) values. The \MemODETwo\ model achieves the best validation loss of \(5.77 \times 10^{-3}\), substantially outperforming both MMS and GMMS across all datasets.
 
-\begin{table}
+\begin{table}[htbp]
   \caption{Comparative analysis of the loss function \(\LossBase\) for the validation, training and the whole datasets. %
   }
   \label{tab:mms_comp_test}
@@ -456,9 +438,16 @@ Table~\ref{tab:mms_comp_test} summarizes the average \(\LossBase\) values. The \
 \end{table}
 
 Computation times are compared using a 3.5~GHz Intel i9-9900X processor. Training duration is 11.3 and 13.8 minutes for \MemODEOne\ and \MemODETwo, respectively, compared to 20.4 minutes for MMS and 8.4 minutes for GMMS (using a two-stage global search followed by L-BFGS-B refinement~\cite{BlackBoxOptim, Zhu1997}). However, trajectory generation (18 trajectories) takes approximately 0.05~s for MMS/GMMS versus 4--6~s for the neural models (with relative tolerance \(10^{-3}\), absolute tolerance \(10^{-6}\)).
- 
 \section{Conclusions}
-\noindent This work presented two neural ODE-based architectures (\MemODEOne\ and \MemODETwo) for data-driven modeling of memristive devices, trained and validated on experimental data from SDC memristors. Both models significantly outperform the MMS and GMMS benchmarks, with \MemODETwo\ achieving the lowest validation loss of \(5.77 \times 10^{-3}\). Training times are comparable to or shorter than those of existing models, though trajectory evaluation is slower due to numerical integration. The proposed framework is applicable to memristors produced in other technologies and provides a foundation for more accurate simulation tools in the design of memristor-based circuits and neuromorphic systems.
+\noindent This work presented two novel neural ODE-based architectures for modeling the dynamics of memristor devices. The proposed models leverage the power of neural networks to capture complex, nonlinear behaviors inherent in memristive systems, while maintaining the interpretability and physical consistency afforded by the ODE framework.
+The proposed models were applied for modeling of real Self-Directed Channel (SDC) memristors. 
+Extensive evaluation against experimental data demonstrates that the neural ODE approach  outperforms traditional phenomenological models, such as the MMS and GMMS models, in terms of accuracy and fidelity. The results highlight the capability of the neural ODE approach to learn intricate device dynamics directly from data.
+
+Obtained results show that the computation time needed to optimize the proposed models is smaller than that for existing models. On the other hand the evaluation time needed to compute trajectories using the proposed models is significantly larger than for the MMS and GMMS models.
+The proposed models may also be used for modeling of memristors produced in other technologies.  
+The findings of this study underscore the potential of neural ODEs as a versatile and effective framework for modeling complex physical systems, with applications in the design and analysis of memristor-based circuits.
+Developed methods pave the way to more accurate and efficient simulation tools, facilitating advancements in memristor technology and its integration into emerging computing paradigms, and open avenues for future research in data-driven modeling of nonlinear dynamical systems.
+
 
 
 \bibliographystyle{IEEEtran} % added %ZG
