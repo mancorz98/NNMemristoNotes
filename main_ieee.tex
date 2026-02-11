@@ -255,11 +255,6 @@ Their values are calculated during each optimization step using the Geometric Lo
 
 Let us consider two sequences \(z_k=(z_{k,\sind})_{\sind=1}^{\snum}\) and \(\tilde{z}_k=(\tilde{z}_{k,\sind})_{\snum=1}^{\snum}\), where \(z \in \{v,i,\dot{v},\dot{i},\ddot{v},\ddot{i}\}\) is a selected variable (voltage or current) or its derivative obtained from measurements, \(\tilde{z}\) is the predicted value of \(z\), \(\snum\) is the number of samples and \(k = 1,2,\ldots, N_{\text{traj}}\) is the sequence index.
 The sequences are normalized utilizing the standard deviation to ensure statistical consistency within each dataset.
-The trajectory-specific standard deviation is calculated using the unbiased estimator
-\begin{equation}
-  \sigma_{z,k} = \sqrt{\frac{1}{\snum-1} \sum_{\sind=1}^{\snum} \left(z_{k,\sind} - \bar{z}_k\right)^2},
-\end{equation}
-where the trajectory temporal mean is defined as \(\bar{z}_k = \frac{1}{\snum} \sum_{\sind=1}^{\snum} z_{k,\sind}\).
 
 By implementing trajectory-specific normalization rather than global standardization, the methodology preserves the inherent temporal dynamics and statistical properties unique to each circuit configuration while simultaneously ensuring that amplitude disparities do not introduce systematic bias during predictive modeling procedures.
 This approach is particularly advantageous in scenarios involving varying operational conditions, where maintaining the relative temporal structure is paramount for accurate system identification and dynamic analysis.
@@ -323,11 +318,7 @@ Squaring ensures that the penalty is non-negative and grows quadratically with t
 \end{figure}
 
 
-For the \MemODEOne\ approach, the function \(f\) is implemented using an artificial neural network with a single output. For the \MemODETwo\ approach the number of outputs is equal to the number of internal variables and may be larger than 1. For both cases, the neural network consists of interconnected nodes (neurons) that process information through weighted connections. Each neuron in the network computes its output according to:
-\begin{equation}
-  y_k = \sigma\left(\sum_{i=1}^{M_k} w_{k,i} x_i + b_k\right),
-\end{equation}
-where \(k\) is the neuron's index, \(M_k\) is the number of inputs for the \(k\)th neuron, \(w_{k,i}\) are the weights that determine the strengths of input connections \(x_i\) of the \(k\)th neuron, \(b_k\) is the bias term that provides an adjustable threshold for neuron activation, and \(\sigma\) is the activation function (e.g., sigmoid, ReLU, or tanh) that introduces nonlinearity into the model.
+For the \MemODEOne\ approach, the function \(f\) is implemented using an artificial neural network with a single output. For the \MemODETwo\ approach the number of outputs is equal to the number of internal variables and may be larger than 1.
 
 In the \MemODEOne\ approach, the  memductance is defined on the basis of the physical mechanisms underlying self-directed channel (SDC) devices. In such memristors, the resistance evolves as a result of \(\mathrm{Ag^+}\) ions migration and the formation of conductive filaments. Consequently, the device memductance exhibits a continuous transition between different resistance states. This transition can be described as a weighted combination of the limiting resistance values, modulated by the internal variable \(x\)
 \begin{equation}
@@ -502,27 +493,27 @@ This comparison is particularly significant as the MMS and GMMS models have been
 
 Comparison results are plotted in Fig.~\ref{fig:comparison_mms}. Quantitative analysis reveals substantial performance improvements achieved by the neural network approach.
 
-\begin{figure*}[htbp]
+\begin{figure}[htbp]
   \centering
   \subfloat[\label{1a2}]{
-    \includegraphics[width=0.48\linewidth]{mms_results/loss_per_freq_Single-NN-MemODE.pdf}%
+    \includegraphics[width=\subwidth]{mms_results/loss_per_freq_Single-NN-MemODE.pdf}%
   }
   \subfloat[\label{1b2}]{
-    \includegraphics[width=0.48\linewidth]{mms_results/loss_per_freq_Dual-NN-MemODE.pdf}%
+    \includegraphics[width=\subwidth]{mms_results/loss_per_freq_Dual-NN-MemODE.pdf}%
   }
 
   \subfloat[\label{1c2}]{
-    \includegraphics[width=0.48\linewidth]{mms_results/loss_per_freq_MMS Model.pdf}%
+    \includegraphics[width=\subwidth]{mms_results/loss_per_freq_MMS Model.pdf}%
   }
   \subfloat[\label{1d2}]{
-    \includegraphics[width=0.48\linewidth]{mms_results/loss_per_freq_GMMS Model.pdf}%
+    \includegraphics[width=\subwidth]{mms_results/loss_per_freq_GMMS Model.pdf}%
   }
   \caption{Comparative analysis of the loss function \(\LossBase\):
     (a) the \MemODEOne\ model, (b) the \MemODETwo\ model, (c) the MMS model, (d) the GMMS model.
     Results for voltage amplitudes \(\Vs =0.5, 1.0, 1.5\rm \ V\) are plotted in red (\redbar{}), blue (\bluebar{}) and green (\greenbar{}), respectively.
   }
   \label{fig:comparison_mms}
-\end{figure*}
+\end{figure}
 
 Table~\ref{tab:mms_comp} presents a comparative analysis of the loss functions \(\LossBase\) obtained for the proposed and existing models, offering a quantitative assessment of their performance. The results highlight the neural network’s enhanced capability to reproduce complex and subtle aspects of memristor dynamics that are insufficiently captured by the phenomenological MMS/GMMS framework. For clarity, the highest loss value in each row is marked in red, whereas the lowest is marked in green. Overall, the neural network model consistently achieves substantially lower loss values, demonstrating superior accuracy and fidelity in representing the device behavior.
 
