@@ -235,8 +235,7 @@ where \(\xvec\) denotes the vector of internal state variables, whose temporal e
   \Loss & = \lambda_{\rm base} \LossBase + \lambda_{\rm vel} \LossVel + \lambda_{\rm curv} \LossCur + \sum^{N_c}_{i=1} \lambda_{{\rm con}_i} \Loss_{{\rm con}_i}(x).\label{eq:loss_function}
 \end{align}
 The first term \(\LossBase\) denotes the primary error computed as the mean squared error (MSE) between predicted and reference values. \(\LossVel\) enforces accurate modeling of derivatives of state variables, \(\LossCur\) promotes consistency of the trajectories in terms of their curvature by computing MSE of second derivatives, and \(\Loss_{\rm con}(x)\) enforces fulfillment of physical or structural constraints that the model is required to satisfy, including conformity to the underlying physical model.
-The weighting coefficients \(\lambda_{\mathrm{base}}\), \(\lambda_{\mathrm{vel}}\), and \(\lambda_{\mathrm{curv}}\) balance the influence of each term according to the priorities of the modeling task.
-Their values are calculated during each optimization step using the Geometric Loss Strategy (GLS)~\cite{Cipolla2018, Chen2018} using the Algorithm~\ref{alg:adaptive_loss_balancing}.
+The weighting coefficients \(\lambda_{\mathrm{base}}\), \(\lambda_{\mathrm{vel}}\), and \(\lambda_{\mathrm{curv}}\) balance the influence of each term according to the priorities of the modeling task.Their values are calculated during each optimization step using the Geometric Loss Strategy (GLS)~\cite{Cipolla2018, Chen2018}.
 
 
 Let us consider two sequences \(z_k=(z_{k,\sind})_{\sind=1}^{\snum}\) and \(\tilde{z}_k=(\tilde{z}_{k,\sind})_{\snum=1}^{\snum}\), where \(z \in \{v,i,\dot{v},\dot{i},\ddot{v},\ddot{i}\}\) is a selected variable (voltage or current) or its derivative obtained from measurements, \(\tilde{z}\) is the predicted value of \(z\), \(\snum\) is the number of samples and \(k = 1,2,\ldots, N_{\text{traj}}\) is the sequence index.
