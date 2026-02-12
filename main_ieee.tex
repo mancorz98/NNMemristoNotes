@@ -170,7 +170,7 @@
 
 % \listoftodos %KB
 \section{Introduction}
-\IEEEPARstart{N}{umerous} memristor models have been proposed following the discovery of memristive behavior at the nanoscale~\cite{Strukov2008}. Physics-based approaches range from generalized device models capturing threshold-dependent switching~\cite{Yakopcic2011, Kvatinsky2013, Kvatinsky2015} to compact representations of RRAM structures such as the Stanford model~\cite{chen2015compact}. For Self-Directed Channel (SDC) memristors specifically, the Generalized Metastable Switch (GMS) model~\cite{Molter2016} and its derivatives---the Mean Metastable Switch (MMS)~\cite{Minati2020} and Generalized MMS (GMMS)~\cite{Ostrovskii2021}---provide semi-empirical formulations based on transition probabilities between metastable states.
+\IEEEPARstart{N}{umerous} memristor models have been proposed following the discovery of memristive behavior at the nanoscale~\cite{Strukov2008}. Physics-based approaches range from generalized device models capturing threshold-dependent switching~\cite{Yakopcic2011, Kvatinsky2015} to compact representations of RRAM structures such as the Stanford model~\cite{chen2015compact}. For Self-Directed Channel (SDC) memristors specifically, the Generalized Metastable Switch (GMS) model~\cite{Molter2016} and its derivatives---the Mean Metastable Switch (MMS)~\cite{Minati2020} and Generalized MMS (GMMS)~\cite{Ostrovskii2021}---provide semi-empirical formulations based on transition probabilities between metastable states.
 
 
 Despite their widespread adoption, these symbolic models share common limitations: they require extensive parameter tuning, employ window functions that introduce numerical discontinuities~\cite{Galias2019}, and exhibit limited generalization when operating conditions deviate from calibration regimes~\cite{Galias2018}. A recent attempt to address these issues using Physics-Informed Neural Networks~\cite{Lee2024} demonstrated the potential of data-driven approaches, but relied solely on synthetic data generated from existing theoretical models rather than physical device measurements.
@@ -187,7 +187,7 @@ The remaining part of this paper is organized as follows. In Sec.~\ref{sec:NNMod
 \section{Modeling Memristors using Neural Networks}
 \label{sec:NNModeling}
 
-\noindent This study utilizes experimental data obtained from Self-Directed Channel (SDC) memristors doped with tungsten. The structure and properties of these devices have been described in detail in the literature, e.g., in~\cite{Campbell2017,Garda2024}.
+\noindent This study utilizes experimental data obtained from Self-Directed Channel (SDC) memristors doped with tungsten. The structure and properties of these devices have been described in detail in the literature, e.g., in~\cite{Campbell2017}.
 
 The experimental setup, illustrated in Fig.~\ref{fig:memristor_setup}, consists of an SDC memristor connected in series with a resistor. The sinusoidal input voltage is supplied by an arbitrary waveform generator. Voltage signals are measured using a data acquisition (DAQ) system.
 %
@@ -219,7 +219,7 @@ where \(\xvec\) denotes the vector of internal state variables, whose temporal e
 \begin{align}
   \Loss & = \lambda_{\rm base} \LossBase + \lambda_{\rm vel} \LossVel + \lambda_{\rm curv} \LossCur + \sum^{N_c}_{i=1} \lambda_{{\rm con}_i} \Loss_{{\rm con}_i}(x).\label{eq:loss_function}
 \end{align}
-The terms \(\LossBase\), \(\LossVel\), and \(\LossCur\) represent the MSE of signal values, first derivatives, and second derivatives, respectively, between predicted and measured trajectories. The term \(\Loss_{\rm con}(x)\) enforces physical constraints. The weighting coefficients are computed at each step using the Geometric Loss Strategy (GLS)~\cite{Cipolla2018, Chen2018}.
+The terms \(\LossBase\), \(\LossVel\), and \(\LossCur\) represent the MSE of signal values, first derivatives, and second derivatives, respectively, between predicted and measured trajectories. The term \(\Loss_{\rm con}(x)\) enforces physical constraints. The weighting coefficients are computed at each step using the Geometric Loss Strategy (GLS)~\cite{Chen2018}.
 
 Let \(z_k=(z_{k,\sind})_{\sind=1}^{\snum}\) and \(\tilde{z}_k=(\tilde{z}_{k,\sind})_{\sind=1}^{\snum}\) denote measured and predicted sequences for variable \(z \in \{v,i,\dot{v},\dot{i},\ddot{v},\ddot{i}\}\), where \(k = 1,\ldots, N_{\text{traj}}\) is the trajectory index and \(\snum\) is the number of samples. The normalized mean squared error is
 \begin{equation}
@@ -295,7 +295,7 @@ The learning process involves iteratively adjusting the network parameters to mi
 %ZG removed "Design"
 \subsection{Neural Network Architecture}
 \label{sec:nn_architecture}
-\noindent The neural network training is implemented using the \texttt{JAX} library~\cite{jax2018github} for array-oriented numerical computation and \texttt{Equinox}~\cite{kidger2021equinox} for neural network construction in \texttt{Python}. The parameter gradients of the ODE solution are computed using adjoint sensitivity methods~\cite{stumm2010new, Ricky2018}. The \texttt{tsit5} adaptive Runge-Kutta solver~\cite{Tsitouras2011} is employed for its computational efficiency and numerical accuracy, with adaptive step-size control ensuring stable integration during training.
+\noindent The neural network training is implemented using the \texttt{JAX} library~\cite{jax2018github} for array-oriented numerical computation and \texttt{Equinox}~\cite{kidger2021equinox} for neural network construction in \texttt{Python}. The parameter gradients of the ODE solution are computed using adjoint sensitivity methods~\cite{ Ricky2018}. The \texttt{tsit5} adaptive Runge-Kutta solver is employed for its computational efficiency and numerical accuracy, with adaptive step-size control ensuring stable integration during training.
 
 %ZG replaced "embedded error estimation" by "error estimation"
 
@@ -314,8 +314,7 @@ This architectural configuration substantially decreases the overall number of t
   \label{fig:nn-arch}
 \end{figure}
 
-Several techniques are tested for the optimization of network weights and the \texttt{Adam} (Adaptive Moment Estimation) optimizer is selected due to its superior performance.
-The choice of an optimizer and its parameters is guided by hyperparameter tuning conducted with the \texttt{Optuna} framework~\cite{Akiba2019}. The hyperparameter search space comprises the learning rate, weight decay, batch size, and architecture parameters like the width and the depth of the neural network.
+Several techniques are tested for the optimization of network weights.The choice of an optimizer and its parameters is guided by hyperparameter tuning conducted with the \texttt{Optuna} framework~\cite{Akiba2019}. The hyperparameter search space comprises the learning rate, weight decay, batch size, and architecture parameters like the width and the depth of the neural network.
 The optimal configuration is selected based on minimizing the objective function on the validation set, ensuring that the model generalizes well to unseen data.
 
 \subsection{Existing Memristor Models for Comparison}
@@ -339,7 +338,7 @@ The Generalized MMS (GMMS) model~\cite{Molter2016, Ostrovskii2021} extends MMS b
 \end{align}
 where \(\eta\in[0,1]\) controls the ratio between memory-dependent and diode currents, and the state dynamics follow~\eqref{eq:mms}. The Schottky nonlinearity requires solving the DAE system \(\vs = \Rs i + \vm\) jointly with the state equation.
 
-Parameter estimation for both models employs global search using Adaptive Differential Evolution~\cite{BlackBoxOptim} followed by local L-BFGS-B refinement~\cite{Zhu1997}.
+Parameter estimation for both models employs global search using Adaptive Differential Evolution followed by local L-BFGS-B refinement~\cite{Zhu1997}.
 
 \section{Results}
 \label{sec:results}
@@ -437,7 +436,7 @@ Table~\ref{tab:mms_comp_test} summarizes the average \(\LossBase\) values. The \
 \end{center}
 \end{table}
 
-Computation times are compared using a 3.5~GHz Intel i9-9900X processor. Training duration is 11.3 and 13.8 minutes for \MemODEOne\ and \MemODETwo, respectively, compared to 20.4 minutes for MMS and 8.4 minutes for GMMS (using a two-stage global search followed by L-BFGS-B refinement~\cite{BlackBoxOptim, Zhu1997}). However, trajectory generation (18 trajectories) takes approximately 0.05~s for MMS/GMMS versus 4--6~s for the neural models (with relative tolerance \(10^{-3}\), absolute tolerance \(10^{-6}\)).
+Computation times are compared using a 3.5~GHz Intel i9-9900X processor. Training duration is 11.3 and 13.8 minutes for \MemODEOne\ and \MemODETwo, respectively, compared to 20.4 minutes for MMS and 8.4 minutes for GMMS (using a two-stage global search followed by L-BFGS-B refinement~\cite{ Zhu1997}). However, trajectory generation (18 trajectories) takes approximately 0.05~s for MMS/GMMS versus 4--6~s for the neural models (with relative tolerance \(10^{-3}\), and absolute tolerance \(10^{-6}\)).
 \section{Conclusions}
 \noindent This work presented two novel neural ODE-based architectures for modeling the dynamics of memristor devices. The proposed models leverage the power of neural networks to capture complex, nonlinear behaviors inherent in memristive systems, while maintaining the interpretability and physical consistency afforded by the ODE framework.
 The proposed models were applied for modeling of real Self-Directed Channel (SDC) memristors. 
@@ -449,7 +448,7 @@ The findings of this study underscore the potential of neural ODEs as a versatil
 Developed methods pave the way to more accurate and efficient simulation tools, facilitating advancements in memristor technology and its integration into emerging computing paradigms, and open avenues for future research in data-driven modeling of nonlinear dynamical systems.
 
 
-
+\newpage
 \bibliographystyle{IEEEtran} % added %ZG
 \bibliography{bibliography} % added %ZG
 
