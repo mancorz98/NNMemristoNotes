@@ -381,28 +381,62 @@ Representative test results are shown in Fig.~\ref{fig:sample-results} for sinus
   \label{fig:sample-results}
 \end{figure}
 \renewcommand{\subwidth}{\linewidth}
-\begin{figure}[httbp]
+
+\begin{table}
+  \caption{Comparative analysis of the loss function \(\LossBase\). Values are reported for different supply voltage amplitudes \(\Vs\) and frequencies \(f_s\). Row-wise minimum and maximum loss values are color-coded in green and red, respectively. Records belonging to the validation dataset are marked by bounding boxes. }
+  \label{tab:mms_comp}
   \centering
-  \subfloat[\label{1a2}]{
-    \includegraphics[width=\subwidth]{mms_results/loss_per_freq_Single-NN-MemODE.pdf}%
-  }
-
-  \subfloat[\label{1b2}]{
-    \includegraphics[width=\subwidth]{mms_results/loss_per_freq_Dual-NN-MemODE.pdf}%
-  }
-
-  \subfloat[\label{1c2}]{
-    \includegraphics[width=\subwidth]{mms_results/loss_per_freq_MMS Model.pdf}%
-  }
-  
-  \subfloat[\label{1d2}]{
-    \includegraphics[width=\subwidth]{mms_results/loss_per_freq_GMMS Model.pdf}%
-  }
-  \caption{Comparative analysis of the loss function \(\LossBase\):
-    (a) the \MemODEOne\ model, (b) the \MemODETwo\ model, (c) the MMS model, (d) the GMMS model.
-    Results for voltage amplitudes \(\Vs =0.5, 1.0, 1.5\rm \ V\) are plotted in red (\redbar{}), blue (\bluebar{}) and green (\greenbar{}), respectively.}
-  \label{fig:comparison_mms}
-\end{figure}
+  \begin{tabular}{c|cccc}
+    \toprule
+    \multicolumn{5}{c}{\textbf{Loss function values for \(\Vs  = 0.5 \rm \ V\)}}  \\
+    \midrule
+    \(f_s\) [Hz] & \makecell{SingleNN-\\MemODE} & \makecell{DualNN-\\ MemODE} & \makecell{GMMS\\Model} & \makecell{MMS\\Model}\\
+    \midrule
+\textbf{1} & \(9.31 \mtimes 10^{-3}\) & \color{ieeegreen} \bfseries \(1.22 \mtimes 10^{-3}\) & \color{ieeered} \bfseries \(3.94 \mtimes 10^{-2}\) & \(2.43 \mtimes 10^{-2}\) \\
+\cline{1-5}
+\multicolumn{1}{|c|}{\textbf{5}} &  \color{ieeegreen} \bfseries \(3.40 \mtimes 10^{-3}\)  &  \(6.43 \mtimes 10^{-3}\)  &  \color{ieeered} \bfseries \(2.97 \mtimes 10^{-2}\)  & \multicolumn{1}{c|}{\(1.46 \mtimes 10^{-2}\) } \\
+\cline{1-5}
+\textbf{10} & \(3.05 \mtimes 10^{-3}\) & \color{ieeegreen} \bfseries \(2.13 \mtimes 10^{-3}\) & \color{ieeered} \bfseries \(2.85 \mtimes 10^{-2}\) & \(2.60 \mtimes 10^{-2}\) \\
+\textbf{20} & \(3.79 \mtimes 10^{-3}\) & \color{ieeegreen} \bfseries \(1.02 \mtimes 10^{-3}\) & \(3.25 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(1.14 \mtimes 10^{-1}\) \\
+\textbf{50} & \(2.03 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(5.60 \mtimes 10^{-3}\) & \color{ieeered} \bfseries \(3.68 \mtimes 10^{-2}\) & \(3.45 \mtimes 10^{-2}\) \\
+\textbf{100} & \(2.82 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(1.07 \mtimes 10^{-2}\) & \(9.91 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(1.11 \mtimes 10^{-1}\) \\
+    \bottomrule
+  \end{tabular}
+  \begin{tabular}{c|cccc}
+    \toprule
+    \multicolumn{5}{c}{\textbf{Loss function values for \(\Vs  = 1 \rm \ V\)}}    \\
+    \midrule
+    \(f_s\) [Hz] & \makecell{SingleNN-\\MemODE} & \makecell{DualNN-\\ MemODE} & \makecell{GMMS\\Model} & \makecell{MMS\\Model}\\ 
+    \midrule
+\cline{1-5}
+\multicolumn{1}{|c|}{\textbf{1}} &  \(5.28 \mtimes 10^{-3}\)  &  \color{ieeegreen} \bfseries \(4.47 \mtimes 10^{-3}\)  &  \(1.30 \mtimes 10^{-2}\)  & \multicolumn{1}{c|}{\color{ieeered} \bfseries \(1.63 \mtimes 10^{-2}\) } \\
+\cline{1-5}
+\textbf{5} & \(8.25 \mtimes 10^{-3}\) & \color{ieeegreen} \bfseries \(2.67 \mtimes 10^{-3}\) & \(1.46 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(1.71 \mtimes 10^{-2}\) \\
+\textbf{10} & \(4.72 \mtimes 10^{-3}\) & \color{ieeegreen} \bfseries \(8.86 \mtimes 10^{-4}\) & \(1.49 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(1.58 \mtimes 10^{-2}\) \\
+\textbf{20} & \(7.77 \mtimes 10^{-3}\) & \color{ieeegreen} \bfseries \(5.53 \mtimes 10^{-3}\) & \(1.88 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(1.90 \mtimes 10^{-2}\) \\
+\textbf{50} & \(3.29 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(7.37 \mtimes 10^{-3}\) & \color{ieeered} \bfseries \(6.29 \mtimes 10^{-2}\) & \(6.22 \mtimes 10^{-2}\) \\
+\cline{1-5}
+\multicolumn{1}{|c|}{\textbf{100}} &  \(4.48 \mtimes 10^{-2}\)  &  \color{ieeegreen} \bfseries \(8.58 \mtimes 10^{-3}\)  &  \color{ieeered} \bfseries \(4.53 \mtimes 10^{-2}\)  & \multicolumn{1}{c|}{\(3.25 \mtimes 10^{-2}\) } \\
+\cline{1-5}
+    \bottomrule
+  \end{tabular}
+  \begin{tabular}{c|cccc}
+    \toprule
+    \multicolumn{5}{c}{\textbf{Loss function values for \(\Vs  = 1.5 \rm \ V\)}}  \\
+    \midrule
+    \(f_s\) [Hz] & \makecell{SingleNN-\\MemODE} & \makecell{DualNN-\\ MemODE} & \makecell{GMMS\\Model} & \makecell{MMS\\Model}\\
+    \midrule
+\textbf{1} & \(1.74 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(2.48 \mtimes 10^{-3}\) & \(1.75 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(4.74 \mtimes 10^{-2}\) \\
+\cline{1-5}
+\multicolumn{1}{|c|}{\textbf{5}} &  \(1.57 \mtimes 10^{-2}\)  &  \color{ieeegreen} \bfseries \(3.60 \mtimes 10^{-3}\)  &  \(2.15 \mtimes 10^{-2}\)  & \multicolumn{1}{c|}{\color{ieeered} \bfseries \(3.71 \mtimes 10^{-2}\) } \\
+\cline{1-5}
+\textbf{10} & \(1.55 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(3.70 \mtimes 10^{-3}\) & \(2.08 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(2.31 \mtimes 10^{-2}\) \\
+\textbf{20} & \(1.32 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(7.93 \mtimes 10^{-3}\) & \(2.07 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(2.41 \mtimes 10^{-2}\) \\
+\textbf{50} & \(1.37 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(8.41 \mtimes 10^{-3}\) & \(1.69 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(4.70 \mtimes 10^{-2}\) \\
+\textbf{100} & \(2.64 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(1.20 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(5.54 \mtimes 10^{-2}\) & \(2.41 \mtimes 10^{-2}\) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \subsection{Comparative Analysis with the MMS and GMMS Models}
 
