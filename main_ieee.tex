@@ -382,6 +382,13 @@ Representative test results are shown in Fig.~\ref{fig:sample-results} for sinus
 \end{figure}
 \renewcommand{\subwidth}{\linewidth}
 
+
+
+\subsection{Comparative Analysis with the MMS and GMMS Models}
+
+\noindent The proposed models are compared against the MMS~\cite{Minati2020} and GMMS~\cite{Ostrovskii2021} models, which serve as established benchmarks for SDC memristor simulation~\cite{Bednarz2024}. Fig.~\ref{fig:comparison_mms} presents a comparative analysis of the loss functions \(\LossBase\) obtained for the proposed and existing models, offering a quantitative assessment of their performance. The results highlight the neural network’s enhanced capability to reproduce complex and subtle aspects of memristor dynamics that are insufficiently captured by the phenomenological MMS/GMMS framework.
+
+
 \begin{table}
   \caption{Comparative analysis of the loss function \(\LossBase\). Values are reported for different supply voltage amplitudes \(\Vs\) and frequencies \(f_s\). Row-wise minimum and maximum loss values are color-coded in green and red, respectively. Records belonging to the validation dataset are marked by bounding boxes. }
   \label{tab:mms_comp}
@@ -437,10 +444,6 @@ Representative test results are shown in Fig.~\ref{fig:sample-results} for sinus
     \bottomrule
   \end{tabular}
 \end{table}
-
-\subsection{Comparative Analysis with the MMS and GMMS Models}
-
-\noindent The proposed models are compared against the MMS~\cite{Minati2020} and GMMS~\cite{Ostrovskii2021} models, which serve as established benchmarks for SDC memristor simulation~\cite{Bednarz2024}. Fig.~\ref{fig:comparison_mms} presents a comparative analysis of the loss functions \(\LossBase\) obtained for the proposed and existing models, offering a quantitative assessment of their performance. The results highlight the neural network’s enhanced capability to reproduce complex and subtle aspects of memristor dynamics that are insufficiently captured by the phenomenological MMS/GMMS framework.
 
 
 
