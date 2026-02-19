@@ -17,7 +17,6 @@
 \usepackage{verbatim}
 \usepackage{balance}
 
-%\usepackage[extract=python]{memoize} %ZG
 % -- ADDED PACKAGES  after memoize --
 \usepackage{graphicx}
 \usepackage{circuitikz}
@@ -26,6 +25,7 @@
 \usepackage{pgfplots}
 \usepackage{booktabs}
 \usepackage{makecell}
+\usepackage{adjustbox}
 
 
 
@@ -124,8 +124,10 @@
 %ZG2 added next lines
 \newcommand{\MemODEOne}{SingleNN-MemODE}
 \newcommand{\MemODETwo}{DualNN-MemODE}
+\newcommand{\MemODE}{MemODE}
 \newcommand{\MSE}{\mathrm{MSE}}
 \newcommand{\NMSE}{\mathrm{NMSE}}
+\newcommand{\NTraj}{M}
 
 
 \newcommand{\redbar}{\protect\tikz[baseline=-0.1ex]\fill[ieeered] (0,0) rectangle (0.8em,1.2ex);}
@@ -134,12 +136,12 @@
 \newcommand{\mtimes}{\!\times\!}
 
 %ZG commented out
-%\usepackage[ 
+% \usepackage[ 
 %  backend=biber,
 %  style=ieee,
 %  minnames=1,
 %  maxcitenames=2, maxbibnames=6
-%]{biblatex}
+% ]{biblatex}
 
 %\addbibresource{bibliography.bib} %ZG
 
@@ -147,8 +149,7 @@
 \hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
 
 
-\begin{document}
-\title{Neural ODE based modeling of memristive devices}
+\begin{document}\title{Neural ODE based modeling of memristive devices}
 \author{Karol Bednarz, Bartłomiej Garda, Zbigniew Galias,~\IEEEmembership{Senior Member,~IEEE} %ZG
   \thanks{Manuscript received Month ??, 2026. This work was supported by the National Science Centre, Poland under Grant 2024/53/B/ST7/03841.}
   \thanks{The authors are with the Department of Electrical Engineering, AGH University of Krak\'ow, al. Mickiewicza 30, 30--059, Krak\'ow, Poland, (e-mail: kbednarz@agh.edu.pl).} %ZG
@@ -160,58 +161,35 @@
 \maketitle
 
 \begin{abstract}
-  The development of modern memristive technologies requires accurate dynamic models to enable reliable simulation and prototyping in applications such as resistive RAM, neural networks, and neuromorphic computing. Existing symbolic models often exhibit limitations in accurately capturing the complex dynamic behavior of physical devices across various operating conditions, impacting their reliability in simulations. This work proposes a neural-network-based modeling of real memristors behaviour using Neural Ordinary Differential Equation (Neural ODE) models. Prior neural-network-based studies were limited by training data derived solely from theoretical models, preventing reliable assessment on real devices. The proposed method leverages a backpropagation technique based on solving the corresponding adjoint ODE backward in time using adjoint sensitivity methods. Experimental data obtained directly from Self-Directed Channel (SDC) memristors are used to train and validate the model. Results show that the Neural ODE approach more accurately reproduces the device’s dynamic characteristics and provides improved flexibility and robustness compared to traditional theoretical models. These findings demonstrate the feasibility of Neural ODE–based frameworks for data-driven modeling of a broad class of physical memristive devices. %ZG
+  The development of modern memristive technologies requires accurate dynamic models to enable reliable simulation and prototyping in applications such as resistive RAM, neural networks, and neuromorphic computing. Existing symbolic models often exhibit limitations in accurately capturing the complex dynamic behavior of physical devices across various operating conditions, impacting their reliability in simulations. This work proposes a neural-network-based modeling of memristor's behaviour using Neural Ordinary Differential Equation (Neural ODE) models. The proposed method employs the backpropagation technique based on solving the corresponding adjoint ODE backward in time using adjoint sensitivity methods. Experimental data obtained directly from Self-Directed Channel (SDC) memristors are used to train and validate the model. Results show that the Neural ODE approach more accurately reproduces the device’s dynamic characteristics and provides improved flexibility and robustness compared to traditional theoretical models. Feasibility of Neural ODE–based frameworks for data-driven modeling of a broad class of physical memristive devices is demonstrated.
 \end{abstract}
-
 \begin{IEEEkeywords}
   Memristor modeling, artificial neural network, neural ODE. %ZG
 \end{IEEEkeywords} 
 
 % \listoftodos %KB
 \section{Introduction}
-\IEEEPARstart{N}{umerous} memristor models have been proposed in the scientific literature following the discovery of memristive behavior at the nanoscale. The original model, introduced in~\cite{Strukov2008}, conceptualizes the memristor as a series connection of two variable resistances corresponding to the conductive and insulating regions of the thin film. 
+\IEEEPARstart{N}{umerous} memristor models have been proposed following the discovery of memristive behavior at the nanoscale~\cite{Strukov2008}. Physics-based approaches range from generalized device models capturing threshold-dependent switching~\cite{Yakopcic2011,Kvatinsky2013, Kvatinsky2015} to compact representations of RRAM structures such as the Stanford model~\cite{guan2012spice, di2022oscillatory}, flux-charge formulations for phase-change memory devices~\cite{Secco2018}, and voltage-controlled threshold models suited for synaptic circuit design~\cite{Zhang2017}.  For Self-Directed Channel (SDC) memristors specifically, the Generalized Metastable Switch (GMS) model~\cite{Molter2016} and its derivatives---the Mean Metastable Switch (MMS)~\cite{Minati2020} and Generalized MMS (GMMS)~\cite{Ostrovskii2021}---provide semi-empirical formulations based on transition probabilities between metastable states. Memristive elements are also widely employed in chaotic systems, where they face similar modeling challenges, such as Hopfield neural networks designed to generate multi-scroll attractors through offset boosting techniques~\cite{Li2025}. Despite their widespread adoption, these symbolic models share common limitations: they require extensive parameter tuning, employ window functions that introduce numerical discontinuities~\cite{CorintoBoundaryConditionModelingMemristor,Galias2019,Slipko2021}, and exhibit limited generalization when operating conditions deviate from calibration regimes~\cite{Linn2014, Galias2018}. Furthermore, while physics-based models  offer high accuracy, their mathematical complexity hinders large-scale circuit simulation, motivating efforts toward explicit reformulations~\cite{Ntinas2022}. Approximated linear models implemented in Verilog-A have also been proposed to reduce computational cost while preserving the ability to capture parasitic effects in crossbar memory arrays~\cite{Lupo2019}. A recent attempt to address these issues using Physics-Informed Neural Networks~\cite{Lee2024} demonstrated the potential of data-driven approaches, but relied solely on synthetic data generated from existing theoretical models rather than physical device measurements.
 
-Yakopcic et al.~\cite{Yakopcic2011} developed a generalized memristor device model that captures the hyperbolic sine I-V relationship arising from metal-insulator-metal (MIM) structures, while incorporating voltage-dependent programming thresholds and polarity-asymmetric dynamics.  In \cite{Kvatinsky2013}, the authors proposed the \textit{TEAM} (ThrEshold Adaptive Memristor) model, which introduces a threshold-based approach to capture the switching behavior of memristors. The model defines distinct voltage thresholds for the SET and RESET operations, allowing for more accurate representation of the device's non-linear dynamics during state transitions. In \cite{Kvatinsky2015}, the \textit{VTEAM} (Voltage ThrEshold Adaptive Memristor) model extends the TEAM framework by incorporating voltage-dependent dynamics, enabling improved modeling of memristor behavior under varying voltage conditions. Both models have been widely adopted for simulating memristive devices in various applications.
+In~\cite{Ricky2018}, the authors introduced Neural Ordinary Differential Equations (Neural ODEs), where hidden-state dynamics are governed by an ODE with a neural network defining the vector field. Training is performed end-to-end using adjoint sensitivity methods for efficient gradient computation.
 
-Among models widely used for practical memristive devices is the Stanford model~\cite{sheridan2011device, guan2012spice,
-%  jiang2014verilog,
-chen2015compact, di2022oscillatory}, which provides a physics-based compact representation of bipolar resistive random access memory (RRAM) structures incorporating metal-oxide layers. Being an extended memristor formulation, this framework successfully describes the nonlinear resistive switching dynamics observed across a diverse range of device implementations, particularly capturing critical phenomena such as apparent threshold behavior, temporal voltage-dependent switching characteristics, and multilevel conductance programming capabilities. Alternative modeling approaches have been developed to capture memristive behavior through different mathematical frameworks. The data-driven stochastic model~\cite{xie2024data} addresses programming uncertainty by incorporating real-time randomness into resistance evolution, determined through extensive characterization of data using the data-driven methodology. Efficient implementations have demonstrated voltage-based state control approaches that capture nonlinear characteristics while maintaining flexibility across different device types~\cite{wang2017efficient}. For integration into circuit simulation environments, modified nodal analysis (MNA) formulations~\cite{kahale2021memristor} provide automated and flexible modeling techniques that preserve the advantages of traditional circuit analysis methods, including sparsity and generality across various simulation types. Parameter extraction methodologies~\cite{yakopcic2019memristor} have further advanced model optimization by enabling automatic fitting to device characterization data, thereby streamlining the modeling workflow for experimenters working with tantalum oxide and other memristive devices.
+This paper proposes two Neural ODE architectures for modeling memristive devices trained directly on experimental data from SDC memristors. The first, \textbf{\MemODEOne}, uses a physics-informed memductance with a neural network modeling only the state dynamics. The second, \textbf{\MemODETwo}, employs neural networks for both memductance and state dynamics, enabling a higher-dimensional latent representation. We demonstrate that both models  outperform the MMS and GMMS benchmarks in prediction accuracy while maintaining comparable or shorter training times.
 
-The Generalized Metastable Switch (GMS) model~\cite{Molter2016} provides enhanced accuracy in modeling Self-Directed Channel (SDC) memristors through a semi-empirical formulation where state variable dynamics depend on transition probabilities between metastable states. However, such symbolic models exhibit limited generalization capability when driving signal parameters vary, posing challenges for applications with highly dynamic operating conditions such as memristor-based chaotic oscillators~\cite{Galias2018}. 
-
-To address these limitations, Minati et al.~\cite{Minati2020} introduced the Mean Metastable Switch (MMS) model, which simplifies the GMS framework by computing the derivative of the internal state variable through linear interpolation of mean values obtained from Gaussian sampling of each probabilistic function, while eliminating the Schottky effect to preserve model simplicity. Subsequently, this approach was extended in the Generalized Mean Metastable Switch (GMMS) model~\cite{Ostrovskii2021, LagunaSanchez2023}, which reincorporates the Schottky diode effect originally described in the GMS formulation.
-
-Numerical simulation of memristors with bounded state variables presents additional computational challenges. Window functions~\cite{Yakopcic2011,Kvatinsky2013} employed to constrain internal state variables within physically admissible limits introduce discontinuities in the governing differential equations, which can generate numerical artifacts when standard integration methods are applied. Boundary condition-based model for studying memristor nanostructures was proposed in~\cite{CorintoBoundaryConditionModelingMemristor}. A Poincaré map approach~\cite{Galias2019} partitions the state space into smooth regions to enable accurate trajectory computation across discontinuity boundaries.
-
-In~\cite{Lee2024}, the authors attempted to model memristive behavior using the Physics-Informed Neural Networks (PINNs) framework. Although the reported results indicate the potential of this method, the study is not grounded in experimental measurements of physical memristor devices. Instead, the analysis is limited to comparisons with the outcomes of existing simulation models. Moreover, the training data employed during the neural network learning process were generated based on previously developed theoretical models, thereby limiting the ability to assess the method's accuracy in the context of real-world physical systems.
-
-
-In~\cite{Ricky2018}, the authors introduce the concept of deep neural models in which the dynamics of the hidden state of a dynamical system is governed by an ordinary differential equation (ODE). The training process is performed in an end-to-end manner, meaning that all parameters are optimized simultaneously within a single training procedure. A key innovation of the proposed approach is a novel backpropagation technique, which relies on solving the corresponding adjoint ODE backward in time using adjoint sensitivity methods. This formulation enables efficient gradient computation and facilitates the application of neural ODEs in various architectures, including continuous-depth residual networks and generative flow-based models.
-
-
-
-This paper investigates the application of artificial neural networks to the modeling and characterization of memristive devices, with particular emphasis on data-driven approaches that leverage experimental measurements from physical systems. While numerous physics-based analytical models have been developed to capture memristor dynamics, these approaches often require extensive parameter tuning and may exhibit limited accuracy when device behavior deviates from idealized assumptions. To address these limitations, we propose and evaluate Neural Ordinary Differential Equation (Neural ODE) frameworks as an alternative method for
-memristor modeling. The proposed approach is applied to modeling Self-Directed Channel (SDC) memristors.
-
-The primary objective of this study is threefold: first, to assess whether neural network-based models can accurately reproduce the dynamic I-V characteristics and internal state evolution of SDC memristors across diverse operating conditions; second, to evaluate the generalization capability of trained neural models when applied to input signals outside the training distribution; and third, to provide a systematic comparison with established theoretical models in terms of prediction accuracy, computational efficiency, and practical applicability to circuit simulation scenarios. Through comprehensive experimental validation using measurements from physical devices, we demonstrate the feasibility and effectiveness of Neural ODE models for memristor characterization, highlighting their potential as complementary tools to traditional physics-based modeling approaches in the design and analysis of memristive circuits and neuromorphic computing systems.
-
-
-The remaining part of this paper is organized as follows. In Sec.~\ref{sec:NNModeling}, the neural network architecture is presented and two neural network-based models (SingleNN-MemODE and DualNN-MemODE) are proposed. The objective function defining the optimization problem to be solved is defined and existing memristors models used for comparison are briefly described. In Sec.~\ref{sec:results}, proposed models are trained using experimental data to obtain accurate models of real SDC memristors. The results are compared with the results obtained using existing methods. The influence of hyperparameters of the proposed methods on their performance is discussed. The last section concludes the study.
-
+The remaining part of this paper is organized as follows. In Sec.~\ref{sec:NNModeling}, the proposed neural network architectures are presented along with the objective function and the reference models used for comparison. In Sec.~\ref{sec:results}, the models are trained on experimental data from SDC memristors and the results are compared with existing methods. The last section concludes the study.
 \section{Modeling Memristors using Neural Networks}
 \label{sec:NNModeling}
-
-\noindent This study utilizes experimental data obtained from Self-Directed Channel (SDC) memristors doped with tungsten. The structure and properties of these devices have been described in detail in the literature, e.g., in~\cite{Campbell2017,Garda2024}.
+\noindent This study utilizes experimental data obtained from Self-Directed Channel (SDC) memristors doped with tungsten. The structure and properties of these devices have been described in detail in the literature, e.g., in~\cite{Campbell2017}.
 
 The experimental setup, illustrated in Fig.~\ref{fig:memristor_setup}, consists of an SDC memristor connected in series with a resistor. The sinusoidal input voltage is supplied by an arbitrary waveform generator. Voltage signals are measured using a data acquisition (DAQ) system.
 %
 Measurements are carried out for the following combinations of supply voltage amplitudes and frequencies: \(\Vs  \in \{0.5,\ 1.0,\ 1.5\}~[{\rm V}]\), \(f \in \{1,\ 5,\ 10,\ 20,\ 50,\ 100\}~[\rm Hz]\).
 
 
-\begin{figure}[!t]
+\begin{figure}[httbp]
   \centering
-  \resizebox{2.5in}{!}{\input{graphs/schematic.tex}}
-  \vspace{-0.5in}
+  \begin{adjustbox}{clip, trim=0pt 1.9cm 0pt 0pt, max width=2.5in}
+    \input{graphs/schematic.tex}
+  \end{adjustbox}
   \caption{Schematic diagram of the measurement setup used for the SDC memristor. The device is connected in series with a resistor, and the input voltage is applied via an arbitrary waveform generator. Voltage measurements are acquired using a data acquisition (DAQ) system.}
   \label{fig:memristor_setup}
 \end{figure}
@@ -229,158 +207,75 @@ where \(\xvec\) denotes the vector of internal state variables, whose temporal e
 
 
 \subsection{Objective Function}
-\noindent The objective function \(\Loss\) to be minimized in the optimization process is based on trajectories generated by the dynamical system. It is designed to simultaneously account for both the signal values and its dynamic structure. To this end, it is defined as the sum of four components, each serving a distinct and complementary role in the optimization process
+\noindent The objective (loss) function \(\Loss\) has four components
 \begin{align}
-  \Loss & = \lambda_{\rm base} \LossBase + \lambda_{\rm vel} \LossVel + \lambda_{\rm curv} \LossCur + \sum^{N_c}_{i=1} \lambda_{{\rm con}_i} \Loss_{{\rm con}_i}(x).\label{eq:loss_function}
+  \Loss & = \lambda_{\rm base} \LossBase + \lambda_{\rm vel} \LossVel + \lambda_{\rm curv} \LossCur + \sum^{N_c}_{i=1} \lambda_{{\rm con}_i} \Loss_{\rm con}(x_i).\label{eq:loss_function}
 \end{align}
-The first term \(\LossBase\) denotes the primary error computed as the mean squared error (MSE) between predicted and reference values. \(\LossVel\) enforces accurate modeling of derivatives of state variables, \(\LossCur\) promotes consistency of the trajectories in terms of their curvature by computing MSE of second derivatives, and \(\Loss_{\rm con}(x)\) enforces fulfillment of physical or structural constraints that the model is required to satisfy, including conformity to the underlying physical model.
-The weighting coefficients \(\lambda_{\mathrm{base}}\), \(\lambda_{\mathrm{vel}}\), and \(\lambda_{\mathrm{curv}}\) balance the influence of each term according to the priorities of the modeling task.
-Their values are calculated during each optimization step using the Geometric Loss Strategy (GLS)~\cite{Cipolla2018, Chen2018} using the Algorithm~\ref{alg:adaptive_loss_balancing}.
+The terms \(\LossBase\), \(\LossVel\), and \(\LossCur\) represent the NMSE (\textit{Normalized Mean Squared Error}) of signal values, first derivatives, and second derivatives, respectively, between predicted and measured trajectories. The terms \(\Loss_{\rm con}(x_i)\) enforces physical constraints. The weighting coefficients are computed at each step using the Geometric Loss Strategy (GLS)~\cite{Cipolla2018}.
 
-\begin{algorithm}[!t]
-  \caption{Adaptive Loss Balancing with Clamping}
-  \label{alg:adaptive_loss_balancing}
-  \begin{algorithmic}[1]
-    \REQUIRE Loss terms \(\LossBase, \LossVel, \LossCur\), \(\varepsilon > 0\), bounds \([\lambda_{\min}, \lambda_{\max}]\)
-    \ENSURE Adaptive weights \(\lambda_{\text{base}}, \lambda_{\text{vel}}, \lambda_{\text{curv}}\)
-    \STATE Compute the geometric mean: \\
-    \(\overline{\Loss} \gets \exp\left(\frac{1}{3} \left(\ln(\LossBase\!+\!\varepsilon)+\ln(\LossVel\!+\!\varepsilon)+\ln(\LossCur\!+\!\varepsilon)\right)\right)\)
-    \STATE \(\lambda_{\text{base}} \gets \text{clamp}(\frac{\overline{\Loss}}{\LossBase + \varepsilon}, \lambda_{\min}, \lambda_{\max})\)
-    \STATE \(\lambda_{\text{vel}} \gets \text{clamp}(\frac{\overline{\Loss}}{\LossVel + \varepsilon}, \lambda_{\min}, \lambda_{\max})\)
-    \STATE \(\lambda_{\text{curv}} \gets \text{clamp}(\frac{\overline{\Loss}}{\LossCur + \varepsilon}, \lambda_{\min}, \lambda_{\max})\)
-    \STATE \textbf{return} \((\lambda_{\text{base}}, \lambda_{\text{vel}}, \lambda_{\text{curv}})\)
-  \end{algorithmic}
-\end{algorithm}
-
-Let us consider two sequences \(z_k=(z_{k,\sind})_{\sind=1}^{\snum}\) and \(\tilde{z}_k=(\tilde{z}_{k,\sind})_{\snum=1}^{\snum}\), where \(z \in \{v,i,\dot{v},\dot{i},\ddot{v},\ddot{i}\}\) is a selected variable (voltage or current) or its derivative obtained from measurements, \(\tilde{z}\) is the predicted value of \(z\), \(\snum\) is the number of samples and \(k = 1,2,\ldots, N_{\text{traj}}\) is the sequence index.
-The sequences are normalized utilizing the standard deviation to ensure statistical consistency within each dataset.
-The trajectory-specific standard deviation is calculated using the unbiased estimator
+Let \(z_k=(z_{k,\sind})_{\sind=1}^{\snum}\) and \(\tilde{z}_k=(\tilde{z}_{k,\sind})_{\sind=1}^{\snum}\) denote measured and predicted sequences for variable \(z \in \{v,i,\dot{v},\dot{i},\ddot{v},\ddot{i}\}\), where \(k = 1,\ldots, \NTraj\) is the trajectory index and \(\snum\) is the number of samples.
+The normalized mean squared error is
 \begin{equation}
-  \sigma_{z,k} = \sqrt{\frac{1}{\snum-1} \sum_{\sind=1}^{\snum} \left(z_{k,\sind} - \bar{z}_k\right)^2},
+  \NMSE(z,\tilde{z})=\frac{1}{\NTraj}\sum_{k=1}^{\NTraj}\frac{1}{\snum}\sum_{\sind=1}^{\snum}\left(\frac{{z}_{k,\sind}}{\sigma_{z,k}} -\frac{\tilde{z}_{k,\sind}}{\sigma_{z,k}}\right)^2,
 \end{equation}
-where the trajectory temporal mean is defined as \(\bar{z}_k = \frac{1}{\snum} \sum_{\sind=1}^{\snum} z_{k,\sind}\).
-
-By implementing trajectory-specific normalization rather than global standardization, the methodology preserves the inherent temporal dynamics and statistical properties unique to each circuit configuration while simultaneously ensuring that amplitude disparities do not introduce systematic bias during predictive modeling procedures.
-This approach is particularly advantageous in scenarios involving varying operational conditions, where maintaining the relative temporal structure is paramount for accurate system identification and dynamic analysis.
-The normalized mean squared error between sequences \(({z}_{k,\sind})_{\sind=1}^{\snum}\) and \((\tilde{z}_{k,\sind})_{\sind=1}^{\snum}\) is defined as
+where normalization by the per-trajectory standard deviation \(\sigma_{z,k}\) prevents amplitude disparities from biasing the optimization.
+The components of the objective function \(\Loss\) are
+\begin{subequations}
+\begin{align}
+  \LossBase = \NMSE(v,\tilde{v})+\NMSE(i,\tilde{i}), \label{eq:base_loss}\\
+  \LossVel = \NMSE(\dot{v},\tilde{\dot{v}})+\NMSE(\dot{i},\tilde{\dot{i}}), \label{eq:loss_v}\\
+  \LossCur = \NMSE(\ddot{v},\tilde{\ddot{v}})+\NMSE(\ddot{i},\tilde{\ddot{i}}). \label{eq:loss_c}
+\end{align}
+\end{subequations}
+The loss term for the inequality constraint \(x>a\) is
 \begin{equation}
-%  \NMSE(z_k,\tilde{z}_k)=\MSE\left(\frac{z_k}{\sigma_{z,k}},\frac{\tilde{z}_k}{\sigma_{z,k}}\right)=\frac{1}{\snum}\sum_{\sind=1}^{\snum}\frac{({z}_{k,\sind}\!-\!\tilde{z}_{k,\sind})^2}{\sigma_{z,k}^2}.\\
-  \NMSE(z_k,\tilde{z}_k)=\MSE\left(\frac{z_k}{\sigma_{z,k}},\frac{\tilde{z}_k}{\sigma_{z,k}}\right)=\frac{1}{\snum}\sum_{\sind=1}^{\snum}\left(\frac{{z}_{k,\sind}}{\sigma_{z,k}} -\frac{\tilde{z}_{k,\sind}}{\sigma_{z,k}}\right)^2.
-\end{equation}
-
-
-The primary component of the loss function is responsible for model fitting to experimental voltage-current data:
-
-\begin{equation}
-  \LossBase = \frac{1}{N_{\text{traj}}} \sum_{k=1}^{N_{\text{traj}}}\left(\NMSE(v_k,\tilde{v}_k)+\NMSE(i_k,\tilde{i}_k)\right),\\
-  \label{eq:base_loss}
-\end{equation}
-where \(\tilde{v}_{k}\) and \(\tilde{i}_{k}\) represent the predicted voltage and current for the \(k\)th trajectory, while \(v_{k}\) and \(i_{k}\) denote the corresponding experimental measurements.
-
-
-The first-order dynamics comparison \(\LossVel\) enables evaluation of temporal derivative agreement between model predictions and experimental data, particularly critical for capturing rapid memristor state transitions
-\begin{equation}
-  \LossVel = \frac{1}{N_{\text{traj}}} \sum_{k=1}^{N_{\text{traj}}}\left(\NMSE(\dot{v}_k,\tilde{\dot{v}}_k)+\NMSE(\dot{i}_k,\tilde{\dot{i}}_k)\right). 
-  \label{eq:loss_v}
-\end{equation}
-
-The second-order comparison term \(\LossCur\) addresses trajectory curvature characteristics
-\begin{equation}
-  \LossCur = \frac{1}{N_{\text{traj}}} \sum_{k=1}^{N_{\text{traj}}}\left(\NMSE(\ddot{v}_k,\tilde{\ddot{v}}_k)+\NMSE(\ddot{i}_k,\tilde{\ddot{i}}_k)\right). 
-  \label{eq:loss_c}
-\end{equation}
-This component facilitates superior representation of curvature properties within the phase-space trajectory, particularly important for modeling systems exhibiting complex nonlinear and highly dynamic responses.
-
-
-To enforce parameter bounds within specified intervals, a sophisticated constraint loss function utilizing smooth sigmoid transitions is implemented. This component prevents parameter drift beyond physically meaningful ranges while maintaining differentiability for gradient-based optimization algorithms. The constraint loss for the admissibility interval \(x\in[a,b]\) is expressed as:
-%ZG \sigma used in the next equation, merged two lines into one
-\begin{equation}
-  \Loss_{\rm con}(x) = \mathbb{E}\left[ {\sigma\left(\tfrac{a-x}{\gamma}\right)}(a-x)^{2}+{\sigma\left(\tfrac{x-b}{\gamma}\right)}(x-b)^{2}\right],
+  \Loss_{\rm con}(x) = \mathbb{E}\left[ {\sigma\left((a-x)\gamma\right)}(a-x)^{2}\right],
   \label{eq:loss_con}
 \end{equation}
-where \(\sigma(z) = (1+e^{-z})^{-1} \) is the sigmoid function, \(a\) and \(b\) denote the lower and upper bounds of the admissible parameter range,
-\(\gamma\) is a scaling factor controlling the steepness of the transition near the bounds, and
-\(\mathbb{E}[\cdot]\) denotes the expected value (ensemble average over samples or trajectories).
-The term \(\sigma((a-x)/\gamma)(a-x)^2\) penalizes values of \(x\) below the lower bound \(a\),
-while the term \(\sigma((x-b)/\gamma)(x-b)^2\) penalizes values of \(x\) above the upper bound \(b\).
-Squaring ensures that the penalty is non-negative and grows quadratically with the violation magnitude.
+where \(\mathbb{E}[\cdot]\) denotes the ensemble average. The smooth sigmoid transition \(\sigma(z) = (1+e^{-z})^{-1}\) is used to maintain differentiability. The parameter \(\gamma=400\) controls the transition steepness.
 
-The operational characteristics of the constraint function \(\Loss_{\rm con}(x)\) are illustrated in Fig.~\ref{fig:constrains} for the parameter configuration: \(a=0\), \(b=1\), \(\gamma=0.0025\) over the domain \(x \in (-0.5, 1.5)\).
-The function \(\Loss_{\rm con}(x)\) exhibits minimal penalty in the region \(x\in(0,1)\) and progressively increasing penalties as the parameter \(x\) exceeds the boundary limits.
-
-\begin{figure}[!t]
-  \centering
-  \resizebox{2.5in}{!}{%
-    \input{graphs/constraints.tex}
-  }
-  %ZG modified caption
-  \caption{The constraint function \(\Loss_{\rm con}(x)\) for \(a=0\), \(b=1\), \(\gamma=0.0025\).}
-  \label{fig:constrains}
-\end{figure}
 
 \subsection{Neural ODE based Memristor Modeling}
 
-\noindent In this study, two neural network-based modeling approaches are proposed. The first one, denoted as \textbf{\MemODEOne}, employs a deterministic formulation of the memristor memductance \(\G\), while the function \(f\) defining the dynamics of internal variables is modeled using a neural network (see Fig.~\ref{fig:nn_structure}). In the second one, referred to as \textbf{\MemODETwo}, both \(\G\) and \(f\) are modeled using neural networks (see Fig.~\ref{fig:nn_structure_dual}).
+\noindent In this study, two neural network-based modeling approaches are proposed called. The first one, denoted as \textbf{\MemODEOne}, employs a deterministic formulation of the memristor memductance \(\G\), while the function \(f\) defining the dynamics of internal variables is modeled using a neural network. In the second one, referred to as \textbf{\MemODETwo}, both \(\G\) and \(f\) are modeled using neural networks. The conceptual architecture of the proposed approaches is illustrated in Fig.~\ref{fig:nn_structure}.
 
 \begin{figure}[htbp]
   \centering
-  \resizebox{\columnwidth}{!}{%
-    \input{tex_figures/single_MemODE.tex}
-  }
-  \caption{The \MemODEOne\ approach. The artificial neural network (ANN) evaluates the function \(f\!(x,v)\), which is then integrated by the ODE solver to predict the state at the next time step \(x(t + \Delta t)\). The upper dashed feedback loop indicates the recurrent nature of the process, where the output state is fed back as input for subsequent predictions. The memductance \(\Gm(x)\) is defined using a deterministic function based on the internal variable~\(x\). The function \(h(\G, v_s(t))\) computes the memristor voltage \(\vm\) given the memductance \(\G\) and supply voltage \(v_s(t)\).
+  \begin{adjustbox}{clip, trim=0pt 0pt 0pt 1.4cm, max width=\columnwidth}
+    \input{tex_figures/general_MEMODE.tex}
+  \end{adjustbox}
+  \caption{The \MemODE\ approach. The artificial neural network (ANN) evaluates the function \(f\!(x,v)\), which is then integrated by the ODE solver to predict the state at the next time step \(x\!(t + \Delta t)\). The upper dashed feedback loop indicates the recurrent nature of the process, where the output state is fed back as input for subsequent predictions. The memductance \(\Gm\) is defined as the function \(g\) which is a deterministic function based on the internal variable~\(x\) (\MemODEOne) or the neural network with the input \(\mathbf{x}\!(t)\) (\MemODETwo). The function \(h\!(\G, v_s\!(t))\) computes the memristor voltage \(\vm\) given the memductance \(\G\) and supply voltage \(v_s\!(t)\).
   }
   \label{fig:nn_structure}
 \end{figure}
 
-\begin{figure}[htbp]
-  \centering
-  \resizebox{\columnwidth}{!}{%
-    \input{tex_figures/dual_MemODE.tex}
-  }
-  \caption{The \MemODETwo\ approach. The the artificial neural network (ANN) evaluates the function \(f(\mathbf{x},v)\), which is then integrated by the ODE solver to predict the state at the next time step \(\mathbf{x}(t\!+\!\Delta t)\). The second ANN models the  memductance \(\Gm(\mathbf{x})\) based on \(\mathbf{x}(t\!+\!\Delta t)\). The function \(h(\G, v_s(t))\) computes the memristor voltage \(\vm\) given the memductance \(\G\) and supply voltage \(v_s(t)\). 
-  }
-  \label{fig:nn_structure_dual}
-\end{figure}
+For the \MemODEOne\ approach, the function \(f\) is implemented using an artificial neural network with a single output. For the \MemODETwo\ approach the number of outputs is equal to the number of internal variables and may be larger than 1.
 
-For the \MemODEOne\ approach, the function \(f\) is implemented using an artificial neural network with a single output. For the \MemODETwo\ approach the number of outputs is equal to the number of internal variables and may be larger than 1. For both cases, the neural network consists of interconnected nodes (neurons) that process information through weighted connections. Each neuron in the network computes its output according to:
+In the \MemODEOne\ approach, the  memductance is defined on the basis of the physical mechanisms underlying self-directed channel (SDC) devices, which is expressed as a function of the internal state variable \(x\) as follows:
 \begin{equation}
-  y_k = \sigma\left(\sum_{i=1}^{M_k} w_{k,i} x_i + b_k\right),
-\end{equation}
-where \(k\) is the neuron's index, \(M_k\) is the number of inputs for the \(k\)th neuron, \(w_{k,i}\) are the weights that determine the strengths of input connections \(x_i\) of the \(k\)th neuron, \(b_k\) is the bias term that provides an adjustable threshold for neuron activation, and \(\sigma\) is the activation function (e.g., sigmoid, ReLU, or tanh) that introduces nonlinearity into the model.
-
-In the \MemODEOne\ approach, the  memductance is defined on the basis of the physical mechanisms underlying self-directed channel (SDC) devices. In such memristors, the resistance evolves as a result of \(\mathrm{Ag^+}\) ions migration and the formation of conductive filaments. Consequently, the device memductance exhibits a continuous transition between different resistance states. This transition can be described as a weighted combination of the limiting resistance values, modulated by the internal variable \(x\)
-\begin{equation}
-  \Gm(x) = \frac{x}{R_{\rm ON}} + \frac{1 - x}{R_{\rm OFF}},
+  \Gm(x) = x/R_{\rm ON} + (1 - x)/R_{\rm OFF},
   \label{eq:conductance}
 \end{equation}
-where \(\Ron\) and \(\Roff\) denote the resistances in the low-resistance and high-resistance states, respectively. During the optimization process, the network parameters (weights \(w_{k,i}\) and biases \(b_k\)) are tuned jointly with the values of \(\Ron\) and \(\Roff\). For this approach the following constraints are applied:
+where \(\Ron\) and \(\Roff\) denote the resistances in the low-resistance and high-resistance states, respectively. During the optimization process, the network parameters (weights \(w_{k,i}\) and biases \(b_k\)) are tuned jointly with the values of \(\Ron\) and \(\Roff\). For this approach five inequality constraints are applied:
 \begin{itemize}
-\item \(R_{\mathrm{ON}} \in (500\Ohm, R_{\mathrm{OFF}})\),
-\item \(R_{\mathrm{OFF}} \in (R_{\mathrm{ON}}, 200\kOhm)\), 
-\item \(x(t) \in (0, 1)\).
+\item \(500\Ohm<R_{\mathrm{ON}}<R_{\mathrm{OFF}}<200\kOhm\),
+\item \(0<x(t)<1\).
 \end{itemize}
-The lower bound for \(R_{\mathrm{ON}}\) and the upper bound for~\(R_{\mathrm{OFF}}\) are based on empirical measurements. Remaining constraints are consequences of physically meaningful values of parameters and variables. 
+Bound for \(R_{\mathrm{ON}}\) and~\(R_{\mathrm{OFF}}\) are based on measurements. Bounds for x(t) are consequences of the selected model. 
 
 In the \MemODETwo approach, the  memductance is modeled using the second neural network. This neural network takes the current state \(\mathbf{x}\) as the input and produces the corresponding memductance \(\Gm(\mathbf{x})\) as the output. The memristor state \(\mathbf{x}\) is not constrained to be one-dimensional, enabling a more flexible representation of the device’s internal dynamics.
 %Moreover, it is not restricted to a physically interpretable range, such as the interval \([0,1]\) in Eq.~\eqref{eq:conductance}.
-The state variables are not restricted to any specific range, and hence no explicit constraints are applied to them. For this approach the only constraint is
+In this approach, the state variables are not restricted to any specific range, and hence only two measurement-based inequality constraint are used: 
 \begin{itemize}
-\item \(\Gm(\mathbf{x}) \in (5\muS, 2\mS)\).
+\item \(5\muS<\Gm(\mathbf{x})<2\mS\).
 \end{itemize}
-These bounds are based on measurements. 
-
-
+%These bounds are based on measurements. 
 
 The learning process involves iteratively adjusting the network parameters to minimize the loss function that quantifies the difference between predicted and target outputs. This is  achieved through backpropagation algorithm combined with the gradient descent optimization, where gradients of the loss function with respect to each parameter are computed and used to update the weights and biases in the direction that reduces the overall error.
 
-
-
-%Conceptual architectures are illustrated in Fig.~\ref{fig:nn_structure} for the \MemODEOne\ and in Fig.~\ref{fig:nn_structure_dual} for the \MemODETwo.
-
-%ZG removed "Design"
 \subsection{Neural Network Architecture}
 \label{sec:nn_architecture}
-\noindent The neural network training is implemented using the \texttt{JAX} library~\cite{jax2018github} for array-oriented numerical computation and \texttt{Equinox}~\cite{kidger2021equinox} for neural network construction in \texttt{Python}. The parameter gradients of the ODE solution are computed using adjoint sensitivity methods~\cite{stumm2010new, Ricky2018}. The \texttt{tsit5} adaptive Runge-Kutta solver~\cite{Tsitouras2011} is employed for its computational efficiency and numerical accuracy, with adaptive step-size control ensuring stable integration during training.
+\noindent The neural network training is implemented using the \texttt{JAX} library~\cite{jax2018github} for array-oriented numerical computation and \texttt{Equinox}~\cite{kidger2021equinox} for neural network construction in \texttt{Python}. The parameter gradients of the ODE solution are computed using adjoint sensitivity methods~\cite{ Ricky2018}. The \texttt{tsit5} adaptive Runge-Kutta solver is employed for its computational efficiency and numerical accuracy, with adaptive step-size control ensuring stable integration during training.
 
 %ZG replaced "embedded error estimation" by "error estimation"
 
@@ -390,108 +285,68 @@ This architectural configuration substantially decreases the overall number of t
 
 \begin{figure}[ht!]
   \centering
-  \resizebox{2in}{!}{%
+
+  \begin{adjustbox}{clip, trim=0pt 0pt 0pt 0.11cm, max width=\columnwidth}
     \input{graphs/neuralODE_ver.tex}
-  }
-  
+  \end{adjustbox}
   \caption{Architecture of the feedforward neural network used within the Neural ODE framework for memristor dynamics modeling. The network consists of an input layer receiving two inputs, multiple hidden layers with decreasing-increasing-decreasing neuron counts \(\left(\lfloor N/2 \rfloor, N,\ldots,N, \lfloor N/2 \rfloor\right)\), activation functions between layers, and a single output. The Neural ODE block encompasses the core computational layers that approximate the function \(f(\xw(t), \ua(t))\) of the ODE system.}
 
   \label{fig:nn-arch}
 \end{figure}
 
-Several techniques are tested for the optimization of network weights and the \texttt{Adam} (Adaptive Moment Estimation) optimizer is selected due to its superior performance.
-The choice of an optimizer and its parameters is guided by hyperparameter tuning conducted with the \texttt{Optuna} framework~\cite{Akiba2019}. The hyperparameter search space comprises the learning rate, weight decay, batch size, and architecture parameters like the width and the depth of the neural network.
+Several techniques are tested for the optimization of network weights. The choice of an optimizer and its parameters is guided by hyperparameter tuning conducted with the \texttt{Optuna} framework~\cite{Akiba2019}. The hyperparameter search space comprises the number of hidden layers, the number of neurons per layer, and optimization settings (e.g. the batch size and the learning rate), with the aim of achieving a balance between model accuracy and generalization capabilities.
 The optimal configuration is selected based on minimizing the objective function on the validation set, ensuring that the model generalizes well to unseen data.
-
 \subsection{Existing Memristor Models for Comparison}
 
-\noindent To evaluate the effectiveness of the proposed models, their performance is compared with the performance of two existing memristor models: the Mean Metastable Switch (MMS) model~\cite{Minati2020} and the  Generalized Mean Metastable Switch Memristor (GMMS) model~\cite{Molter2016, Ostrovskii2021}.
-
-
-The MMS model is a simplified representation of memristor's behavior, focusing on the average switching characteristics rather than the detailed dynamics. It captures essential features of the device by describing transitions between the high-resistance state (HRS) and the low-resistance state (LRS) based on the applied voltage. This model describes memristor's dynamics as
-%ZG replaced "on" by "ON" and "off by ""OFF
-%ZG merged three equations into one align environment
+\noindent The proposed models are compared with two established  memristor models. The Mean Metastable Switch (MMS) model~\cite{Minati2020} describes the state dynamics as
 \begin{align}
   \label{eq:mms}
-  \dert{x}       & = \frac{1}{\tau} \left( f_{\rm ON}(\ua) (1-x) - f_{\rm OFF}(\ua) x \right),              \\
-  f_{\rm ON}(\ua)  & = \sigma\left(-\beta (\ua-\von)\right) \label{eq:mms5b},      \\
-  f_{\rm OFF}(\ua) & = 1 - \sigma\left(\beta (\ua-\voff)\right)  \label{eq:mms5c}, 
+  \dert{x}       & = \frac{1}{\tau} \left( f_{\rm ON}(\ua) (1-x) - f_{\rm OFF}(\ua) x \right), \\
+  f_{\rm ON}(\ua)  & = \sigma\left(-\beta (\ua-\von)\right), \label{eq:mms5b} \\
+  f_{\rm OFF}(\ua) & = 1 - \sigma\left(\beta (\ua-\voff)\right), \label{eq:mms5c}
 \end{align}
-where \(\sigma(z) = (1+e^{-z})^{-1}\), \(\beta= \frac{q}{kT}\), \(k\) is the Boltzmann constant, \(T\) is the absolute temperature, \(q\) represents the elementary charge, while \(\von\) and \(\voff\) denote the switching voltages to LRS and HRS states, respectively. The instantaneous memductance is defined in~\eqref{eq:conductance}.
+where \(\sigma(z) = (1+e^{-z})^{-1}\), \(\beta = q/(kT)\), and \(\von\), \(\voff\) are the switching voltages. The memductance is defined by~\eqref{eq:conductance}.
 
-In the GMMS model memristors are represented as a parallel connection of memory-dependent element and a Schottky diode~\cite{Molter2016, Ostrovskii2021}. This formulation extends the original metastable switch concept by incorporating nonlinear current--voltage characteristics, enabling a more accurate representation of memristor's behavior across a wide range of operating conditions.
-The evolution of the state variable is governed by~\eqref{eq:mms}, while the current--voltage relationship is
+The Generalized MMS (GMMS) model~\cite{Molter2016, Ostrovskii2021} extends MMS by modeling the memristor as a parallel connection of a memory-dependent element and a Schottky diode:
 \begin{align}
   \begin{split}
-    \im(t)     & = \eta \imd(v, x) + (1-\eta) i_{\rm d}(v),                \\
-    i_{\rm d}(v)     & = \alpha_{\rm f} e^{\beta_{\rm f} v} - \alpha_{\rm r} e^{-\beta_{\rm r} v}, \\
-    \imd(v, x) & = \Gm(x) v,
+    \im(t)     & = \eta \, \Gm(x) v + (1-\eta) \, i_{\rm d}(v), \\
+    i_{\rm d}(v) & = \alpha_{\rm f} e^{\beta_{\rm f} v} - \alpha_{\rm r} e^{-\beta_{\rm r} v},
   \end{split}
   \label{eq:gmms}
 \end{align}
-%ZG replaced "current through the device" by "current of the device"
-where \(\eta\in [0,1]\) is the parameter representing the ratio of the memory dependent current \(\imd\) and total current \(\im\) flowing through the device. The parameters \(\alpha_f\), \(\beta_f\), \(\alpha_r\), and \(\beta_r\) are positive constants characterizing the forward and reverse current across the Schottky barrier.
-
-The inclusion of additional parameters and nonlinearities in the GMMS model increases model's complexity and poses challenges for parameter optimization. An additional challenge arises due to the Schottky effect, which introduces nonlinearity into the current–voltage characteristic. When the memristor is connected in series with a resistor, this requires solving a set of differential-algebraic equations (DAEs) of the form
-\begin{equation}
-  \left\{
-  \begin{aligned}
-     & \vs=\vr+ \vm,                                                      \\
-     & \dert{x}  = \frac{1}{\tau} \left( f_{\rm ON}(\vm) (1-x) - f_{\rm OFF}(\vm) x \right), 
-  \end{aligned}
-  \right.
-  \label{eq:nonlinear_eq}
-\end{equation}
-where \(\vs\) denotes the supply voltage, \(\vr=\Rs i\) is the voltage across the resistor, and \(\vm\) is the voltage across the memristor.
-
-
-Parameter estimation for existing memristor models employs a two-stage hybrid optimization strategy. Global exploration is performed using Adaptive Differential Evolution with radius-limited sampling from the \texttt{BlackBoxOptim} package~\cite{BlackBoxOptim} in \texttt{Julia}, followed by local refinement via the L-BFGS-B quasi-Newton method~\cite{Zhu1997} implemented in \texttt{Optim.jl}. This approach efficiently identifies optimal parameter sets while avoiding premature convergence to local minima.
-
-
+where \(\eta\in[0,1]\) controls the ratio between memory-dependent and diode currents, and the state dynamics follow~\eqref{eq:mms}. The Schottky nonlinearity requires solving the DAE system \(\vs = \Rs i + \vm\) jointly with the state equation. Parameter estimation for both models employs global search using Adaptive Differential Evolution~\cite{BlackBoxOptim} followed by local L-BFGS-B refinement~\cite{Zhu1997}.
 
 \section{Results}
 \label{sec:results}
 
-
-\noindent During the hyperparameter tuning, a range of neural network architectures is systematically evaluated in order to identify the most suitable configuration for modeling memristor dynamics. The evaluation considers the number of hidden layers, the number of neurons per layer, and optimization settings (e.g. the batch size and the learning rate), with the aim of achieving a balance between model accuracy and generalization capabilities, as described in Sec.~\ref{sec:nn_architecture}. Among these settings, the batch size determines the number of training samples processed before the model parameters are updated, thereby influencing both the convergence speed and the stability of the learning process. In this study, the batch size corresponds to the number of trajectories processed in parallel before each parameter update. The learning rate, on the other hand, controls the step size of each parameter update during training. An excessively high learning rate may cause the optimization process to diverge, while a low value may result in slow convergence or being trapped in a local minimum.
-
+\noindent During the hyperparameter tuning, a range of neural network architectures is systematically evaluated in order to identify the most suitable configuration for modeling memristor dynamics, as described in Sec.~\ref{sec:nn_architecture}.
 
 In this study, the dataset consists of 18 trajectories obtained from measurements for all combinations of supply voltage amplitudes \(\Vs  \in \{0.5\V,1.0\V,1.5\V\}\) and frequencies \(f \in \{1\Hz,5\Hz,10\Hz,20\Hz,50\Hz,100\Hz\}\). The number of samples for each trajectory is \(10^5\) (100 periods of the supply voltage per trajectory, 1000 samples per period). 
 This dataset is divided into the training dataset consisting of 14 trajectories and the validation datasets comprising 4 trajectories.
 Trajectories used for training and validation are selected to cover a diverse range of memristor's operating conditions, thereby enhancing the model's ability to generalize across different dynamic regimes.
 The validation dataset contains the following pairs of supply voltages and frequencies: \((1.5\V, 5\Hz)\), \((1\V, 1\Hz)\), \((1\V, 100\Hz)\), and \((0.5\V, 5\Hz)\).
 
-During the hyperparameter optimization stage, the optimal configuration of the \MemODEOne\ architecture found comprises four hidden layers with 64, 128, 128, and 64 neurons in consecutive layers. The model is trained using the \texttt{AdamW} optimizer with a learning rate of approximately \(1.89 \times 10^{-2}\) and a batch size of 2. The swish activation function \(\varphi(x)=x\cdot\sigma(x)\) is employed for the hidden layers, while the final layer utilizes the linear activation function \(\varphi(x)=x\). 
+The optimal \MemODEOne\ configuration, achieved through hyperparameters optimization,  comprises four hidden layers (64, 128, 128, 64 neurons) trained with \texttt{AdamW} (learning rate \(1.89 \times 10^{-2}\), batch size 2) using the swish activation function. For \MemODETwo, the network computing \(f(\xvec,\ua)\) has four hidden layers (120, 240, 240, 120 neurons) with 6 latent states, and the auxiliary network computing \(\G\) has one hidden layer (80 neurons). Both are trained with \texttt{AdaBelief} (learning rate \(6.30 \times 10^{-3}\), batch size 14), using GELU and ReLU activations, respectively.
 
-For the \MemODETwo\ architecture, the optimal neural network configuration responsible for computing \(f(\xvec,\ua)\) consists of four hidden layers with 120, 240, 240, and 120 neurons in consecutive layers and with 6 latent states, corresponding to the dimensionality of the internal state vector \(\mathbf{x}\). The auxiliary neural network responsible for computing \(\G\) includes one hidden layer containing 80 neurons. Both networks are trained using the \texttt{AdaBelief} optimizer with a learning rate of approximately \(6.30 \times 10^{-3}\) and a batch size of 14. The first neural network employs the \(\mathrm{GELU}\) activation function \(\varphi(x) = x \cdot \Phi(x)   \approx 0.5 x (1 + \tanh[\sqrt{2/\pi} (x + 0.044715 x^3)]) \) in the hidden layers and the linear activation in the output layer, whereas the second network uses the \(\mathrm{ReLU}\) activation function \(\varphi(x)=\max{}(0,x)\) with the \(\mathrm{sigmoid}\) output activation.
-%
+A representative learning curve for \MemODEOne\ is shown in Fig.~\ref{fig:learning-curve}. The consistent decrease of \(\Loss\) on both training and validation sets over 360 epochs, along with their close agreement, confirms effective optimization and generalization. Representative simulation results demonstrating the neural network model's predictive capabilities are presented in Fig.~\ref{fig:sample-results} through comparative analysis of a tungsten-doped memristor device subjected to sinusoidal voltage excitation with an amplitude of \(1.5\;\mathrm{V}\) and frequency of \(100\;\mathrm{Hz}\).
 
-A representative learning curve corresponding to the \MemODEOne\ architecture, is presented in Fig.~\ref{fig:learning-curve}.
-The training process is conducted over 360 epochs, with the objective function \(\Loss\) monitored on both the training and validation datasets to provide insights into convergence behavior and potential overfitting. The learning curve demonstrates a consistent decrease in values of \(\Loss\) for both datasets, which indicates effective optimization and a satisfactory model fitting to the experimental data. The close agreement between the values of the objective functions for the training and validation datasets further confirms the generalization ability of the selected architecture.
+The effectiveness of the full loss function \(\Loss\)  defined in~\eqref{eq:loss_function}  was verified against using only \(\LossBase\): for \MemODEOne, the validation loss decreased from \(\LossBase = 2.24 \mtimes 10^{-2}\) to \(1.85 \mtimes 10^{-2}\) when including \(\LossVel\) and \(\LossCur\).
 
-\begin{figure}[htbp]
+
+\begin{figure}[httbp]
   \centering
   \includegraphics[width=\linewidth]{figs/Training_process.pdf}
-  \caption{Learning curve for the \MemODEOne\ neural network architecture during training over 360 epochs.
-    The insets illustrate \(\vm\)--\(\im\) hysteresis loops at selected epochs, where the dashed lines correspond to the measured responses and the solid lines denote the model predictions.
-  }
+  \caption{Learning curve for the \MemODEOne\ architecture over 360 epochs. Insets show \(\vm\)--\(\im\) hysteresis loops at selected epochs (dashed: measured, solid: predicted).}
   \label{fig:learning-curve}
 \end{figure}
 
-Fig.~\ref{fig:learning-curve} also presents the \(\vm\)--\(\im\) hysteresis characteristics obtained at selected stages of the optimization process. These snapshots highlight how the model progressively refines its internal representation of the device dynamics during training. The gradual improvement of the hysteresis fit across epochs illustrates the capability of the neural network to capture the nonlinear and history-dependent behavior of the memristor, thereby validating the suitability of the chosen architecture and training configuration.
-
-
-The effectiveness of optimizing the full loss function \(\Loss\) defined in~\eqref{eq:loss_function} was compared against optimizing only the base loss function~\(\LossBase\), defined in~\eqref{eq:base_loss}. For instance, when optimizing only the base loss function for the \MemODEOne\ architecture, the final value obtained for the validation dataset is \(\LossBase = 2.24 \mtimes 10^{-2}\), whereas optimizing the full loss function yields a lower value of \(\LossBase = 1.85 \mtimes 10^{-2}\). This result indicates that incorporating additional terms~\(\LossVel\) and~\(\LossCur\) improves convergence and enhances the overall predictive performance of the model, as reflected by reduced validation loss values and higher accuracy on unseen data. 
-
-Representative simulation results demonstrating the neural network model's predictive capabilities are presented in Fig.~\ref{fig:sample-results} through comparative analysis of a tungsten-doped memristor device subjected to sinusoidal voltage excitation with an amplitude of \(1.5\;\mathrm{V}\) and frequency of \(100\;\mathrm{Hz}\).
-
 \newcommand{\subwidth}{0.49\linewidth}
-\begin{figure}[htbp]
+\begin{figure}[httbp]
   \centering
   \subfloat[\label{1a}]{%
     \includegraphics[width=\subwidth]{sample_results/sol_plots_amp_1.0_freq_1.0_fig_0_test.pdf}%
   }
-  % \hfill
   \subfloat[\label{1b}]{%
     \includegraphics[width=\subwidth]{sample_results/sol_plots_amp_1.0_freq_1.0_fig_1_test.pdf}%
   }
@@ -503,51 +358,15 @@ Representative simulation results demonstrating the neural network model's predi
   }
   \label{fig:sample-results}
 \end{figure}
-
-The analysis encompasses the voltage waveform, the current waveform and the voltage-current hysteresis relationships.
-The voltage profile confirms the fidelity of the input stimulus. The temporal current response reveals the device's instantaneous electrical behavior and switching kinetics. The voltage-current hysteresis loops (\(\vm - \im\)) illustrate the fundamental memory properties that define memristive behavior.
-
-
-The hysteresis loops are particularly diagnostic of memristor performance, as their shape, area, and switching thresholds directly reflect the underlying ionic transport mechanisms and structural modifications responsible for resistive switching. The pinched hysteresis loop, which intersects at the origin, serves as a definitive signature of memristive behavior, while the loop area quantifies the energy dissipation associated with switching events.
-These features enable comprehensive validation of the neural network model's ability to capture both the static and dynamic aspects of memristor operation.
-
+\renewcommand{\subwidth}{\linewidth}
 \subsection{Comparative Analysis with the MMS and GMMS Models}
 
-\noindent
-To assess the performance of the neural ODE approach, a comprehensive comparative analysis is conducted between the developed neural network models and the existing models of SDC memristors: the Mean Metastable Switch (MMS) model and the Generalized Mean Metastable Switch (GMMS) model.
-
+\noindent To assess the performance of the neural ODE approach, a comprehensive comparative analysis is conducted between the developed neural network models and the existing models of SDC memristors: the Mean Metastable Switch (MMS) model and the Generalized Mean Metastable Switch (GMMS) model.
 
 This comparison is particularly significant as the MMS and GMMS models have been extensively validated against experimental data and serve as benchmarks for memristor circuit simulation~\cite{Ostrovskii2021,Bednarz2024}. The comparative evaluation encompasses temporal voltage and current evolution, hysteretic characteristics, and quantitative loss function metrics to provide comprehensive assessment of modeling fidelity.
 
-Comparison results are plotted in Fig.~\ref{fig:comparison_mms}. Quantitative analysis reveals substantial performance improvements achieved by the neural network approach.
 
-\begin{figure*}[htbp]
-  \centering
-  \subfloat[\label{1a2}]{
-    \includegraphics[width=0.48\linewidth]{mms_results/loss_per_freq_Single-NN-MemODE.pdf}%
-  }
-  \subfloat[\label{1b2}]{
-    \includegraphics[width=0.48\linewidth]{mms_results/loss_per_freq_Dual-NN-MemODE.pdf}%
-  }
-
-  \subfloat[\label{1c2}]{
-    \includegraphics[width=0.48\linewidth]{mms_results/loss_per_freq_MMS Model.pdf}%
-  }
-  \subfloat[\label{1d2}]{
-    \includegraphics[width=0.48\linewidth]{mms_results/loss_per_freq_GMMS Model.pdf}%
-  }
-  \caption{Comparative analysis of the loss function \(\LossBase\):
-    (a) the \MemODEOne\ model, (b) the \MemODETwo\ model, (c) the MMS model, (d) the GMMS model.
-    Results for voltage amplitudes \(\Vs =0.5, 1.0, 1.5\rm \ V\) are plotted in red (\redbar{}), blue (\bluebar{}) and green (\greenbar{}), respectively.
-  }
-  \label{fig:comparison_mms}
-\end{figure*}
-
-Table~\ref{tab:mms_comp} presents a comparative analysis of the loss functions \(\LossBase\) obtained for the proposed and existing models, offering a quantitative assessment of their performance. The results highlight the neural network’s enhanced capability to reproduce complex and subtle aspects of memristor dynamics that are insufficiently captured by the phenomenological MMS/GMMS framework. For clarity, the highest loss value in each row is marked in red, whereas the lowest is marked in green. Overall, the neural network model consistently achieves substantially lower loss values, demonstrating superior accuracy and fidelity in representing the device behavior.
-
-
-
-\begin{table}
+\begin{table}[htbp]
   \caption{Comparative analysis of the loss function \(\LossBase\). Values are reported for different supply voltage amplitudes \(\Vs\) and frequencies \(f_s\). Row-wise minimum and maximum loss values are color-coded in green and red, respectively. Records belonging to the validation dataset are marked by bounding boxes. }
   \label{tab:mms_comp}
   \centering
@@ -603,11 +422,13 @@ Table~\ref{tab:mms_comp} presents a comparative analysis of the loss functions \
   \end{tabular}
 \end{table}
 
+
+
 Table~\ref{tab:mms_comp_test} reports the average loss function values \(\LossBase\) calculated for the validation, training and the whole datasets for the proposed and existing models. Results obtained for the validation dataset provide a quantitative evaluation of generalization performance of tested models across unseen memristor dynamics.
 The best result of \(5.77 \times 10^{-3}\) is obtained for the \MemODETwo\ model. The significant reduction of the average values of \(\LossBase\) for both proposed method when compared to existing methods demonstrates the enhanced modeling capability achieved through the neural ODE framework.
 
-\begin{table}
-  \caption{Comparative analysis of the loss function \(\LossBase\) for the validation, training and the whole datasets. %
+\begin{table}[htbp]
+  \caption{Average values of the loss function \(\LossBase\) for the validation, training and the whole datasets. %
   }
   \label{tab:mms_comp_test}
 \begin{center}
@@ -615,105 +436,39 @@ The best result of \(5.77 \times 10^{-3}\) is obtained for the \MemODETwo\ model
     \toprule
      & \makecell{SingleNN-\\MemODE} & \makecell{DualNN-\\ MemODE} & \makecell{GMMS\\Model} & \makecell{MMS\\Model}\\ 
     \midrule
-     \multicolumn{5}{c}{Validation dataset} \\
+%     \multicolumn{5}{c}{Validation dataset} \\
+%    \midrule
+    validation & \(1.73 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(5.77 \mtimes 10^{-3}\) & \color{ieeered} \bfseries \(2.74 \mtimes 10^{-2}\) & \(2.51 \mtimes 10^{-2}\) \\
+%    \toprule
+%    \multicolumn{5}{c}{Training dataset} \\
     \midrule
-    \(\LossBase\) & \(1.73 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(5.77 \mtimes 10^{-3}\) & \color{ieeered} \bfseries \(2.74 \mtimes 10^{-2}\) & \(2.51 \mtimes 10^{-2}\) \\
-    \toprule
-    \multicolumn{5}{c}{Training dataset} \\
+    training &\(1.46 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(5.11 \mtimes 10^{-3}\) & \(3.42 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(4.22 \mtimes 10^{-2}\) \\
+%    \toprule
+%    \multicolumn{5}{c}{Whole dataset} \\
     \midrule
-    \(\LossBase\) &\(1.46 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(5.11 \mtimes 10^{-3}\) & \(3.42 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(4.22 \mtimes 10^{-2}\) \\
-    \toprule
-    \multicolumn{5}{c}{Whole dataset} \\
-    \midrule
-    \(\LossBase\) & \(1.52 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(5.26 \mtimes 10^{-3}\) & \(3.27 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(3.84 \mtimes 10^{-2}\) \\
+    whole & \(1.52 \mtimes 10^{-2}\) & \color{ieeegreen} \bfseries \(5.26 \mtimes 10^{-3}\) & \(3.27 \mtimes 10^{-2}\) & \color{ieeered} \bfseries \(3.84 \mtimes 10^{-2}\) \\
     \bottomrule  \end{tabular}
 \end{center}
 \end{table}
 
-The superior performance of the neural network model can be attributed to its capacity for learning complex nonlinear mappings directly from experimental data, whereas the MMS model relies on predetermined phenomenological relationships that may not fully capture the device-specific dynamics and material-dependent switching characteristics inherent in real memristor devices.
-
-Let us now compare computation times needed to find different models and evaluation times of models.
-Computations are carried out using a 3.5 GHz Intel i9-9900X processor.
-The median training duration for the \MemODEOne\ and \MemODETwo\ architectures is approximately 11.3 minutes and 13.8 minutes, respectively. 
-% when utilizing a CPU (Intel i9-9900X with a clock speed of 3.5 GHz and 10 cores)
-The median computational time necessary for parameter optimization of the MMS model is approximately 20.4 minutes, whereas the GMMS model requires approximately 8.4 minutes using the same hardware. The neural network architectures are trained employing a standard deep learning framework based on gradient descent optimization algorithms. Conversely, the parameter identification methodology for the analytical models (MMS and GMMS) requires a two-stage optimization procedure. Initially, a computationally intensive global search algorithm is executed over the whole parameter space to obtain an approximate yet robust initial parameter estimate. Subsequently, a local refinement procedure employing gradient-based optimization is applied. This methodology reflects the inherent computational complexity of determining appropriate initial parameters for analytical models and accounts for their extended calibration duration relative to the single-iteration training cost of neural network-based architectures.
-
-The computation time for trajectory generation comprising 18 trajectories using the MMS model is approximately 0.047 seconds, whereas the GMMS model requires approximately 0.051 seconds. In contrast, the \MemODETwo\ architecture needs approximately 3.97 seconds, while the \MemODEOne\ architecture requires approximately 5.56 seconds to generate an equivalent trajectory ensemble. The neural network models are integrated numerically using a relative error tolerance of \(10^{-3}\) and an absolute error tolerance of \(10^{-6}\).
-
-
-
-\subsection{Hyperparameter Sensitivity Analysis}
-
-\noindent Hyperparameter optimization is conducted to systematically explore the hyperparameter space and identify configurations that maximize the predictive performance of neural network architectures. The optimization employs the Tree-structured Parzen Estimator (TPE) algorithm via the \texttt{Optuna} framework~\cite{akiba2019optuna}. TPE constructs probabilistic models of high- and low-performing configurations, sampling preferentially from promising regions while maintaining exploration diversity.
-
-
-The search space encompasses both architectural and training-related hyperparameters. On the architectural side, the number of hidden layers is varied between one and five, with layer widths ranging from 16 to 512 neurons in increments of 16. Candidate activation functions includes widely used nonlinearities such as \(\text{ReLU}\), \(\text{GELU}\), \(\text{SiLU}\), \(\tanh\), \(\text{ELU}\), leaky \(\text{ReLU}\), sigmoid, identity and sine functions. For the output layer, the choice is restricted to \(\text{linear}\), \(\tanh\), \(\text{sigmoid}\), and \(\text{ReLU}\). The training-related search space included the learning rate, sampled on a logarithmic scale between \(10^{-4}\) and \(10^{-1}\), batch size ranging from 1 to 18, optimizer type (Adam, SGD, AdamW, Nadam, AdaBelief), and additional parameters related to regularization and scheduling, including patience, cooldown, reduction factor, tolerance, and weight decay.
-
-To quantify the relative influence of individual hyperparameters on the model performance, a surrogate-based importance analysis is performed. An XGBoost gradient boosting model~\cite{Chen2016} is trained on the explored configurations to predict validation loss. The surrogate model achieved an \(\mathrm{R}^2\) value of 0.99, indicating high fidelity in capturing the dependence of model performance on hyperparameter selection, where \(\mathrm{R}^2 = 1 - \frac{\sum_i (y_i - \hat{y}_i)^2}{\sum_i (y_i - \bar{y})^2}\) represents the coefficient of determination measuring the proportion of explained variance, \(y_i\) are the observed values, \(\hat{y}_i\) are the model predictions, and \(\bar{y}\) is the mean of observed values. Importance is first estimated using the \emph{gain} metric, which reflects the cumulative improvement in predictive accuracy attributed to each hyperparameter across the ensemble. Normalization ensured that scores sum up to unity, allowing for direct interpretation as relative contributions to performance variability.
-
-As a complementary approach, permutation importance~\cite{Altmann2010} is applied to the surrogate model. In this procedure, the values of each hyperparameter are permuted at random, and the resulting degradation in predictive accuracy is recorded. Repeated ten times for each feature, the mean error increase provides an alternative measure of importance, which, unlike gain-based metrics, also accounts for nonlinear dependencies and interactions among hyperparameters.
-
-
-
-Results of the sensitivity analysis are presented in Fig.~\ref{fig:hyperparameter_importance}.
-According to the XGBoost Gain approach the dominant hyperparameters are
-the number of epochs,
-the gradient clipping value  (the maximum allowable gradient norm),
-the ANN-\(f\) depth (the depth of the neural network used to approximate \(f(\xvec,\ua)\)), and
-the number of latent states, 
-with the relative importance scores of 0.47, 0.27, 0.12, and 0.06, respectively. 
-
-Collectively, the four most significant parameters account for more than 90\% of the total observed performance variance.
-
-The permutation importance approach identifies the following four most dominant hyperparameters influencing model performance: the learning rate, the gradient clipping value, the number of epochs, and the ANN-\(\mathcal{G}\) depth (the depth of the neural network used to approximate \(\mathcal{G}(\mathbf{x})\)).
-Their relative importance scores are 0.27, 0.24, 0.19, and 0.19, respectively.
-
-Summarizing, the most important hyperparameters are identified as the number of epochs, the gradient clipping value, the learning rate, depths of neural networks and the number of latent states. Widths of neural networks, the batch size and the step length have moderate influence. 
-  The following hyperparameters have negligible effects of the model performance: the choice of activation and output functions, and the optimizer type. For example, the choice of activation function exhibits a negligible effect (importance score below \(0.01\)), indicating that the Neural ODE architecture demonstrates a high degree of robustness with respect to this factor across the examined range.
-\begin{figure}[thbp]
-  \centering
-  \includegraphics[width=\linewidth]{mms_figs/xgboost_permutation_importance.pdf}
-    \caption{Hyperparameter importance for the \MemODETwo\  optimization task. Scores are computed using
-  the XG Boost surrogate model and the permutation importance approach. Larger values indicate greater relative influence of the corresponding hyperparameter on the model performance. ANN-\(\G\) and ANN-\(f\) refer to neural networks used to approximate \(\G(\xvec)\) and \(f(\xvec,\ua)\), respectively.
-  }
-  \label{fig:hyperparameter_importance}
-\end{figure}
-
-The mean values of the validation loss obtained during the hyperparameter optimization procedure for selected hyperparameters are presented in Fig.~\ref{fig:categorical_hyperparameters}. The figure summarizes the influence of the number of latent states, the optimizer type, and the activation functions employed in the two neural networks constituting the \MemODETwo\ architecture. For each case, the reported mean is computed by marginalizing over all remaining hyperparameters, while the corresponding \(95\%\) confidence intervals are indicated by error bars. This analysis highlights the relative sensitivity of the model performance to discrete architectural and training-strategy choices.
-
-\begin{figure}[!t]
-  \subfloat[\label{1a3}]{%
-    \includegraphics[width=0.48\linewidth]{hyper_params_figs/params_latent_states_barplot.pdf}%
-  }
-  \subfloat[\label{1b3}]{%
-    \includegraphics[width=0.48\linewidth]{hyper_params_figs/params_optimizer_barplot.pdf}%
-  }
-
-  \subfloat[\label{1c3}]{%
-    \includegraphics[width=0.48\linewidth]{hyper_params_figs/params_mlpx_activation_barplot.pdf}%
-  }
-  \subfloat[\label{1d3}]{%
-    \includegraphics[width=0.48\linewidth]{hyper_params_figs/params_mlpg_activation_barplot.pdf}%
-  }
-  \caption{Validation loss obtained during hyperparameter optimization for selected hyperparameters: (a) number of latent states, (b) optimizer type for the first neural network, (c) activation function for the neural network used to approximate \(f(\xvec,\ua)\), and (d) activation function for the neural network used to approximate \(\G(\xvec)\). Mean values are computed by averaging over all other hyperparameters, with error bars indicating the \(95\%\) confidence interval.}
-  \label{fig:categorical_hyperparameters}
-\end{figure}
-
+Computation times are compared using a 3.5~GHz Intel i9-9900X processor. Training duration is 11.3 and 13.8 minutes for \MemODEOne\ and \MemODETwo, respectively, compared to 20.4 minutes for MMS and 8.4 minutes for GMMS (using a two-stage global search followed by L-BFGS-B refinement~\cite{ Zhu1997}). However, trajectory generation (18 trajectories) takes approximately 0.05~s for MMS/GMMS versus 4--6~s for the neural models (with relative tolerance \(10^{-3}\), and absolute tolerance \(10^{-6}\)).
 \section{Conclusions}
-
 \noindent This work presented two novel neural ODE-based architectures for modeling the dynamics of memristor devices. The proposed models leverage the power of neural networks to capture complex, nonlinear behaviors inherent in memristive systems, while maintaining the interpretability and physical consistency afforded by the ODE framework.
 The proposed models were applied for modeling of real Self-Directed Channel (SDC) memristors. 
-Extensive evaluation against experimental data demonstrates that the neural ODE approach significantly outperforms traditional phenomenological models, such as the MMS and GMMS models, in terms of accuracy and fidelity. The results highlight the capability of the neural ODE approach to learn intricate device dynamics directly from data, thereby providing a powerful tool for simulating and understanding memristor behavior. Hyperparameter sensitivity analysis further elucidates the critical factors influencing model performance, guiding future optimization efforts.
-Obtained results show that the computation time needed to optimize the proposed models is smaller than that for existing models. On the other hand the evaluation time needed to compute trajectories using the proposed models is significantly larger than for the MMS and GMMS models.
+Extensive evaluation against experimental data demonstrates that the neural ODE approach  outperforms traditional phenomenological models, such as the MMS and GMMS models, in terms of accuracy and fidelity. The results highlight the capability of the neural ODE approach to learn intricate device dynamics directly from data.
 
+Obtained results show that the computation time needed to optimize the proposed models is smaller than that for existing models. On the other hand the evaluation time needed to compute trajectories using the proposed models is significantly larger than for the MMS and GMMS models.
 The proposed models may also be used for modeling of memristors produced in other technologies.  
 The findings of this study underscore the potential of neural ODEs as a versatile and effective framework for modeling complex physical systems, with applications in the design and analysis of memristor-based circuits.
 Developed methods pave the way to more accurate and efficient simulation tools, facilitating advancements in memristor technology and its integration into emerging computing paradigms, and open avenues for future research in data-driven modeling of nonlinear dynamical systems.
 
+In future work, we plan to explore and use the proposed modelling framework for simulating the nonlinear dynamics of memristor-based chaotic circuits, and to investigate the potential of the proposed models for design and optimization of memristor-based neuromorphic systems.
 
 
-\bibliographystyle{IEEEtran} % added %ZG
-\bibliography{bibliography} % added %ZG
+%\newpage
+\bibliography{bibliography}
+\bibliographystyle{IEEEtran}
+
 
 %\printbibliography %commented %ZG
 
@@ -725,6 +480,7 @@ Developed methods pave the way to more accurate and efficient simulation tools, 
 % commented two lines %ZG
 %\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{fig1.png}}]{IEEE Publications Technology Team}
 %  In this paragraph you can place your educational, professional background and research and other interests.\end{IEEEbiography}
+
 
 \end{document}
 
