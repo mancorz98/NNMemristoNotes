@@ -63,7 +63,7 @@ National Science Centre, Poland under Grant 2024/53/B/ST7/03841.}
 
 
 \begin{abstract}
-  The development of modern memristive technologies requires accurate dynamic models to enable reliable simulation and prototyping in applications such as resistive RAM, neural networks, and neuromorphic computing. Existing symbolic models often exhibit limitations in accurately capturing the complex dynamic behavior of physical devices across various operating conditions, impacting their reliability in simulations. This work proposes a neural-network-based modeling of real memristors behaviour using Neural Ordinary Differential Equation (Neural ODE) models. Prior neural-network-based studies were limited by training data derived solely from theoretical models, preventing reliable assessment on real devices. The proposed method leverages a backpropagation technique based on solving the corresponding adjoint ODE backward in time using adjoint sensitivity methods. Experimental data obtained directly from Self-Directed Channel (SDC) memristors are used to train and validate the model. Results show that the Neural ODE approach more accurately reproduces the device’s dynamic characteristics and provides improved flexibility and robustness compared to traditional theoretical models. \changed{These findings demonstrate the feasibility of Neural ODE–based frameworks for data-driven modeling of physical memristive devices, validated on a  tungsten-doped Self-Directed Channel (SDC) device.
+  The development of modern memristive technologies requires accurate dynamic models to enable reliable simulation and prototyping in applications such as resistive RAM, neural networks, and neuromorphic computing. Existing symbolic models often exhibit limitations in accurately capturing the complex dynamic behavior of physical devices across various operating conditions, impacting their reliability in simulations. This work proposes a neural-network-based modeling of real memristors behaviour using Neural Ordinary Differential Equation (Neural ODE) models. Prior neural-network-based studies were limited by training data derived solely from theoretical models, preventing reliable assessment on real devices. The proposed method leverages a backpropagation technique based on solving the corresponding adjoint ODE backward in time using adjoint sensitivity methods. Experimental data obtained directly from Self-Directed Channel (SDC) memristors are used to train and validate the model. Results show that the Neural ODE approach more accurately reproduces the device’s dynamic characteristics and provides improved flexibility and robustness compared to traditional theoretical models. \changed[approved]{These findings demonstrate the feasibility of Neural ODE–based frameworks for data-driven modeling of physical memristive devices, validated on a  tungsten-doped Self-Directed Channel (SDC) device.
 } %ZG
 \end{abstract}
 
@@ -89,7 +89,7 @@ The Generalized Metastable Switch (GMS) model~\cite{Molter2016} provides enhance
 To address these limitations, Minati et al.~\cite{Minati2020} introduced the Mean Metastable Switch (MMS) model, which simplifies the GMS framework by computing the derivative of the internal state variable through linear interpolation of mean values obtained from Gaussian sampling of each probabilistic function, while eliminating the Schottky effect to preserve model simplicity. Subsequently, this approach was extended in the Generalized Mean Metastable Switch (GMMS) model~\cite{Ostrovskii2021, LagunaSanchez2023}, which reincorporates the Schottky diode effect originally described in the GMS formulation.
 
 Numerical simulation of memristors with bounded state variables presents additional computational challenges. Window functions~\cite{Yakopcic2011,Kvatinsky2013} employed to constrain internal state variables within physically admissible limits introduce discontinuities in the governing differential equations, which can generate numerical artifacts when standard integration methods are applied~\cite{Slipko2021}. Boundary condition-based model for studying memristor nanostructures was proposed in~\cite{CorintoBoundaryConditionModelingMemristor}. A Poincaré map approach~\cite{Galias2019} partitions the state space into smooth regions to enable accurate trajectory computation across discontinuity boundaries. Furthermore, while physics-based models offer high accuracy, their mathematical complexity hinders large-scale circuit simulation, motivating efforts toward explicit reformulations~\cite{Ntinas2022}.
-\changed{
+\changed[approved]{
 Recently, Hajt\'{o} et al.~\cite{Hajto2025} proposed a physics-inspired state characterisation approach for SDC memristors, extending the Generalised MSS conduction model by introducing state-dependent Schottky diode components and a noise-aware minimum-variance state estimation protocol from voltage-current pairs. Their work addresses the complementary problem of \emph{static} state identification at a given instant, demonstrating that accurate characterisation of the nonlinear V-I relationship requires going beyond simple Ohmic assumptions.
 }
 
@@ -107,19 +107,19 @@ The remaining part of this paper is organized as follows. In Sec.~\ref{sec:NNMod
 
 This study utilizes experimental data obtained from Self-Directed Channel (SDC) memristors doped with tungsten. The structure and properties of these devices have been described in detail in the literature, e.g., in~\cite{Campbell2017,Garda2024}.
 
-\changed{
+\changed[approved]{
 This study utilizes experimental data obtained from commercially available tungsten-doped Self-Directed Channel (SDC) memristors manufactured by Knowm Inc. These are two-terminal thin-film devices based on a chalcogenide glass active layer with the following layer structure (from bottom to top): W (bottom electrode), Ge\textsubscript{2}Se\textsubscript{3} (adhesion layer), W+Ge\textsubscript{2}Se\textsubscript{3} (active layer with injection doping), Ge\textsubscript{2}Se\textsubscript{3} (intermix layer), SnSe (assist layer), Ge\textsubscript{2}Se\textsubscript{3} (intermix layer), Ag (ion source layer), Ge\textsubscript{2}Se\textsubscript{3} (adhesion layer), and W (top electrode). Resistive switching is governed by the migration of Ag\textsuperscript{+} ions from the source layer into and out of the active Ge\textsubscript{2}Se\textsubscript{3} region, where they form and disrupt conductive filaments that modulate the device conductance between the high-resistance state (HRS) and low-resistance state (LRS). The tungsten doping in the active layer modifies the filament formation dynamics and enhances switching stability. Detailed descriptions of the device structure, fabrication process, and material characterisation are provided in~\cite{Campbell2017,Garda2024,Hajto2025}. 
 }
 
 
-The experimental setup, illustrated in Fig.~\ref{fig:memristor_setup}, consists of an SDC memristor connected in series with a resistor. The sinusoidal input voltage is supplied by an arbitrary waveform generator. Voltage signals are measured using a data acquisition (\changed{myDAQ University Kit}) system. \changed{The series resistance is $\Rs = 5.11~\mathrm{k\Omega}$.
+The experimental setup, illustrated in Fig.~\ref{fig:memristor_setup}, consists of an SDC memristor connected in series with a resistor. The sinusoidal input voltage is supplied by an arbitrary waveform generator. Voltage signals are measured using a data acquisition (\changed[approved]{myDAQ University Kit}) system. \changed[approved]{The series resistance is $\Rs = 5.11~\mathrm{k\Omega}$.
 }
 
-Measurements are carried out for the following combinations of supply voltage amplitudes and frequencies: \(\Vs  \in \{0.5,\ 1.0,\ 1.5\}~[{\rm V}]\), \(f \in \{1,\ 5,\ 10,\ 20,\ 50,\ 100\}~[\rm Hz]\). \changed{
+Measurements are carried out for the following combinations of supply voltage amplitudes and frequencies: \(\Vs  \in \{0.5,\ 1.0,\ 1.5\}~[{\rm V}]\), \(f \in \{1,\ 5,\ 10,\ 20,\ 50,\ 100\}~[\rm Hz]\). \changed[approved]{
    All experimental data were obtained from a single physical SDC memristor device. For each of the 18 combinations of supply voltage amplitude and frequency, 100 consecutive periods of the excitation signal were recorded, yielding $10^5$ samples per trajectory (1000 samples per period). No repeated measurements under identical conditions from separate sessions were performed; instead, the 100-period recordings capture both the initial transient response and the steady-state behaviour within a single continuous acquisition, providing sufficient statistical content for training and validation.
 }
 
-\changed{
+\changed[approved]{
 Sinusoidal excitation was chosen for device characterisation for several reasons. First, it provides continuous, symmetric cycling through both the SET (positive half-cycle) and RESET (negative half-cycle) transitions within each period, enabling observation of the complete pinched hysteresis loop---the defining signature of memristive behaviour---from a single waveform type. Second, the single-frequency content of a sinusoidal signal allows for a clear separation of the device response across different frequency regimes, enabling systematic investigation of frequency-dependent phenomena such as hysteresis loop area reduction and the transition from quasi-static to rate-limited switching behaviour. Third, the smooth and continuously differentiable nature of the sinusoidal signal is well suited for training Neural ODE models, which rely on adaptive Runge-Kutta solvers that benefit from the absence of abrupt voltage transients or discontinuities in the driving signal. Fourth, sinusoidal characterisation is a widely adopted standard in the memristor modelling literature~\cite{Kvatinsky2015, Ostrovskii2021,Bednarz2024}, facilitating direct comparison of our results with those obtained under equivalent experimental conditions.
 }
 
@@ -130,7 +130,7 @@ Sinusoidal excitation was chosen for device characterisation for several reasons
   \centering
   \resizebox{2.5in}{!}{\input{graphs/schematic.tex}}
   \vspace{-0.5in}
-  \caption{Schematic diagram of the measurement setup used for the SDC memristor. The device is connected in series with a resistor, and the input voltage is applied via an arbitrary waveform generator. Voltage measurements are acquired using a data acquisition (\changed{myDAQ University Kit}) system.}
+  \caption{Schematic diagram of the measurement setup used for the SDC memristor. The device is connected in series with a resistor, and the input voltage is applied via an arbitrary waveform generator. Voltage measurements are acquired using a data acquisition (\changed[approved]{myDAQ University Kit}) system.}
   \label{fig:memristor_setup}
 \end{figure}
 
@@ -153,10 +153,10 @@ where \(\xvec\) denotes the vector of internal state variables, whose temporal e
 \end{align}
 The first term \(\LossBase\) denotes the primary error computed as the normalized mean squared error ($\NMSE$) between predicted and reference values. \(\LossVel\) enforces accurate modeling of derivatives of state variables, \(\LossCur\) promotes consistency of the trajectories in terms of their curvature by computing $\NMSE$ of second derivatives, and \(\Loss_{\rm con}(x)\) enforces fulfillment of physical or structural constraints that the model is required to satisfy, including conformity to the underlying physical model.
 The weighting coefficients \(\lambda_{\mathrm{base}}\), \(\lambda_{\mathrm{vel}}\), and \(\lambda_{\mathrm{curv}}\) balance the influence of each term according to the priorities of the modeling task.
-\changed{Their values are calculated during each optimization step using the the adaptive loss balancing procedure described in Algorithm~\ref{alg:adaptive_loss_balancing}~\cite{Cipolla2018, Chen2018}.}
+\changed[approved]{Their values are calculated during each optimization step using the the adaptive loss balancing procedure described in Algorithm~\ref{alg:adaptive_loss_balancing}~\cite{Cipolla2018, Chen2018}.}
 
 
-\changed{
+\changed[approved]{
     \begin{algorithm}[H]
   \caption{Adaptive Loss Balancing with Clamping}
   \label{alg:adaptive_loss_balancing}
@@ -190,9 +190,9 @@ The normalized mean squared error between sequences \(({z}_{k,\sind})_{\sind=1}^
     &= \frac{1}{\snum}\sum_{\sind=1}^{\snum}\left(\frac{{z}_{k,\sind}}{\sigma_{z,k}} - \frac{\tilde{z}_{k,\sind}}{\sigma_{z,k}}\right)^2.
 \end{align}
 
-\changed{
-The choice of the normalized mean squared error ($\NMSE$) as the primary metric is motivated by the substantial amplitude disparity between measured voltage and current signals. In the experimental dataset, the voltage amplitudes span 0.5--1.5~$\mathrm{V}$, whereas the corresponding current amplitudes range from approximately \(50~\mathrm{\mu A}\) to \(150~\mathrm{\mu A}\), resulting in a scale difference of up to three orders of magnitude. If raw MSE were employed as the optimization objective, the voltage error term would dominate the loss landscape by several orders of magnitude, effectively rendering the current fitting contribution negligible during gradient-based optimization. This would lead to models that accurately reproduce voltage waveforms while exhibiting poor current prediction, precisely the quantity most relevant for characterizing memristive switching behavior. The trajectory-specific normalization by ($\sigma_{z,k}$) ensures that both voltage and current channels contribute comparably to the optimization objective regardless of their absolute amplitudes, and provides a dimensionless metric with an intuitive interpretation: the ($\NMSE$) value directly quantifies the prediction error relative to the signal's intrinsic variability within each operating condition. 
-}
+
+The choice of the normalized mean squared error ($\NMSE$) as the primary metric is motivated by the substantial amplitude disparity between measured voltage and current signals. In the experimental dataset, the voltage amplitudes span 0.5--1.5~$\mathrm{V}$, whereas the corresponding current amplitudes range from approximately \(50~\mathrm{\mu A}\) to \(150~\mathrm{\mu A}\), resulting in a scale difference of up to three orders of magnitude. If raw MSE were employed as the optimization objective, the voltage error term would dominate the loss landscape by several orders of magnitude, effectively rendering the current fitting contribution negligible during gradient-based optimization. \changed[approved]{This would lead to models that accurately reproduce voltage waveforms while exhibiting poor current prediction, which is the quantity most relevant for characterizing memristive switching behavior.} The trajectory-specific normalization by ($\sigma_{z,k}$) ensures that both voltage and current channels contribute comparably to the optimization objective regardless of their absolute amplitudes, and provides a dimensionless metric with an intuitive interpretation: the ($\NMSE$) value directly quantifies the prediction error relative to the signal's intrinsic variability within each operating condition. 
+
 
 
 The primary component of the loss function is responsible for model fitting to experimental voltage-current data:
@@ -375,10 +375,10 @@ Parameter estimation for existing memristor models employs a two-stage hybrid op
 \noindent During the hyperparameter tuning, a range of neural network architectures is systematically evaluated in order to identify the most suitable configuration for modeling memristor dynamics. The evaluation considers the number of hidden layers, the number of neurons per layer, and optimization settings (e.g. the batch size and the learning rate), with the aim of achieving a balance between model accuracy and generalization capabilities, as described in Sec.~\ref{sec:nn_architecture}. Among these settings, the batch size determines the number of training samples processed before the model parameters are updated, thereby influencing both the convergence speed and the stability of the learning process. In this study, the batch size corresponds to the number of trajectories processed in parallel before each parameter update. The learning rate, on the other hand, controls the step size of each parameter update during training. An excessively high learning rate may cause the optimization process to diverge, while a low value may result in slow convergence or being trapped in a local minimum.
 
 
-In this study, the dataset consists of 18 trajectories obtained from measurements for all combinations of supply voltage amplitudes \(\Vs  \in \{0.5\V,1.0\V,1.5\V\}\) and frequencies \(f \in \{1\Hz,5\Hz,10\Hz,20\Hz,50\Hz,100\Hz\}\). The number of samples for each trajectory is \(10^5\) (100 periods of the supply voltage per trajectory, 1000 samples per period) \changed{as mentioned in Section~\ref{sec:NNModeling}}. 
+In this study, the dataset consists of 18 trajectories obtained from measurements for all combinations of supply voltage amplitudes \(\Vs  \in \{0.5\V,1.0\V,1.5\V\}\) and frequencies \(f \in \{1\Hz,5\Hz,10\Hz,20\Hz,50\Hz,100\Hz\}\). The number of samples for each trajectory is \(10^5\) (100 periods of the supply voltage per trajectory, 1000 samples per period) \changed[approved]{as mentioned in Section~\ref{sec:NNModeling}}. 
 This dataset is divided into the training dataset consisting of 14 trajectories and the validation datasets comprising 4 trajectories.
 Trajectories used for training and validation are selected to cover a diverse range of memristor's operating conditions, thereby enhancing the model's ability to generalize across different dynamic regimes.
-The validation dataset contains the following pairs of supply voltages and frequencies: \((1.5\V, 5\Hz)\), \((1\V, 1\Hz)\), \((1\V, 100\Hz)\), and \((0.5\V, 5\Hz)\). \changed{ The selection of validation trajectories follows a deliberate strategy: the held-out pairs span the corners and interior of the \((\Vs, f)\) operating grid, ensuring that generalization is evaluated across dynamically distinct regimes rather than within interpolated conditions. This approach is particularly appropriate for physical dynamical systems, where each trajectory corresponds to a qualitatively different operating regime characterized by distinct switching dynamics, hysteresis loop morphology, and frequency-dependent relaxation behavior. In such settings, standard (k)-fold cross-validation over randomly partitioned trajectories is less informative, as it primarily assesses interpolation capability within similar regimes rather than the model's ability to extrapolate across the operating parameter space~\cite{Arlot2010}.
+The validation dataset contains the following pairs of supply voltages and frequencies: \((1.5\V, 5\Hz)\), \((1\V, 1\Hz)\), \((1\V, 100\Hz)\), and \((0.5\V, 5\Hz)\). \changed[approved]{ The selection of validation trajectories follows a deliberate strategy: the held-out pairs span the corners and interior of the \((\Vs, f)\) operating grid, ensuring that generalization is evaluated across dynamically distinct regimes rather than within interpolated conditions. This approach is particularly appropriate for physical dynamical systems, where each trajectory corresponds to a qualitatively different operating regime characterized by distinct switching dynamics, hysteresis loop morphology, and frequency-dependent relaxation behavior. In such settings, standard (k)-fold cross-validation over randomly partitioned trajectories is less informative, as it primarily assesses interpolation capability within similar regimes rather than the model's ability to extrapolate across the operating parameter space~\cite{Arlot2010}.
 }
 
 During the hyperparameter optimization stage, the optimal configuration of the \MemODEOne\ architecture found comprises four hidden layers with 64, 128, 128, and 64 neurons in consecutive layers. The model is trained using the \texttt{AdamW} optimizer with a learning rate of approximately \(1.89 \times 10^{-2}\) and a batch size of 2. The swish activation function \(\varphi(x)=x\cdot\sigma(x)\) is employed for the hidden layers, while the final layer utilizes the linear activation function \(\varphi(x)=x\). 
@@ -402,7 +402,7 @@ The training process is conducted over 360 epochs, with the objective function \
 Fig.~\ref{fig:learning-curve} also presents the \(\vm\)--\(\im\) hysteresis characteristics obtained at selected stages of the optimization process. These snapshots highlight how the model progressively refines its internal representation of the device dynamics during training. The gradual improvement of the hysteresis fit across epochs illustrates the capability of the neural network to capture the nonlinear and history-dependent behavior of the memristor, thereby validating the suitability of the chosen architecture and training configuration.
 
 
-The effectiveness of optimizing the full loss function \(\Loss\) defined in~\eqref{eq:loss_function} was compared against optimizing only the base loss function~\(\LossBase\), defined in~\eqref{eq:base_loss}. For instance, when optimizing only the base loss function for the \MemODEOne\ architecture, the final value obtained for the validation dataset is \(\LossBase = 2.24 \mtimes 10^{-2}\), whereas optimizing the full loss function yields a lower value of \(\LossBase = 1.85 \mtimes 10^{-2}\). This result indicates that incorporating additional terms~\(\LossVel\) and~\(\LossCur\) improves convergence and enhances the overall predictive performance of the model, as reflected by reduced validation loss values and higher accuracy on unseen data. \changed{
+The effectiveness of optimizing the full loss function \(\Loss\) defined in~\eqref{eq:loss_function} was compared against optimizing only the base loss function~\(\LossBase\), defined in~\eqref{eq:base_loss}. For instance, when optimizing only the base loss function for the \MemODEOne\ architecture, the final value obtained for the validation dataset is \(\LossBase = 2.24 \mtimes 10^{-2}\), whereas optimizing the full loss function yields a lower value of \(\LossBase = 1.85 \mtimes 10^{-2}\). This result indicates that incorporating additional terms~\(\LossVel\) and~\(\LossCur\) improves convergence and enhances the overall predictive performance of the model, as reflected by reduced validation loss values and higher accuracy on unseen data. \changed[approved]{
 This outcome also indicates that the derivative-based loss terms do not overfit to measurement noise: if $\LossVel$ and $\LossCur$ were fitting noise artifacts rather than genuine dynamic structure, the validation loss would increase rather than decrease when these terms are included.
 }
 
@@ -566,13 +566,13 @@ The best result of \(5.77 \times 10^{-3}\) is obtained for the \MemODETwo\ model
 
 The superior performance of the neural network model can be attributed to its capacity for learning complex nonlinear mappings directly from experimental data, whereas the MMS model relies on predetermined phenomenological relationships that may not fully capture the device-specific dynamics and material-dependent switching characteristics inherent in real memristor devices. 
 
-\changed{
+\changed[approved]{
 It should be noted that the proposed Neural ODE models, as well as the MMS and GMMS baselines, are deterministic in nature and therefore cannot capture the inherently stochastic aspects of memristor switching. As visible in Fig.~\ref{fig:sample-results}(c), localised deviations between the predicted and measured hysteresis loops are most pronounced in the vicinity of the switching transitions, where cycle-to-cycle variability in the physical device is largest. This is an intrinsic limitation of any deterministic modelling framework applied to a stochastic device: the model converges to the mean trajectory, and residual errors in the switching region reflect the irreducible variance of the physical process rather than a systematic modelling deficiency. Moreover, the switching transitions occupy only a small fraction of the total measurement duration---the device spends the majority of each cycle in the quasi-static HRS or LRS regions, where the voltage changes slowly and the resistance remains approximately constant. Consequently, the number of samples falling within the narrow switching intervals is substantially smaller than the number of samples in the non-switching portions of the trajectory. The trajectory-averaged loss function $\LossBase$ is therefore naturally dominated by the fitting quality in the more densely sampled quasi-static regions, which may attenuate the contribution of the sparsely sampled switching transients. Despite this, the Neural ODE models achieve lower $\LossBase$ values than MMS and GMMS across all operating conditions (Table~\ref{tab:mms_comp}), including the validation trajectories, indicating that the global fit is consistently superior even in the presence of these localised switching-region deviations.
 
 }
 
 
-\changed{
+\changed[approved]{
 While the neural ODE models employ a larger number of trainable parameters compared to the MMS and GMMS formulations, the improved accuracy cannot be attributed solely to increased model capacity. The key methodological distinction lies in the training paradigm: the proposed models are optimized end-to-end via adjoint sensitivity methods, where gradients of the entire ODE trajectory are computed  through the adjoint equation solved backward in time. This enables simultaneous optimization of all parameters within a single, unified procedure. In contrast, the analytical MMS and GMMS models require a two-stage optimization strategy---an initial computationally expensive global search over the parameter space followed by local gradient-based refinement---which is prone to sensitivity with respect to the initial parameter estimates and may converge to suboptimal solutions. Furthermore, the neural ODE framework eliminates the need for manually specified window functions, voltage threshold definitions, and switching rules that are central to physics-based models and require expert knowledge of the device under study. The state variable dynamics are learned directly from experimental data without imposing assumptions about the functional form of the drift velocity or the boundary enforcement mechanism. This flexibility comes at the cost of reduced physical interpretability: while the MMS model parameters (e.g., $\Ron$, $\Roff$, $\von$, $\voff$) carry direct physical meaning, the weights of a neural network do not admit such interpretation. However, the \MemODEOne\ architecture partially preserves interpretability by retaining the physically motivated memductance formulation of Eq.~\eqref{eq:conductance}, with $\Ron$ and $\Roff$ jointly optimized alongside the network parameters. This positions the two proposed architectures along an interpretability--flexibility spectrum, allowing the practitioner to select the appropriate trade-off for a given application.
 }
 
@@ -655,7 +655,7 @@ The proposed models were applied for modeling of real Self-Directed Channel (SDC
 Extensive evaluation against experimental data demonstrates that the neural ODE approach significantly outperforms traditional phenomenological models, such as the MMS and GMMS models, in terms of accuracy and fidelity. The results highlight the capability of the neural ODE approach to learn intricate device dynamics directly from data, thereby providing a powerful tool for simulating and understanding memristor behavior. Hyperparameter sensitivity analysis further elucidates the critical factors influencing model performance, guiding future optimization efforts.
 Obtained results show that the computation time needed to optimize the proposed models is smaller than that for existing models. On the other hand the evaluation time needed to compute trajectories using the proposed models is significantly larger than for the MMS and GMMS models.
 
-\changed{We note that all experimental data used in this study were acquired from a single physical SDC device. While the proposed Neural ODE training pipeline---including adjoint sensitivity-based optimization and the multi-component loss function---is formulated in a device-agnostic manner, its applicability to other memristor technologies (e.g., HfO\textsubscript{2}-based RRAM, phase-change memory) and across inter-device variability remains to be validated and constitutes an important direction for future work.
+\changed[approved]{We note that all experimental data used in this study were acquired from a single physical SDC device. While the proposed Neural ODE training pipeline---including adjoint sensitivity-based optimization and the multi-component loss function---is formulated in a device-agnostic manner, its applicability to other memristor technologies (e.g., HfO\textsubscript{2}-based RRAM, phase-change memory) and across inter-device variability remains to be validated and constitutes an important direction for future work.
 The findings of this study underscore the potential of neural ODEs as a versatile and effective framework for modeling complex physical systems, with applications in the design and analysis of memristor-based circuits.
 Developed methods pave the way to more accurate and efficient simulation tools, facilitating advancements in memristor technology and its integration into emerging computing paradigms, and open avenues for future research in data-driven modeling of nonlinear dynamical systems.}
 
@@ -670,76 +670,6 @@ This work was supported by the National Science Centre, Poland under Grant 2024/
 
 
 
-\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{author1.png}}]{First A. Author} received the B.S. and M.S. degrees in aerospace engineering from
-the University of Virginia, Charlottesville, in 2001 and the Ph.D. degree in
-mechanical engineering from Drexel University, Philadelphia, PA, in 2008.
-
-From 2001 to 2004, he was a Research Assistant with the Princeton Plasma
-Physics Laboratory. Since 2009, he has been an Assistant Professor with the
-Mechanical Engineering Department, Texas A{\&}M University, College Station.
-He is the author of three books, more than 150 articles, and more than 70
-inventions. His research interests include high-pressure and high-density
-nonthermal plasma discharge processes and applications, microscale plasma
-discharges, discharges in liquids, spectroscopic diagnostics, plasma
-propulsion, and innovation plasma applications. He is an Associate Editor of
-the journal \emph{Earth, Moon, Planets}, and holds two patents.
-
-Dr. Author was a recipient of the International Association of Geomagnetism
-and Aeronomy Young Scientist Award for Excellence in 2008, and the IEEE
-Electromagnetic Compatibility Society Best Symposium Paper Award in 2011.
-\end{IEEEbiography}
-
-
-\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{author2.png}}]{Second B. Author} (M'76--SM'81--F'87) and all authors may include
-biographies. Biographies are often not included in conference-related
-papers. This author became a Member (M) of IEEE in 1976, a Senior
-Member (SM) in 1981, and a Fellow (F) in 1987. The first paragraph may
-contain a place and/or date of birth (list place, then date). Next,
-the author's educational background is listed. The degrees should be
-listed with type of degree in what field, which institution, city,
-state, and country, and year the degree was earned. The author's major
-field of study should be lower-cased.
-
-The second paragraph uses the pronoun of the person (he or she) and not the
-author's last name. It lists military and work experience, including summer
-and fellowship jobs. Job titles are capitalized. The current job must have a
-location; previous positions may be listed
-without one. Information concerning previous publications may be included.
-Try not to list more than three books or published articles. The format for
-listing publishers of a book within the biography is: title of book
-(publisher name, year) similar to a reference. Current and previous research
-interests end the paragraph.
-
-The third paragraph begins with the author's
-title and last name (e.g., Dr.\ Smith, Prof.\ Jones, Mr.\ Kajor, Ms.\ Hunter).
-List any memberships in professional societies other than the IEEE. Finally,
-list any awards and work for IEEE committees and publications. If a
-photograph is provided, it should be of good quality, and
-professional-looking. Following are two examples of an author's biography.
-\end{IEEEbiography}
-
-\newpage
-
-%If you do not have or do not want to include a photo, you can use IEEEbiographynophoto as shown below:
-
-\begin{IEEEbiographynophoto}{Third C. Author, Jr.} (M'87) received the B.S. degree in mechanical
-engineering from National Chung Cheng University, Chiayi, Taiwan, in 2004
-and the M.S. degree in mechanical engineering from National Tsing Hua
-University, Hsinchu, Taiwan, in 2006. He is currently pursuing the Ph.D.
-degree in mechanical engineering at Texas A{\&}M University, College
-Station, TX, USA.
-
-From 2008 to 2009, he was a Research Assistant with the Institute of
-Physics, Academia Sinica, Tapei, Taiwan. His research interest includes the
-development of surface processing and biological/medical treatment
-techniques using nonthermal atmospheric pressure plasmas, fundamental study
-of plasma sources, and fabrication of micro- or nanostructured surfaces.
-
-Mr. Author's awards and honors include the Frew Fellowship (Australian
-Academy of Science), the I. I. Rabi Prize (APS), the European Frequency and
-Time Forum Award, the Carl Zeiss Research Award, the William F. Meggers
-Award and the Adolph Lomb Medal (OSA).
-\end{IEEEbiographynophoto}
 
 \EOD
 
