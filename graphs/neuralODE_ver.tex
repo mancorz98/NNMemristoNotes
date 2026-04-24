@@ -1,23 +1,20 @@
 \begin{tikzpicture}[
     neuron/.style={circle, draw, minimum size=0.5cm},
-    layer/.style={rectangle, draw, minimum width=3cm, rounded corners, align=center},
+    layer/.style={rectangle, draw, minimum width=1.2cm, minimum height=3cm, rounded corners, align=center},
     arrow/.style={-{Stealth[scale=1.2]}, thick},
-    activation/.style={rectangle, draw, minimum height=0.7cm, minimum width=2cm, rounded corners, fill=orange!30},
+    activation/.style={rectangle, draw, minimum height=2cm, minimum width=0.7cm, rounded corners, fill=orange!30},
     node distance=1.5cm
     ]
 
-    % Define the layers (now vertical)
-    \node[layer, minimum height=1.2cm] (input) {Input Layer $(2)$};
-    %ZG replaced($\lfloor N/2 \rfloor$) by $(\lfloor N/2 \rfloor)$
-    \node[layer, minimum height=1.2cm, below=of input] (h1) {Hidden Layer $1$\\$(\lfloor N/2 \rfloor)$};
-    \node[activation, below=0.5cm of h1] (act1) {activation};
-    %ZG replaced "Hidden Layer 2..L-1" by "Hidden Layers $2,3\ldots,L\!-\!1""
-    \node[layer, minimum height=1.2cm, below=0.5cm of act1] (h2) {Hidden \changed[approved]{Layers $2,3,\ldots,L\!-\!1$}\\$(N)$};
-    \node[activation, below=0.5cm of h2] (act2) {activation};
-    %ZG replaced "L" by "$L$", replaced($\lfloor N/2 \rfloor$) by $(\lfloor N/2 \rfloor)$
-    \node[layer, minimum height=1.2cm, below=0.5cm of act2] (h3) {Hidden Layer \changed[approved]{$L$}\\$(\lfloor N/2 \rfloor)$};
-    \node[activation, below=0.5cm of h3] (act3) {activation};
-    \node[layer, minimum height=1.2cm, below=1cm of act3] (output) {Output Layer $(1)$};
+    % Define the layers (now horizontal)
+    \node[layer] (input) {Input\\Layer\\$(2)$};
+    \node[layer, right=of input] (h1) {Hidden\\Layer\\$1$\\$(\lfloor N/2 \rfloor)$};
+    \node[activation, right=0.5cm of h1] (act1) {\rotatebox{90}{activation}};
+    \node[layer, right=0.5cm of act1] (h2) {Hidden\\Layers\\$2,3,\ldots,$\\$L\!-\!1$\\$(N)$};
+    \node[activation, right=0.5cm of h2] (act2) {\rotatebox{90}{activation}};
+    \node[layer, right=0.5cm of act2] (h3) {Hidden\\Layer\\$L$\\$(\lfloor N/2 \rfloor)$};
+    \node[activation, right=0.5cm of h3] (act3) {\rotatebox{90}{activation}};
+    \node[layer, right=1cm of act3] (output) {Output\\Layer\\$(1)$};
 
     % Connect the layers
     \draw[arrow] (input) -- (h1);
@@ -29,6 +26,6 @@
     \draw[arrow] (act3) -- (output);
 
     % Add ODE block annotation
-    \node[draw, dashed, rounded corners, fit={(h1) (h2) (h3) (act1) (act2) (act3)}, inner sep=0.5cm, label=right:Neural ODE Block] {};
+    \node[draw, dashed, rounded corners, fit={(h1) (h2) (h3) (act1) (act2) (act3)}, inner sep=0.5cm, label=above:Neural ODE Block] {};
 
 \end{tikzpicture}
