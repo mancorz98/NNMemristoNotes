@@ -1,4 +1,4 @@
-\newcommand{\der}{{\rm d}}
+\newcommand{\der}{{\mathrm d}}
 \newcommand{\R}{\mathcal{R}}
 \newcommand{\C}{\mathcal{C}}
 \newcommand{\M}{\mathcal{M}}
@@ -6,43 +6,52 @@
 \newcommand{\Gm}{\mathcal{G}} %conductance
 \newcommand{\snum}{N} %sample number
 \newcommand{\sind}{n} %sample index
-\newcommand{\Ron}{R_{\rm ON}}
-\newcommand{\Roff}{R_{\rm OFF}}
-\newcommand{\von}{V_{\rm ON}}
-\newcommand{\voff}{V_{\rm OFF}}
+\newcommand{\ON}{{\text ON}}
+\newcommand{\OFF}{{\text OFF}}
+\newcommand{\Ron}{R_\ON}
+\newcommand{\Roff}{R_\OFF}
+\newcommand{\von}{V_\ON}
+\newcommand{\voff}{V_\OFF}
 \newcommand{\q}{q}
 \newcommand{\ua}{v}
 \newcommand{\ia}{i}
 \newcommand{\phia}{\varphi}
 \newcommand{\xw}{x}
-\newcommand{\dert}[1]{\frac{{\rm d} {#1}}{{\rm d} t} }
+\newcommand{\dert}[1]{\frac{{\mathrm d} {#1}}{{\mathrm d} t} }
 \newcommand{\inv}[1]{\frac{1}{#1} }
 \newcommand{\equal}{=}
 %ZG replaced \(V_s\) by \(V_{\mathrm s}\)
-\newcommand{\Vs}{V_{\rm s}}
-\newcommand{\vs}{v_{\rm s}}
-\newcommand{\vr}{v_{\rm r}}
+\newcommand{\Vs}{V_{\mathrm s}}
+\newcommand{\vs}{v_{\mathrm s}}
+\newcommand{\vr}{v_{\mathrm r}}
 %ZG2 replaced "v_{\mathrm m}" by "v", replaced "i_{\mathrm m}" by "i"
 \newcommand{\vm}{v}  % memristor voltage
 \newcommand{\im}{i}  % memristor current
-\newcommand{\imd}{i_{\rm md}} % memory dependent current
-\newcommand{\Rs}{R_{\rm s}}
-\newcommand{\Hz}{\,{\rm Hz}} %Herce powinny być raczej w normalnym foncie roman a nie matematycznym, ``z'' wygląda dziwnie
-\newcommand{\V}{\,{\rm V}} %podobnie wolty
-\newcommand{\Ohm}{\,\Omega} %podobnie wolty
-\newcommand{\kOhm}{\,{\rm k}\Omega}
-\newcommand{\mS}{\,{\rm mS}}
-\newcommand{\muS}{\,{\rm \mu S}}
+\newcommand{\imd}{i_{\mathrm md}} % memory dependent current
+\newcommand{\Rs}{R_{\mathrm s}}
+\newcommand{\Hz}{\,{\mathrm Hz}} %Herc
+\newcommand{\V}{\,{\mathrm V}} %wolt
+\newcommand{\Ohm}{\,\Omega}
+\newcommand{\kOhm}{\,{\mathrm k}\Omega}
+\newcommand{\mS}{\,{\mathrm mS}}
+\newcommand{\muS}{\,{\mathrm \mu S}}
 \newcommand{\Loss}{\mathcal{L}}
-\newcommand{\LossBase}{\Loss_{\rm b}}
-\newcommand{\LossVel}{\Loss_{\rm v}}
-\newcommand{\LossCur}{\Loss_{\rm c}}
+\newcommand{\LossBase}{\Loss_{\text{b}}}
+\newcommand{\LossVel}{\Loss_{\text{v}}}
+\newcommand{\LossCur}{\Loss_{\text{c}}}
+\newcommand{\LossCon}{\Loss_{\text{con}}}
+\newcommand{\LossConi}{\Loss_{\text{con},i}}
+\newcommand{\lambdaBase}{\lambda_{\text{b}}}
+\newcommand{\lambdaVel}{\lambda_{\text{v}}}
+\newcommand{\lambdaCur}{\lambda_{\text{c}}}
+\newcommand{\lambdaConi}{\lambda_{\text{con},i}}
 
 %ZG2 added next lines
 \newcommand{\MemODEOne}{SingleNN-MemODE}
 \newcommand{\MemODETwo}{DualNN-MemODE}
-\newcommand{\MSE}{\mathrm{MSE}}
-\newcommand{\NMSE}{\mathrm{NMSE}}
+\DeclareMathOperator{\MSE}{MSE}
+\DeclareMathOperator{\NMSE}{NMSE}
+%\DeclareMathOperator{\NMSE}{MSE_{N}}
 
 
 \newcommand{\redbar}{\protect\tikz[baseline=-0.1ex]\fill[ieeered] (0,0) rectangle (0.8em,1.2ex);}
@@ -54,3 +63,11 @@
 \newcommand\changed[2][pending]{%
   \ifthenelse{\equal{#1}{approved}}{#2}{{\color{blue}#2}}%
 }
+\newcommand\todo[2][pending]{%
+  \ifthenelse{\equal{#1}{approved}}{#2}{{\color{red}#2}}%
+}
+\newcommand\removed[2][pending]{%
+  \ifthenelse{\equal{#1}{approved}}{#2}{{\sout{{\color{red}#2}}}}%
+}
+\renewcommand\removed[2][pending]{}
+\newcommand\comment[1]{}
