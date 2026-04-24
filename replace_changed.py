@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """
-Remove LaTeX \\changed[approved]{...} commands while preserving content.
+Remove LaTeX \\changed[approved]{...} and \\removed[approved]{...} commands.
 
-This script processes LaTeX files to remove track-changes markup of the form
-\\changed[approved]{content}, replacing it with just the content. It properly
-handles nested braces within the content.
+\\changed[approved]{content} -> content (preserves content)
+\\removed[approved]{content} -> (deletes content entirely)
+
+Properly handles nested braces within the content.
 """
 
 import argparse
@@ -35,20 +36,23 @@ def find_matching_brace(text, start_pos):
     return pos if count == 0 else -1
 
 
-def remove_changed_approved(text):
+def remove_tracked_changes(text):
     """
-    Remove \\changed[approved]{...} preserving content and handling nested braces.
+    Remove \\changed[approved]{...} (keep content) and \\removed[approved]{...}
+    (discard content), handling nested braces.
 
     Args:
         text: Input LaTeX text
 
     Returns:
-        Modified text with \\changed[approved]{...} patterns removed
+        Tuple of (modified text, changed_count, removed_count)
     """
-    pattern = r"\\changed\[approved\]{"
+    # Combined pattern matching either command
+    pattern = r"\\(changed|removed)\[approved\]\{"
     result = []
     pos = 0
-    count = 0
+    changed_count = 0
+    removed_count = 0
 
     while pos < len(text):
         match = re.search(pattern, text[pos:])
@@ -59,6 +63,8 @@ def remove_changed_approved(text):
         # Add text before the match
         result.append(text[pos : pos + match.start()])
 
+        command = match.group(1)  # "changed" or "removed"
+
         # Find matching closing brace
         brace_start = pos + match.end()
         brace_end = find_matching_brace(text, brace_start)
@@ -68,19 +74,21 @@ def remove_changed_approved(text):
             result.append(match.group())
             pos = brace_start
         else:
-            # Extract content between braces
             content = text[brace_start : brace_end - 1]
-            result.append(content)
+            if command == "changed":
+                result.append(content)
+                changed_count += 1
+            else:  # removed
+                removed_count += 1
             pos = brace_end
-            count += 1
 
-    return "".join(result), count
+    return "".join(result), changed_count, removed_count
 
 
 def main():
     """Main entry point for the script."""
     parser = argparse.ArgumentParser(
-        description="Remove \\changed[approved]{...} commands from LaTeX files while preserving content.",
+        description="Remove \\changed[approved]{...} and \\removed[approved]{...} commands from LaTeX files.",
         epilog="""
 Examples:
   %(prog)s input.tex output.tex
@@ -144,7 +152,7 @@ Examples:
         sys.exit(1)
 
     # Process content
-    modified, count = remove_changed_approved(content)
+    modified, changed_count, removed_count = remove_tracked_changes(content)
 
     # Determine output path
     if args.inplace:
@@ -173,7 +181,8 @@ Examples:
     # Print summary
     if args.verbose or not args.inplace:
         print(f"Processed: {input_path} -> {output_path}")
-        print(f"Removed {count} \\changed[approved]{{...}} pattern(s)")
+        print(f"Removed {changed_count} \\changed[approved]{{...}} (content kept)")
+        print(f"Removed {removed_count} \\removed[approved]{{...}} (content deleted)")
 
 
 if __name__ == "__main__":
