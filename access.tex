@@ -305,7 +305,7 @@ This architectural configuration substantially decreases the overall number of t
   \label{fig:nn-arch}
 \end{figure}
 
-Several techniques are tested for the optimization of network weights and the \texttt{Adam} (Adaptive Moment Estimation) optimizer is selected due to its superior performance.
+Several techniques are tested for the optimization of network weights and the \changed{\texttt{NAdamW} (Nesterov Adam with decoupled weight decay)} optimizer is selected due to its superior performance.
 The choice of an optimizer and its parameters is guided by hyperparameter tuning conducted with the \texttt{Optuna} framework~\cite{Akiba2019}. The hyperparameter search space comprises the learning rate, weight decay, batch size, and architecture parameters like the width and the depth of the neural network.
 The optimal configuration is selected based on minimizing the objective function on the validation set, ensuring that the model generalizes well to unseen data.
 
@@ -367,7 +367,7 @@ The validation dataset contains the following pairs of supply voltages and frequ
 
 During the hyperparameter optimization stage, the optimal configuration of the \MemODEOne\ architecture found contains four hidden layers with 64, 128, 128, and 64 neurons in consecutive layers. The model is trained using the \texttt{AdamW} optimizer with a learning rate of approximately \(1.89 \cdot 10^{-2}\) and the batch size of 2. The swish activation function \(\varphi(x)=x\sigma(x)\) is employed for the hidden layers, while the final layer utilizes the linear activation function \(\varphi(x)=x\). 
 
-For the \MemODETwo\ architecture, the optimal neural network configuration responsible for computing \(f(\xvec,\ua)\) consists of four hidden layers with 120, 240, 240, and 120 neurons in consecutive layers and with 6 latent states, corresponding to the dimensionality of the internal state vector~\(\mathbf{x}\). The auxiliary neural network responsible for computing \(\G\) includes one hidden layer with 80 neurons. Both networks are trained using the \texttt{AdaBelief} optimizer with a learning rate of  \(6.3 \cdot 10^{-3}\) and the batch size of 14. The first neural network employs the \(\mathrm{GELU}\) activation function \(\varphi(x) = x \cdot \Phi(x)   \approx 0.5 x (1 + \tanh[\sqrt{2/\pi} (x + 0.044715 x^3)]) \) in the hidden layers and the linear activation in the output layer, whereas the second network uses the \(\mathrm{ReLU}\) activation function \(\varphi(x)=\max{}(0,x)\) with the \(\mathrm{sigmoid}\) output activation.
+For the \MemODETwo\ architecture, the optimal neural network configuration responsible for computing \(f(\xvec,\ua)\) consists of three hidden layers with 136, 272 and 136 neurons in consecutive layers, with 6 latent states corresponding to the dimensionality of the internal state vector~\(\mathbf{x}\). The auxiliary neural network responsible for computing \(\G\) includes two hidden layers with 320 neurons. Both networks are trained using the \texttt{NAdamW} optimizer with a learning rate of \(7 \cdot 10^{-3}\) and a batch size of 2. Both neural networks employ the \(\mathrm{GELU}\) activation function \(\varphi(x) = x \cdot \Phi(x) \approx 0.5 x (1 + \tanh[\sqrt{2/\pi} (x + 0.044715 x^3)]) \) in the hidden layers, whereas the first network uses a \(\mathrm{linear}\) output activation function, and the second network uses the \(\mathrm{sigmoid}\) output activation.
 %
 
 A representative learning curve corresponding to the \MemODEOne\ architecture, is presented in Fig.~\ref{fig:learning-curve}.
@@ -576,14 +576,7 @@ As a complementary approach, permutation importance~\cite{Altmann2010} is applie
 
 
 
-Results of the sensitivity analysis are presented in Fig.~\ref{fig:hyperparameter_importance}.
-According to the XGBoost Gain approach the dominant hyperparameters are
-the number of epochs,
-the gradient clipping value  (the maximum allowable gradient norm),
-the ANN-\(f\) depth (the depth of the neural network used to approximate \(f(\xvec,\ua)\)), and
-the number of latent states, 
-with the relative importance scores of 0.47, 0.27, 0.12, and 0.06, respectively. 
-Collectively, the four most significant parameters account for more than 90\% of the total observed performance variance.
+Results of the sensitivity analysis are presented in Fig.~\ref{fig:hyperparameter_importance}. According to the XGBoost Gain approach the dominant hyperparameters are the number of epochs, the gradient clipping value  (the maximum allowable gradient norm), the ANN-\(f\) depth (the depth of the neural network used to approximate \(f(\xvec,\ua)\)), and the number of latent states, with the relative importance scores of 0.47, 0.27, 0.12, and 0.06, respectively. Collectively, the four most significant parameters account for more than 90\% of the total observed performance variance.
 
 The permutation importance approach identifies the following four most dominant hyperparameters: [approved]{influencing model performance:} the learning rate, the gradient clipping value, the number of epochs, and the ANN-\(\mathcal{G}\) depth (the depth of the neural network used to approximate \(\mathcal{G}(\mathbf{x})\)).
 Their relative importance scores are 0.27, 0.24, 0.19, and 0.19, respectively.
@@ -601,8 +594,27 @@ Summarizing, the most important hyperparameters are identified as the number of 
   \label{fig:hyperparameter_importance}
 \end{figure}
 
-The mean values of the validation loss obtained during the hyperparameter optimization procedure for selected hyperparameters are presented in Fig.~\ref{fig:categorical_hyperparameters}. The figure summarizes the influence of the number of latent states, the optimizer type, and the activation functions employed in the two neural networks constituting the \MemODETwo\ architecture. For each case, the reported mean is computed by marginalizing over all remaining hyperparameters, while the corresponding \(95\%\) \changed{bootstrap} confidence  intervals are indicated by error bars. This analysis highlights the relative sensitivity of the model performance to discrete architectural and training-strategy choices.
-\changed{The results indicate that the number of latent states has a moderate effect on model performance. Configurations with 1 to 4 latent states yield comparable validation loss, while increasing the number beyond 4 leads to a noticeable degradation, likely due to overfitting or increased optimization difficulty (Fig.~\ref{fig:categorical_hyperparameters}a). Among the considered optimizers, AdaBelief achieves the lowest mean validation loss, while Adam performs notably worse (Fig.~\ref{fig:categorical_hyperparameters}b). For the activation functions, \(\tanh\) consistently yields the best results in both ANN-\(f\) and ANN-\(\G\) networks (Fig.~\ref{fig:categorical_hyperparameters}c,d). However, while these discrete choices produce visible differences in mean performance, their relative importance remains low compared to the dominant hyperparameters identified in Fig.~\ref{fig:hyperparameter_importance} (number of epochs, gradient clipping, and learning rate), which together account for the majority of performance variance.}
+\changed{The sensitivity of the validation loss to individual discrete hyperparameters is
+assessed via a one-at-a-time sweep around the optimal configuration identified during
+hyperparameter optimization. In each panel of Fig.~\ref{fig:categorical_hyperparameters},
+a single hyperparameter is varied while all others are held at their optimal values; the
+vertical axis reports the relative deviation
+$(\mathcal{L}_b - \mathcal{L}_b^{\mathrm{opt}})/\mathcal{L}_b^{\mathrm{opt}}$,
+with the optimum at zero and diverged configurations marked by red bars.}
+
+\changed{The results reveal that the number of latent states exhibits a clear threshold: one
+state diverges and two states yield a loss ${\approx}506\times$ above the optimum, whereas
+three or more states all perform within one order of magnitude, with six providing the best
+result (Fig.~\ref{fig:categorical_hyperparameters}a). All four optimizers converge, with
+NAdamW achieving the lowest loss, followed by Adam ($2.1\times$) and AdamW ($2.9\times$)
+(Fig.~\ref{fig:categorical_hyperparameters}b). The two sub-networks differ markedly in
+activation-function sensitivity: ANN-$f$ is the more fragile component, with four of nine
+candidates diverging entirely, while ANN-$\mathcal{G}$ tolerates seven of nine, though a
+linear activation degrades performance by ${\approx}170\times$
+(Fig.~\ref{fig:categorical_hyperparameters}c,d). GELU and SiLU emerge as the
+top-performing activations for both networks. While these discrete choices can introduce
+order-of-magnitude differences, their overall importance remains secondary to the dominant
+continuous hyperparameters identified in Fig.~\ref{fig:hyperparameter_importance}.}
 
 
 \todo{What are the conlusions from this analysis and results shown in Fig.~9. Either add some explanations or remove. And first of all explain it to me :-).}
@@ -611,19 +623,22 @@ The mean values of the validation loss obtained during the hyperparameter optimi
 
 \begin{figure}[!t]
   \subfloat[\label{1a3}]{%
-    \includegraphics[width=0.48\linewidth]{hyper_params_figs/params_latent_states_barplot.pdf}%
+    \includegraphics[width=0.48\linewidth]{hyper_params_figs/sweep_latent_states_barplot.pdf}%
   }
   \subfloat[\label{1b3}]{%
-    \includegraphics[width=0.48\linewidth]{hyper_params_figs/params_optimizer_barplot.pdf}%
+    \includegraphics[width=0.48\linewidth]{hyper_params_figs/sweep_optimizer_barplot.pdf}%
   }
 
   \subfloat[\label{1c3}]{%
-    \includegraphics[width=0.48\linewidth]{hyper_params_figs/params_mlpx_activation_barplot.pdf}%
+    \includegraphics[width=0.48\linewidth]{hyper_params_figs/sweep_mlpx_activation_barplot.pdf}%
   }
   \subfloat[\label{1d3}]{%
-    \includegraphics[width=0.48\linewidth]{hyper_params_figs/params_mlpg_activation_barplot.pdf}%
+    \includegraphics[width=0.48\linewidth]{hyper_params_figs/sweep_mlpg_activation_barplot.pdf}%
   }
-  \caption{Validation loss obtained during hyperparameter optimization for selected hyperparameters: (a) number of latent states, (b) optimizer type for the first neural network, (c) activation function for the neural network used to approximate \(f(\xvec,\ua)\), and (d) activation function for the neural network used to approximate \(\G(\xvec)\). Mean values are computed by averaging over all other hyperparameters, with error bars indicating the \(95\%\) \changed{bootstrap} confidence interval.}
+  \caption{\changed{One-at-a-time sensitivity of the validation loss around the optimal
+  configuration: (a)~number of latent states, (b)~optimizer, (c)~activation function of
+  ANN-$f$, and (d)~activation function of ANN-$\mathcal{G}$. The vertical axis shows
+  relative deviation from $\mathcal{L}_b^{\mathrm{opt}}$; diverged runs by  red bars.}}
   \label{fig:categorical_hyperparameters}
 \end{figure}
 
