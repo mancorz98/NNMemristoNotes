@@ -21,7 +21,7 @@ jobs:
       - name: Compile LaTeX document
         uses: xu-cheng/latex-action@v4
         with:
-          root_file: acces.tex
+          root_file: access.tex
           latexmk_shell_escape: true
           os: debian
 
@@ -29,14 +29,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: PDF
-          path: acces.pdf
+          path: access.pdf
 
       - name: Upload to orphan branch
         run: |
           DATE=$(date +"%Y-%m-%d %H:%M:%S")
-          PDF_PATH="${PWD}/acces.pdf"
+          PDF_PATH="${PWD}/access.pdf"
           COMMIT_MSG="${{ github.event.head_commit.message }}"
-          cp acces.pdf /tmp/manuscript.pdf
+          cp access.pdf /tmp/manuscript.pdf
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 

@@ -22,7 +22,7 @@ jobs:
       - name: Compile LaTeX document
         uses: xu-cheng/latex-action@v4
         with:
-          root_file: acces.tex
+          root_file: access.tex
           latexmk_shell_escape: true
           os: debian
 
@@ -32,7 +32,7 @@ jobs:
           mkdir -p publication-package
 
           # Copy the compiled PDF
-          cp acces.pdf publication-package/
+          cp access.pdf publication-package/
 
           # Copy all .tex files (main document and any included files)
           find . -maxdepth 3 -name "*.tex" -not -path "*/\.*" -exec cp --parents {} publication-package/ \;
@@ -42,7 +42,7 @@ jobs:
 
           # Copy image files (common formats)
           find . -maxdepth 3 \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.pdf" -o -name "*.eps" -o -name "*.svg" \) \
-            -not -path "*/\.*" -not -name "acces.pdf" -exec cp --parents {} publication-package/ \;
+            -not -path "*/\.*" -not -name "access.pdf" -exec cp --parents {} publication-package/ \;
 
           # Copy style files and class files if present
           find . -maxdepth 2 \( -name "*.sty" -o -name "*.cls" \) -not -path "*/\.*" -exec cp --parents {} publication-package/ \;
@@ -70,7 +70,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: PDF
-          path: acces.pdf
+          path: access.pdf
 
       - name: Upload to orphan branch
         run: |
@@ -78,7 +78,7 @@ jobs:
           COMMIT_MSG="${{ github.event.head_commit.message }}"
 
           # Copy files to temp
-          cp acces.pdf /tmp/manuscript.pdf
+          cp access.pdf /tmp/manuscript.pdf
           cp publication-package.zip /tmp/publication-package.zip
 
           # Configure git
