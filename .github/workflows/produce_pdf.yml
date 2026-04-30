@@ -6,7 +6,7 @@ on:
   pull_request:
     branches:
       - main
-    types: [closed] # Only when PR is closed
+    types: [ closed ] # Only when PR is closed
 
 permissions:
   contents: write # This allows pushing to the repo
@@ -21,7 +21,7 @@ jobs:
       - name: Compile LaTeX document
         uses: xu-cheng/latex-action@v4
         with:
-          root_file: main_ieee.tex
+          root_file: acces.tex
           latexmk_shell_escape: true
           os: debian
 
@@ -29,14 +29,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: PDF
-          path: main_ieee.pdf
+          path: acces.pdf
 
       - name: Upload to orphan branch
         run: |
           DATE=$(date +"%Y-%m-%d %H:%M:%S")
-          PDF_PATH="${PWD}/main_ieee.pdf"
+          PDF_PATH="${PWD}/acces.pdf"
           COMMIT_MSG="${{ github.event.head_commit.message }}"
-          cp main_ieee.pdf /tmp/manuscript.pdf
+          cp acces.pdf /tmp/manuscript.pdf
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
@@ -65,8 +65,6 @@ jobs:
             --notes "Auto-generated PDF from orphan branch\nCommit: ${COMMIT_MSG}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      
       # Optional: Upload to Google Drive
       # - name: Upload to gdrive
       #   uses: adityak74/google-drive-upload-git-action@main
