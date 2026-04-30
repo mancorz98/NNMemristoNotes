@@ -71,7 +71,7 @@ Memristor modeling, artificial neural network, neural ODE.
 
 \section{Introduction}
 \label{sec:introduction}
-\PARstart{N}{umerous} \todo{The use of PARstart is described in the template} memristor models have been proposed in the scientific literature following the discovery of memristive behavior at the nanoscale. The original model, introduced in~\cite{Strukov2008}, conceptualizes the memristor as a series connection of two variable resistances corresponding to the conductive and insulating regions of the thin film.
+\PARstart{N}{umerous}  memristor models have been proposed in the scientific literature following the discovery of memristive behavior at the nanoscale. The original model, introduced in~\cite{Strukov2008}, conceptualizes the memristor as a series connection of two variable resistances corresponding to the conductive and insulating regions of the thin film.
 
 Yakopcic et al.~\cite{Yakopcic2011} developed a generalized memristor device model that captures the hyperbolic sine I-V relationship arising from metal-insulator-metal (MIM) structures, while incorporating voltage-dependent programming thresholds and polarity-asymmetric dynamics. In \cite{Kvatinsky2013}, the authors proposed the \textit{TEAM} (ThrEshold Adaptive Memristor) model, which introduces a threshold-based approach to capture the switching behavior of memristors. The model defines distinct voltage thresholds for the SET and RESET operations, allowing for more accurate representation of the device's non-linear dynamics during state transitions. In \cite{Kvatinsky2015}, the \textit{VTEAM} (Voltage ThrEshold Adaptive Memristor) model extends the TEAM framework by incorporating voltage-dependent dynamics, enabling improved modeling of memristor behavior under varying voltage conditions. Both models have been widely adopted for simulating memristive devices in various applications.
 
@@ -305,7 +305,7 @@ This architectural configuration substantially decreases the overall number of t
   \label{fig:nn-arch}
 \end{figure}
 
-Several techniques are tested for the optimization of network weights and the \changed{\texttt{NAdamW} (Nesterov Adam with decoupled weight decay)} optimizer is selected due to its superior performance.
+Several techniques are tested for the optimization of network weights and the \texttt{NAdamW} (Nesterov Adam with decoupled weight decay) optimizer is selected due to its superior performance.
 The choice of an optimizer and its parameters is guided by hyperparameter tuning conducted with the \texttt{Optuna} framework~\cite{Akiba2019}. The hyperparameter search space comprises the learning rate, weight decay, batch size, and architecture parameters like the width and the depth of the neural network.
 The optimal configuration is selected based on minimizing the objective function on the validation set, ensuring that the model generalizes well to unseen data.
 
@@ -543,7 +543,7 @@ The superior performance of the neural network model can be attributed to its ca
 It should be noted that the proposed Neural ODE models, as well as the MMS and GMMS baselines, are deterministic in nature and therefore cannot capture the inherently stochastic aspects of memristor switching. As visible in Fig.~\ref{fig:sample-results}(c), localised deviations between the predicted and measured hysteresis loops are most pronounced in the vicinity of the switching transitions, where cycle-to-cycle variability in the physical device is largest. This is an intrinsic limitation of any deterministic modelling framework applied to a stochastic device: the model converges to the mean trajectory, and residual errors in the switching region reflect the irreducible variance of the physical process rather than a systematic modelling deficiency. Moreover, the switching transitions occupy only a small fraction of the total measurement duration---the device spends the majority of each cycle in the quasi-static HRS or LRS regions, where the voltage changes slowly and the resistance remains approximately constant. Consequently, the number of samples falling within the narrow switching intervals is substantially smaller than the number of samples in the non-switching portions of the trajectory. The trajectory-averaged loss function \(\LossBase\) is therefore naturally dominated by the fitting quality in the more densely sampled regions, which may attenuate the contribution of the sparsely sampled switching transients. Despite this, the Neural ODE models achieve lower \(\LossBase\) values than MMS and GMMS  indicating that the global fit is consistently superior even in the presence of these localised switching-region deviations.
 
 While the neural ODE models employ a larger number of trainable parameters compared to the MMS and GMMS formulations, the improved accuracy cannot be attributed solely to increased model capacity. The key methodological distinction lies in the training paradigm: the proposed models are optimized  via adjoint sensitivity methods,
-\removed[approved]{where gradients of the entire ODE trajectory are computed  through the adjoint equation solved backward in time. This}
+
 which enables simultaneous optimization of all parameters within a single, unified procedure. In contrast, the  MMS and GMMS models require a two-stage optimization strategy---an initial computationally expensive global search over the parameter space followed by local gradient-based refinement---which is prone to sensitivity with respect to the initial parameter estimates and may converge to suboptimal solutions. Furthermore, the neural ODE framework eliminates the need for manually specified window functions, voltage threshold values, and switching rules.
 
 The state variable dynamics are learned directly from experimental data without imposing assumptions about the functional form of the drift velocity or the boundary enforcement mechanism. This flexibility comes at the cost of reduced physical interpretability: while the MMS model parameters (e.g., \(\Ron\), \(\Roff\), \(\von\), \(\voff\)) carry direct physical meaning, the weights of a neural network do not admit such interpretation. However, the \MemODEOne\ architecture partially preserves interpretability by retaining the physically motivated memductance formulation of Eq.~\eqref{eq:conductance}, with \(\Ron\) and \(\Roff\) optimized jointly with the network parameters.
@@ -555,13 +555,11 @@ Computations are carried out using a 3.5 GHz Intel i9-9900X processor.
 The median training duration for the \MemODEOne\ and \MemODETwo\ architectures is approximately 11.3 minutes and 13.8 minutes, respectively. 
 % when utilizing a CPU (Intel i9-9900X with a clock speed of 3.5 GHz and 10 cores)
 The median computational time necessary for parameter optimization of the MMS and GMMS models is approximately 20.4 minutes and 8.4 minutes, respectively. 
-\todo{Add a comment that computation times for all methods are of the same order of magnitude and explain (if possible) why the more complex GMMS model has the shortest optimization time.}
-\changed{The optimization times for all considered methods are of the same order of magnitude. The shorter optimization time of the GMMS model, despite its larger parameter space, can be attributed to better numerical conditioning of the forward problem --- the MMS model more frequently encounters stiff regimes during integration, increasing the computational cost per function evaluation.}
+The optimization times for all considered methods are of the same order of magnitude. The shorter optimization time of the GMMS model, despite its larger parameter space, can be attributed to better numerical conditioning of the forward problem --- the MMS model more frequently encounters stiff regimes during integration, increasing the computational cost per function evaluation.
 
 
 
-The computation time \changed{needed for the generation of 18 trajectories} using the MMS \changed{and GMMS models is approximately 0.047 seconds and 0.051 seconds, respectively}. In contrast, the \MemODETwo\ architecture needs approximately 3.97 seconds, while the \MemODEOne\ architecture requires approximately 5.56 seconds to generate \changed{the same set of trajectories}. The neural network models are integrated numerically using a relative error tolerance of~\(10^{-3}\) and an absolute error tolerance of~\(10^{-6}\). \changed{The significantly longer evaluation time of the proposed architectures is a consequence of the computational cost of neural network inference at each integration step of the ODE solver, whereas the analytical models evaluate inexpensive closed-form expressions.}
-\todo{Add a comment that the evaluation time for the proposed method is much slower that for the existing methods.}
+The computation time needed for the generation of 18 trajectories using the MMS and GMMS models is approximately 0.047 seconds and 0.051 seconds, respectively. In contrast, the \MemODETwo\ architecture needs approximately 3.97 seconds, while the \MemODEOne\ architecture requires approximately 5.56 seconds to generate the same set of trajectories. The neural network models are integrated numerically using a relative error tolerance of~\(10^{-3}\) and an absolute error tolerance of~\(10^{-6}\). The significantly longer evaluation time of the proposed architectures is a consequence of the computational cost of neural network inference at each integration step of the ODE solver, whereas the analytical models evaluate inexpensive closed-form expressions.
 
 \subsection{Hyperparameter Sensitivity Analysis}
 
@@ -582,7 +580,7 @@ The permutation importance approach identifies the following four most dominant 
 Their relative importance scores are 0.27, 0.24, 0.19, and 0.19, respectively.
 
 Summarizing, the most important hyperparameters are identified as the number of epochs, the gradient clipping value, the learning rate, depths of neural networks and the number of latent states. Widths of neural networks, the batch size and the step length have moderate influence. 
-  Other hyperparameters have negligible effects of the model performance. \removed[approved]{: the choice of activation and output functions, and the optimizer type.} For example, the choice of activation function exhibits a negligible effect (importance score below \(0.01\)).
+  Other hyperparameters have negligible effects of the model performance.  For example, the choice of activation function exhibits a negligible effect (importance score below \(0.01\)).
   
   
 \begin{figure}[htbp]
@@ -594,30 +592,26 @@ Summarizing, the most important hyperparameters are identified as the number of 
   \label{fig:hyperparameter_importance}
 \end{figure}
 
-\changed{The sensitivity of the validation loss to individual discrete hyperparameters is
+The sensitivity of the validation loss to individual discrete hyperparameters is
 assessed via a one-at-a-time sweep around the optimal configuration identified during
 hyperparameter optimization. In each panel of Fig.~\ref{fig:categorical_hyperparameters},
 a single hyperparameter is varied while all others are held at their optimal values; the
 vertical axis reports the relative deviation
-$(\mathcal{L}_b - \mathcal{L}_b^{\mathrm{opt}})/\mathcal{L}_b^{\mathrm{opt}}$,
-with the optimum at zero and diverged configurations marked by red bars.}
+\((\mathcal{L}_\mathrm{b} - \mathcal{L}_\mathrm{b}^{\mathrm{opt}})/\mathcal{L}_\mathrm{b}^{\mathrm{opt}}\),
+with diverged configurations marked by red bars.
 
-\changed{The results reveal that the number of latent states exhibits a clear threshold: one
-state diverges and two states yield a loss ${\approx}506\times$ above the optimum, whereas
-three or more states all perform within one order of magnitude, with six providing the best
+The results reveal that the number of latent states exhibits a clear threshold: one
+state diverges and two state yield a large deviation of approximately 500, whereas
+three or more states all perform relatively well, with six providing the best
 result (Fig.~\ref{fig:categorical_hyperparameters}a). All four optimizers converge, with
-NAdamW achieving the lowest loss, followed by Adam ($2.1\times$) and AdamW ($2.9\times$)
+NAdamW achieving the lowest loss, followed by Adam and AdamW. SGD is the least effective, with a relative deviation of approximately 100.
 (Fig.~\ref{fig:categorical_hyperparameters}b). The two sub-networks differ markedly in
-activation-function sensitivity: ANN-$f$ is the more fragile component, with four of nine
-candidates diverging entirely, while ANN-$\mathcal{G}$ tolerates seven of nine, though a
-linear activation degrades performance by ${\approx}170\times$
-(Fig.~\ref{fig:categorical_hyperparameters}c,d). GELU and SiLU emerge as the
-top-performing activations for both networks. While these discrete choices can introduce
+activation-function sensitivity: ANN-\(f\) is the more fragile component, with four of nine
+candidates diverging, while ANN-\(\mathcal{G}\) tolerates seven of nine.
+(Fig.~\ref{fig:categorical_hyperparameters}c,d). GELU emerges as the top-performing activation for both networks. While these discrete choices can introduce
 order-of-magnitude differences, their overall importance remains secondary to the dominant
-continuous hyperparameters identified in Fig.~\ref{fig:hyperparameter_importance}.}
+continuous hyperparameters identified in Fig.~\ref{fig:hyperparameter_importance}.
 
-
-\todo{What are the conlusions from this analysis and results shown in Fig.~9. Either add some explanations or remove. And first of all explain it to me :-).}
 
 
 
@@ -635,10 +629,7 @@ continuous hyperparameters identified in Fig.~\ref{fig:hyperparameter_importance
   \subfloat[\label{1d3}]{%
     \includegraphics[width=0.48\linewidth]{hyper_params_figs/sweep_mlpg_activation_barplot.pdf}%
   }
-  \caption{\changed{One-at-a-time sensitivity of the validation loss around the optimal
-  configuration: (a)~number of latent states, (b)~optimizer, (c)~activation function of
-  ANN-$f$, and (d)~activation function of ANN-$\mathcal{G}$. The vertical axis shows
-  relative deviation from $\mathcal{L}_b^{\mathrm{opt}}$; diverged runs by  red bars.}}
+  \caption{Relative deviation from the optimal loss value $\mathcal{L}_\mathrm{b}^{\mathrm{opt}}$ around the optimal configuration: (a)~number of latent states, (b)~optimizer, (c)~activation function of ANN-\(f\), and (d)~activation function of ANN-\(\mathcal{G}\).  Diverged runs are marked by red bars.}
   \label{fig:categorical_hyperparameters}
 \end{figure}
 
