@@ -35,17 +35,21 @@ jobs:
           cp access.pdf publication-package/
 
           # Copy all .tex files (main document and any included files)
-          find . -maxdepth 3 -name "*.tex" -not -path "*/\.*" -exec cp --parents {} publication-package/ \;
+          find . -maxdepth 3 -name "*.tex" -not -path "*/\.*" -not -path "*/acces_template/*" -exec cp --parents {} publication-package/ \;
 
           # Copy bibliography files
-          find . -maxdepth 3 \( -name "*.bib" -o -name "*.bst" \) -not -path "*/\.*" -exec cp --parents {} publication-package/ \;
+          find . -maxdepth 3 \( -name "*.bib" -o -name "*.bst" \) -not -path "*/\.*" -not -path "*/acces_template/*" -exec cp --parents {} publication-package/ \;
 
           # Copy image files (common formats)
           find . -maxdepth 3 \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.pdf" -o -name "*.eps" -o -name "*.svg" \) \
-            -not -path "*/\.*" -not -name "access.pdf" -exec cp --parents {} publication-package/ \;
+            -not -path "*/\.*" -not -path "*/acces_template/*" -not -name "access.pdf" -exec cp --parents {} publication-package/ \;
 
           # Copy style files and class files if present
-          find . -maxdepth 2 \( -name "*.sty" -o -name "*.cls" \) -not -path "*/\.*" -exec cp --parents {} publication-package/ \;
+          find . -maxdepth 2 \( -name "*.sty" -o -name "*.cls" \) -not -path "*/\.*" -not -path "*/acces_template/*" -exec cp --parents {} publication-package/ \;
+
+          # Copy font files
+          find . -maxdepth 2 \( -name "*.pfb" -o -name "*.tfm" -o -name "*.map" -o -name "*.fd" \) \
+            -not -path "*/\.*" -not -path "*/acces_template/*" -exec cp --parents {} publication-package/ \;
 
           # # Copy README if it exists
           # [ -f README.md ] && cp README.md publication-package/
